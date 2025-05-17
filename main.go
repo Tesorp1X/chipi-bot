@@ -77,7 +77,7 @@ func main() {
 		dp,
 		fsmopt.On(tele.OnText),
 		fsmopt.OnStates(models.StateWaitForCheckName),
-		fsmopt.Do(handlers.ChecknameResponseHandler),
+		fsmopt.Do(handlers.CheckNameResponseHandler),
 	)
 
 	m.Bind(
@@ -85,6 +85,13 @@ func main() {
 		fsmopt.On(tele.OnCallback),
 		fsmopt.OnStates(fsm.AnyState),
 		fsmopt.Do(handlers.HandleCallbackAction),
+	)
+
+	m.Bind(
+		dp,
+		fsmopt.On(tele.OnText),
+		fsmopt.OnStates(models.StateWaitForItemName),
+		fsmopt.Do(handlers.ItemNameResponseHandler),
 	)
 
 	bot.Start()

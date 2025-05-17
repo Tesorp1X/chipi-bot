@@ -25,7 +25,7 @@ func NewCheckHandler(c tele.Context, state fsm.Context) error {
 	return c.Send("Хорошо, как назовем новый чек?👀")
 }
 
-func ChecknameResponseHandler(c tele.Context, state fsm.Context) error {
+func CheckNameResponseHandler(c tele.Context, state fsm.Context) error {
 	msgText := c.Text()
 	if len(msgText) == 0 {
 		return c.Send(models.ErrorCheckNameMustBeTxtMsg)
@@ -39,4 +39,18 @@ func ChecknameResponseHandler(c tele.Context, state fsm.Context) error {
 		"Пау <3", models.CallbackActionCheckOwner.String(), models.OWNER_PAU,
 	)
 	return c.Send("Хорошо. Кто заплатил?🤑", selector)
+}
+
+func ItemNameResponseHandler(c tele.Context, state fsm.Context) error {
+	msgText := c.Text()
+	if len(msgText) == 0 {
+		return c.Send(models.ErrorCheckNameMustBeTxtMsg)
+	}
+	state.Update(context.TODO(), models.ITEM_NAME, msgText)
+
+	if err := state.SetState(context.TODO(), models.StateWaitForItemPrice); err != nil {
+		return c.Send(models.ErrorSometingWentWrong)
+	}
+
+	return c.Send("Сколько это столо?")
 }

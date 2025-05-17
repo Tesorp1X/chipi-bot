@@ -5,6 +5,7 @@ const (
 	CHECK_NAME  = "check_name"
 	OWNER_LIZ   = "liz"
 	OWNER_PAU   = "pau"
+	ITEM_NAME   = "item_name"
 )
 
 // error msgs
