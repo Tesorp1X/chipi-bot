@@ -94,6 +94,13 @@ func main() {
 		fsmopt.Do(handlers.ItemNameResponseHandler),
 	)
 
+	m.Bind(
+		dp,
+		fsmopt.On(tele.OnText),
+		fsmopt.OnStates(models.StateWaitForItemPrice),
+		fsmopt.Do(handlers.ItemPriceResponseHandler),
+	)
+
 	bot.Start()
 	log.Println("Bot is operational!")
 }
