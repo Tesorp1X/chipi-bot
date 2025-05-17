@@ -3,6 +3,7 @@ package handlers
 import (
 	"context"
 	"log"
+	"strconv"
 
 	"github.com/Tesorp1X/chipi-bot/models"
 	"github.com/Tesorp1X/chipi-bot/util"
@@ -49,6 +50,43 @@ func HandleCallbackAction(c tele.Context, state fsm.Context) error {
 			return CancelHandler(c, state)
 		}
 		c.Send(msg)
+	case currentState == models.StateWaitForItemOwner && models.CallbackActionItemOwner.DataMatches(c.Callback().Data):
+		// state: [StateWaitForItemOwner]; saving item to [state.dataStorage] and asking if ther is one more item
+		itemOwner := util.ExtractDataFromCallback(c.Callback().Data, models.CallbackActionItemOwner)
+		var (
+			itemName  string
+			itemPrice int
+		)
+		errA := state.Data(context.Background(), models.ITEM_NAME, &itemName)
+		errB := state.Data(context.Background(), models.ITEM_PRICE, &itemPrice)
+
+		if errA != nil || errB != nil {
+			return c.Send(models.ErrorSometingWentWrong)
+		}
+		// todo: make []Item in storage and save item there.
+		msg := "Товар добавлен.\n"
+		switch itemOwner {
+		case models.OWNER_LIZ:
+			msg += "Заплатила Лиз💜\n"
+		case models.OWNER_PAU:
+			msg += "Заплатил Пау💙\n"
+		case models.OWNER_BOTH:
+			msg += "Товар общий💜💙\n"
+		}
+		msg += "Цена: " + strconv.Itoa(itemPrice) + "\n\n"
+		msg += "Еще товары?"
+
+		selector := models.CreateSelectorInlineKb(2,
+			models.Button{BtnTxt: "Да", Unique: models.HAS_MORE_ITEMS, Data: models.HAS_MORE_ITEMS_TRUE},
+			models.Button{BtnTxt: "Нет", Unique: models.HAS_MORE_ITEMS, Data: models.HAS_MORE_ITEMS_FALSE},
+		)
+
+		if err := state.SetState(context.TODO(), models.StateWaitForNewItem); err != nil {
+			c.Send(models.ErrorSetState)
+		}
+
+		return c.Send(msg, selector)
+
 	}
 
 	return nil
