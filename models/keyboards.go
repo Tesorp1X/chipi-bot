@@ -4,7 +4,8 @@ import (
 	tele "gopkg.in/telebot.v4"
 )
 
-func SelectorInlineKb(btnTxt1, unique1, data1, btnTxt2, unique2, data2 string) *tele.ReplyMarkup {
+// ReplyMarkup for selecting how owns a check
+func CheckOwnershipSelectorInlineKb(btnTxt1, unique1, data1, btnTxt2, unique2, data2 string) *tele.ReplyMarkup {
 	var (
 		// Universal markup builders.
 		selector = &tele.ReplyMarkup{}
