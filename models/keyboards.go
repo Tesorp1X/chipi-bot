@@ -4,6 +4,12 @@ import (
 	tele "gopkg.in/telebot.v4"
 )
 
+type Button struct {
+	BtnTxt string
+	Unique string
+	Data   string
+}
+
 // ReplyMarkup for selecting how owns a check
 func CheckOwnershipSelectorInlineKb(btnTxt1, unique1, data1, btnTxt2, unique2, data2 string) *tele.ReplyMarkup {
 	var (
@@ -50,4 +56,21 @@ func ItemOwnershipSelectorInlineKb(btnTxt1, unique1, data1, btnTxt2, unique2, da
 		selector.Row(btnMiddle),
 	)
 	return selector
+}
+
+// Selector kb factory
+func CreateSelectorInlineKb(btnsPerRow int, buttons ...Button) *tele.ReplyMarkup {
+	rowsOfButtons := []tele.Btn{}
+	for _, b := range buttons {
+		rowsOfButtons = append(rowsOfButtons, tele.Btn{
+			Text:   b.BtnTxt,
+			Unique: b.Unique,
+			Data:   b.Data,
+		})
+	}
+	rm := &tele.ReplyMarkup{}
+	rm.Inline(rm.Split(btnsPerRow, rowsOfButtons)...)
+	rm.OneTimeKeyboard = true
+
+	return rm
 }
