@@ -12,9 +12,13 @@ const (
 	ITEM_PRICE = "item_price"
 	ITEM_OWNER = "item_owner"
 
-	HAS_MORE_ITEMS       = "has_more_items"
 	HAS_MORE_ITEMS_TRUE  = "true"
 	HAS_MORE_ITEMS_FALSE = "false"
+)
+
+// storage keys
+const (
+	ITEMS_LIST = "items_list"
 )
 
 // error msgs
@@ -24,4 +28,5 @@ const (
 	ErrorSetState              = "Произошла ошибка при смене состояния."
 	ErrorNameMustBeTxtMsg      = "Название обязательно должно быть текстовым сообщением."
 	ErrorItemPriceMustBeIntMsg = "Цена должна быть целым числом без пробелов и других знаков (только цифры)."
+	ErrorItemsListNotFound     = "Ошибка, лист с покупками не найден."
 )
