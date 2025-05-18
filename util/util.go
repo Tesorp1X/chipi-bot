@@ -1,6 +1,7 @@
 package util
 
 import (
+	"strconv"
 	"strings"
 
 	"github.com/Tesorp1X/chipi-bot/models"
@@ -9,4 +10,36 @@ import (
 // Extracts data from [Callback.Data] by removing prefix '\f + CallbackAction + |'
 func ExtractDataFromCallback(data string, action models.CallbackAction) string {
 	return strings.TrimPrefix(data, "\f"+action.String()+"|")
+}
+
+func CreateItemsListResponse(itemsList ...models.Item) string {
+	var (
+		msg   string
+		no    int
+		total int
+		sumL  float64
+		sumP  float64
+	)
+
+	for i, item := range itemsList {
+		no = i + 1
+		msg += strconv.Itoa(no) + ") " + item.Name + " " + strconv.Itoa(item.Price) + " руб\n"
+
+		total += item.Price
+		switch item.Owner {
+		case models.OWNER_LIZ:
+			sumL += float64(item.Price)
+		case models.OWNER_PAU:
+			sumP += float64(item.Price)
+		default:
+			sumL += float64(item.Price) / 2
+			sumP += float64(item.Price) / 2
+		}
+	}
+
+	msg += "Лиз заплатила: " + strconv.FormatFloat(sumL, 'f', 2, 64) + " руб\n"
+	msg += "Пау заплатил: " + strconv.FormatFloat(sumP, 'f', 2, 64) + " руб\n"
+	msg += "Итого: " + strconv.Itoa(total) + " бублей."
+
+	return msg
 }

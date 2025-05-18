@@ -43,3 +43,25 @@ func TestExtractDataFromCallback(t *testing.T) {
 		})
 	}
 }
+
+func TestCreateItemsListResponse(t *testing.T) {
+	items := []models.Item{}
+	items = append(items,
+		models.Item{Name: "twix", Price: 79, Owner: models.OWNER_BOTH},
+		models.Item{Name: "Сырок", Price: 69, Owner: models.OWNER_PAU},
+		models.Item{Name: "Печенье", Price: 110, Owner: models.OWNER_LIZ},
+	)
+
+	want := `1) twix 79 руб
+2) Сырок 69 руб
+3) Печенье 110 руб
+Лиз заплатила: 149.50 руб
+Пау заплатил: 108.50 руб
+Итого: 258 бублей.`
+
+	got := util.CreateItemsListResponse(items...)
+
+	if got != want {
+		t.Errorf("Got:\n%s\n Wanted:\n%s", got, want)
+	}
+}
