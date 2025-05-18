@@ -63,6 +63,14 @@ func HandleCallbackAction(c tele.Context, state fsm.Context) error {
 		if errA != nil || errB != nil {
 			return c.Send(models.ErrorSometingWentWrong)
 		}
+
+		newItem := models.Item{Name: itemName, Price: itemPrice, Owner: itemOwner}
+		itemsList := []models.Item{}
+		state.Data(context.Background(), models.ITEMS_LIST, &itemsList)
+		itemsList = append(itemsList, newItem)
+		if err := state.Update(context.Background(), models.ITEMS_LIST, itemsList); err != nil {
+			c.Send(models.ErrorStateDataUpdate)
+		}
 		// todo: make []Item in storage and save item there.
 		msg := "Товар добавлен.\n"
 		switch itemOwner {
@@ -77,8 +85,8 @@ func HandleCallbackAction(c tele.Context, state fsm.Context) error {
 		msg += "Еще товары?"
 
 		selector := models.CreateSelectorInlineKb(2,
-			models.Button{BtnTxt: "Да", Unique: models.HAS_MORE_ITEMS, Data: models.HAS_MORE_ITEMS_TRUE},
-			models.Button{BtnTxt: "Нет", Unique: models.HAS_MORE_ITEMS, Data: models.HAS_MORE_ITEMS_FALSE},
+			models.Button{BtnTxt: "Да", Unique: models.CallbackActionHasNewItem.String(), Data: models.HAS_MORE_ITEMS_TRUE},
+			models.Button{BtnTxt: "Нет", Unique: models.CallbackActionHasNewItem.String(), Data: models.HAS_MORE_ITEMS_FALSE},
 		)
 
 		if err := state.SetState(context.TODO(), models.StateWaitForNewItem); err != nil {
@@ -87,6 +95,35 @@ func HandleCallbackAction(c tele.Context, state fsm.Context) error {
 
 		return c.Send(msg, selector)
 
+	case currentState == models.StateWaitForNewItem && models.CallbackActionHasNewItem.DataMatches(c.Callback().Data):
+
+		hasNewItems := util.ExtractDataFromCallback(c.Callback().Data, models.CallbackActionHasNewItem)
+		var (
+			msg      string = "Хорошо!\n"
+			newState fsm.State
+		)
+
+		switch hasNewItems {
+		case models.HAS_MORE_ITEMS_TRUE:
+			msg += "Название товара?👀"
+			newState = models.StateWaitForItemName
+		case models.HAS_MORE_ITEMS_FALSE:
+			// todo add list of items
+			msg += "Получился вот такой чек:\n"
+			itemsList := []models.Item{}
+			if err := state.Data(context.Background(), models.ITEMS_LIST, &itemsList); err == fsm.ErrNotFound {
+				state.Finish(context.Background(), true)
+				return c.Send(models.ErrorItemsListNotFound)
+			}
+			// todo: save to db here
+			msg += util.CreateItemsListResponse(itemsList...)
+			state.Finish(context.Background(), true)
+		}
+
+		if err := state.SetState(context.TODO(), newState); err != nil {
+			return c.Send(models.ErrorSetState)
+		}
+		return c.Send(msg)
 	}
 
 	return nil
