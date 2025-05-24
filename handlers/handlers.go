@@ -59,12 +59,12 @@ func ItemNameResponseHandler(c tele.Context, state fsm.Context) error {
 func ItemPriceResponseHandler(c tele.Context, state fsm.Context) error {
 	msgText := c.Text()
 	var (
-		price int
+		price float64
 		err   error
 	)
 
-	if price, err = strconv.Atoi(msgText); err != nil {
-		return c.Send(models.ErrorItemPriceMustBeIntMsg)
+	if price, err = strconv.ParseFloat(msgText, 64); err != nil {
+		return c.Send(models.ErrorItemPriceMustBeANumberMsg)
 	}
 	state.Update(context.TODO(), models.ITEM_PRICE, price)
 
