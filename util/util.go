@@ -16,14 +16,14 @@ func CreateItemsListResponse(itemsList ...models.Item) string {
 	var (
 		msg   string
 		no    int
-		total int
+		total float64
 		sumL  float64
 		sumP  float64
 	)
 
 	for i, item := range itemsList {
 		no = i + 1
-		msg += strconv.Itoa(no) + ") " + item.Name + " " + strconv.Itoa(item.Price) + " руб\n"
+		msg += strconv.Itoa(no) + ") " + item.Name + " " + strconv.FormatFloat(item.Price, 'f', 2, 64) + " руб\n"
 
 		total += item.Price
 		switch item.Owner {
@@ -39,7 +39,7 @@ func CreateItemsListResponse(itemsList ...models.Item) string {
 
 	msg += "Лиз заплатила: " + strconv.FormatFloat(sumL, 'f', 2, 64) + " руб\n"
 	msg += "Пау заплатил: " + strconv.FormatFloat(sumP, 'f', 2, 64) + " руб\n"
-	msg += "Итого: " + strconv.Itoa(total) + " бублей."
+	msg += "Итого: " + strconv.FormatFloat(total, 'f', 2, 64) + " бублей."
 
 	return msg
 }
