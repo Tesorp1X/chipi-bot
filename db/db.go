@@ -80,11 +80,37 @@ func createTable(db *sql.DB, name string, fields ...Field) error {
 	return nil
 }
 
-func CreateDB() (*sql.DB, error) {
+func InitDB() (*sql.DB, error) {
 	dsnURI := os.Getenv("DB_PATH")
 	db, err := sql.Open("sqlite3", dsnURI)
 	if err != nil {
 		log.Printf("error while opening db: %v", err)
+		return nil, err
+	}
+
+	sessionFields := []Field{
+		{
+			Name:         "id",
+			Type:         "INTEGER",
+			IsPrimeryKey: true,
+		},
+		{
+			Name: "opened_at",
+			Type: "TEXT", // time as text formated as dd.mm.yyyy hh:mm:ss
+
+		},
+		{
+			Name:       "closed_at",
+			Type:       "TEXT", // time as text formated as dd.mm.yyyy hh:mm:ss
+			IsNullable: true,
+		},
+		{
+			Name: "is_open",
+			Type: "TEXT", // bool value as string
+		},
+	}
+	if err = createTable(db, "session", sessionFields...); err != nil {
+		log.Printf("error couldn't create a db: %v", err)
 		return nil, err
 	}
 
@@ -96,12 +122,12 @@ func CreateDB() (*sql.DB, error) {
 		},
 		{
 			Name:       "Name",
-			Type:       "STRING",
+			Type:       "TEXT",
 			IsNullable: false,
 		},
 		{
 			Name:       "Owner",
-			Type:       "STRING",
+			Type:       "TEXT",
 			IsNullable: false,
 		},
 	}
@@ -126,15 +152,15 @@ func CreateDB() (*sql.DB, error) {
 		},
 		{
 			Name: "Name",
-			Type: "STRING",
+			Type: "TEXT",
 		},
 		{
 			Name: "Owner",
-			Type: "STRING",
+			Type: "TEXT",
 		},
 		{
 			Name: "Price",
-			Type: "FLOAT",
+			Type: "REAL",
 		},
 	}
 	if err = createTable(db, "items", itemsFeilds...); err != nil {
@@ -149,6 +175,46 @@ func CreateDB() (*sql.DB, error) {
 			IsPrimeryKey: true,
 		},
 		{
+			Name: "session_id",
+			Type: "INTEGER",
+
+			IsForeignKey: true,
+			RefTableName: "seesions",
+			RefFieldName: "id",
+		},
+		{
+			Name: "total",
+			Type: "REAL",
+		},
+		{
+			Name: "recipient",
+			Type: "TEXT",
+		},
+		{
+			Name: "amount",
+			Type: "REAL",
+		},
+	}
+	if err = createTable(db, "totals", totalsField...); err != nil {
+		log.Printf("error couldn't create a db: %v", err)
+		return nil, err
+	}
+
+	checksAndSessionsFields := []Field{
+		{
+			Name:         "id",
+			Type:         "INTEGER",
+			IsPrimeryKey: true,
+		},
+		{
+			Name: "session_id",
+			Type: "INTEGER",
+
+			IsForeignKey: true,
+			RefTableName: "seesions",
+			RefFieldName: "id",
+		},
+		{
 			Name: "check_id",
 			Type: "INTEGER",
 
@@ -156,20 +222,8 @@ func CreateDB() (*sql.DB, error) {
 			RefTableName: "checks",
 			RefFieldName: "id",
 		},
-		{
-			Name: "total",
-			Type: "FLOAT",
-		},
-		{
-			Name: "recipient",
-			Type: "STRING",
-		},
-		{
-			Name: "amount",
-			Type: "FLOAT",
-		},
 	}
-	if err = createTable(db, "totals", totalsField...); err != nil {
+	if err = createTable(db, "checks_and_sessions", checksAndSessionsFields...); err != nil {
 		log.Printf("error couldn't create a db: %v", err)
 		return nil, err
 	}
@@ -179,7 +233,7 @@ func CreateDB() (*sql.DB, error) {
 
 // adds a check in db and returns id of that chec if no error occured.
 func AddCheck(c *models.Check) (int64, error) {
-	db, err := CreateDB()
+	db, err := InitDB()
 	if err != nil {
 		return -1, err
 	}
@@ -205,7 +259,7 @@ func AddCheck(c *models.Check) (int64, error) {
 
 // adds items to db and returns whatever error happened
 func AddItems(items ...models.Item) error {
-	db, err := CreateDB()
+	db, err := InitDB()
 	if err != nil {
 		return err
 	}
