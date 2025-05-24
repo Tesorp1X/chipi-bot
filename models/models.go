@@ -1,7 +1,13 @@
 package models
 
-type Item struct {
+type Check struct {
 	Name  string
-	Price int
 	Owner string
+}
+
+type Item struct {
+	CheckId int64
+	Name    string
+	Owner   string
+	Price   float64
 }
