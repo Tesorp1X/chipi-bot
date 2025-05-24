@@ -5,6 +5,7 @@ import (
 	"log"
 	"strconv"
 
+	"github.com/Tesorp1X/chipi-bot/db"
 	"github.com/Tesorp1X/chipi-bot/models"
 	"github.com/Tesorp1X/chipi-bot/util"
 	"github.com/vitaliy-ukiru/fsm-telebot/v2"
@@ -35,6 +36,17 @@ func HandleCallbackAction(c tele.Context, state fsm.Context) error {
 		if err := state.Data(context.Background(), models.CHECK_NAME, &checkName); err != nil {
 			return c.Send(models.ErrorSometingWentWrong)
 		}
+		checkId, errDb := db.AddCheck(&models.Check{Name: checkName, Owner: checkOwner})
+		if errDb != nil {
+			state.Finish(context.TODO(), true)
+			state.SetState(context.TODO(), models.StateDefault)
+			return c.Send(models.ErrorSavingInDB)
+		}
+
+		if err := state.Update(context.Background(), models.CHECK_ID, checkId); err != nil {
+			return c.Send(models.ErrorStateDataUpdate)
+		}
+
 		msg := "Чек создан!😇\n"
 		switch checkOwner {
 		case models.OWNER_LIZ:
@@ -55,7 +67,7 @@ func HandleCallbackAction(c tele.Context, state fsm.Context) error {
 		itemOwner := util.ExtractDataFromCallback(c.Callback().Data, models.CallbackActionItemOwner)
 		var (
 			itemName  string
-			itemPrice int
+			itemPrice float64
 		)
 		errA := state.Data(context.Background(), models.ITEM_NAME, &itemName)
 		errB := state.Data(context.Background(), models.ITEM_PRICE, &itemPrice)
@@ -64,14 +76,17 @@ func HandleCallbackAction(c tele.Context, state fsm.Context) error {
 			return c.Send(models.ErrorSometingWentWrong)
 		}
 
-		newItem := models.Item{Name: itemName, Price: itemPrice, Owner: itemOwner}
+		var checkId int64
+		state.Data(context.Background(), models.CHECK_ID, &checkId)
+
+		newItem := models.Item{CheckId: checkId, Name: itemName, Price: itemPrice, Owner: itemOwner}
 		itemsList := []models.Item{}
 		state.Data(context.Background(), models.ITEMS_LIST, &itemsList)
 		itemsList = append(itemsList, newItem)
 		if err := state.Update(context.Background(), models.ITEMS_LIST, itemsList); err != nil {
 			c.Send(models.ErrorStateDataUpdate)
 		}
-		// todo: make []Item in storage and save item there.
+
 		msg := "Товар добавлен.\n"
 		switch itemOwner {
 		case models.OWNER_LIZ:
@@ -81,7 +96,7 @@ func HandleCallbackAction(c tele.Context, state fsm.Context) error {
 		case models.OWNER_BOTH:
 			msg += "Товар общий💜💙\n"
 		}
-		msg += "Цена: " + strconv.Itoa(itemPrice) + "\n\n"
+		msg += "Цена: " + strconv.FormatFloat(itemPrice, 'f', 2, 64) + "\n\n"
 		msg += "Еще товары?"
 
 		selector := models.CreateSelectorInlineKb(2,
@@ -115,7 +130,12 @@ func HandleCallbackAction(c tele.Context, state fsm.Context) error {
 				state.Finish(context.Background(), true)
 				return c.Send(models.ErrorItemsListNotFound)
 			}
-			// todo: save to db here
+
+			if err := db.AddItems(itemsList...); err != nil {
+				state.Finish(context.Background(), true)
+				return c.Send(models.ErrorSavingInDB)
+			}
+
 			msg += util.CreateItemsListResponse(itemsList...)
 			state.Finish(context.Background(), true)
 		}
