@@ -5,6 +5,7 @@ import (
 	"errors"
 	"log"
 	"os"
+	"time"
 
 	"github.com/Tesorp1X/chipi-bot/models"
 	_ "github.com/mattn/go-sqlite3"
@@ -96,12 +97,12 @@ func InitDB() (*sql.DB, error) {
 		},
 		{
 			Name: "opened_at",
-			Type: "TEXT", // time as text formated as dd.mm.yyyy hh:mm:ss
+			Type: "TEXT", // time as text formated as 2006-01-02 15:04:05
 
 		},
 		{
 			Name:       "closed_at",
-			Type:       "TEXT", // time as text formated as dd.mm.yyyy hh:mm:ss
+			Type:       "TEXT", // time as text formated as 2006-01-02 15:04:05
 			IsNullable: true,
 		},
 		{
@@ -109,7 +110,7 @@ func InitDB() (*sql.DB, error) {
 			Type: "TEXT", // bool value as string
 		},
 	}
-	if err = createTable(db, "session", sessionFields...); err != nil {
+	if err = createTable(db, "sessions", sessionFields...); err != nil {
 		log.Printf("error couldn't create a db: %v", err)
 		return nil, err
 	}
@@ -238,6 +239,7 @@ func AddCheck(c *models.Check) (int64, error) {
 		return -1, err
 	}
 	defer db.Close()
+
 	statement, err := db.Prepare("INSERT INTO checks (Name, Owner) VALUES (?, ?)")
 	if err != nil {
 		log.Printf("error while preparing query db: %v", err)
@@ -277,4 +279,52 @@ func AddItems(items ...models.Item) error {
 	}
 
 	return nil
+}
+
+func addNewSession() (int64, error) {
+	db, err := InitDB()
+	if err != nil {
+		return -1, err
+	}
+	defer db.Close()
+
+	statement, err := db.Prepare("INSERT INTO sessions (opened_at, is_open) VALUES (?, ?)")
+	if err != nil {
+		log.Printf("error while preparing query db: %v", err)
+		return -1, err
+	}
+
+	res, err := statement.Exec(time.Now().Format(time.DateTime), "true")
+	if err != nil {
+		log.Printf("error with executing the statement: %v", err)
+		return -1, err
+	}
+	id, err := res.LastInsertId()
+	if err != nil {
+		return -1, nil
+	}
+
+	return id, nil
+}
+
+func GetSessionId() (int64, error) {
+	db, err := InitDB()
+	if err != nil {
+		return -1, err
+	}
+	defer db.Close()
+
+	row := db.QueryRow(`SELECT id FROM sessions WHERE is_open = true`)
+	var id int64
+	err = row.Scan(&id)
+
+	if err == sql.ErrNoRows {
+		id, errAdd := addNewSession()
+		if errAdd != nil {
+			return -1, errAdd
+		}
+		return id, nil
+	}
+
+	return -1, err
 }
