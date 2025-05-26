@@ -307,6 +307,7 @@ func addNewSession() (int64, error) {
 	return id, nil
 }
 
+// Returns current session id. If there is no session open or present, then it's being created.
 func GetSessionId() (int64, error) {
 	db, err := InitDB()
 	if err != nil {
@@ -318,7 +319,7 @@ func GetSessionId() (int64, error) {
 	var (
 		id int64 = -1
 	)
-	//s := &Seesion{}
+
 	err = row.Scan(&id)
 
 	if err == sql.ErrNoRows {
@@ -332,6 +333,8 @@ func GetSessionId() (int64, error) {
 	return -1, err
 }
 
+// Finishes a session with given id. Means setting is_open to false
+// and closed_at to time.Now(DateTime).
 func FinishSession(id int64) error {
 	db, err := InitDB()
 	if err != nil {
@@ -339,8 +342,8 @@ func FinishSession(id int64) error {
 	}
 	defer db.Close()
 
-	sql := `UPDATE sessions SET is_open = ? WHERE id = ?`
-	_, err = db.Exec(sql, "true", id)
+	sql := `UPDATE sessions SET is_open = ?, closed_at = ? WHERE id = ?`
+	_, err = db.Exec(sql, "false", time.Now().Format(time.DateTime), id)
 	if err != nil {
 		return err
 	}
