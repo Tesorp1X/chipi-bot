@@ -339,4 +339,11 @@ func FinishSession(id int64) error {
 	}
 	defer db.Close()
 
+	sql := `UPDATE sessions SET is_open = ? WHERE id = ?`
+	_, err = db.Exec(sql, "true", id)
+	if err != nil {
+		return err
+	}
+
+	return nil
 }
