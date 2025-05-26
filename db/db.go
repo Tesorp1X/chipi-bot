@@ -314,8 +314,11 @@ func GetSessionId() (int64, error) {
 	}
 	defer db.Close()
 
-	row := db.QueryRow(`SELECT id FROM sessions WHERE is_open = true`)
-	var id int64
+	row := db.QueryRow(`SELECT id FROM sessions WHERE is_open = ?`, "true")
+	var (
+		id int64 = -1
+	)
+	//s := &Seesion{}
 	err = row.Scan(&id)
 
 	if err == sql.ErrNoRows {
@@ -327,4 +330,13 @@ func GetSessionId() (int64, error) {
 	}
 
 	return -1, err
+}
+
+func FinishSession(id int64) error {
+	db, err := InitDB()
+	if err != nil {
+		return err
+	}
+	defer db.Close()
+
 }
