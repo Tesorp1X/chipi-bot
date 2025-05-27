@@ -11,3 +11,38 @@ type Item struct {
 	Owner   string
 	Price   float64
 }
+
+type CheckWithItems struct {
+	Id    int64
+	check Check
+	items []Item
+}
+
+func (c *CheckWithItems) GetCheckName() string {
+	return c.check.Name
+}
+
+func (c *CheckWithItems) GetCheckOwner() string {
+	return c.check.Owner
+}
+
+func (c *CheckWithItems) GetItems() []Item {
+	return c.items
+}
+
+func (c *CheckWithItems) SetCheckName(name string) {
+	c.check.Name = name
+}
+
+func (c *CheckWithItems) SetCheckOwner(owner string) {
+	c.check.Owner = owner
+}
+
+func (c *CheckWithItems) SetCheck(check *Check) {
+	c.check.Name = check.Name
+	c.check.Owner = check.Owner
+}
+
+func (c *CheckWithItems) SetItems(items []Item) {
+	c.items = items
+}
