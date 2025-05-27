@@ -7,6 +7,7 @@ import (
 	"time"
 
 	"github.com/Tesorp1X/chipi-bot/handlers"
+	"github.com/Tesorp1X/chipi-bot/middlewares"
 	"github.com/Tesorp1X/chipi-bot/models"
 
 	"github.com/vitaliy-ukiru/fsm-telebot/v2"
@@ -69,6 +70,7 @@ func main() {
 		m.New(
 			fsmopt.On("/newcheck"),
 			fsmopt.OnStates(fsm.AnyState),
+			fsmopt.Use(middlewares.AutoSessionAssigner),
 			fsmopt.Do(handlers.NewCheckHandler),
 		),
 	)

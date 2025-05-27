@@ -23,6 +23,13 @@ func NewCheckHandler(c tele.Context, state fsm.Context) error {
 	if err := state.SetState(context.TODO(), models.StateWaitForCheckName); err != nil {
 		return c.Send(models.ErrorSometingWentWrong)
 	}
+	val, ok := c.Get(models.SESSION_ID).(int64)
+	if !ok {
+		return c.Send(models.ErrorSometingWentWrong)
+	}
+	if err := state.Update(context.Background(), models.SESSION_ID, val); err != nil {
+		return c.Send(models.ErrorStateDataUpdate)
+	}
 	return c.Send("Хорошо, как назовем новый чек?👀")
 }
 

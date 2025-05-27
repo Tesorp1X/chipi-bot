@@ -36,7 +36,11 @@ func HandleCallbackAction(c tele.Context, state fsm.Context) error {
 		if err := state.Data(context.Background(), models.CHECK_NAME, &checkName); err != nil {
 			return c.Send(models.ErrorSometingWentWrong)
 		}
-		checkId, errDb := db.AddCheck(&models.Check{Name: checkName, Owner: checkOwner})
+		var sessionId int64
+		if err := state.Data(context.Background(), models.SESSION_ID, &sessionId); err != nil {
+			return c.Send(models.ErrorSometingWentWrong)
+		}
+		checkId, errDb := db.AddCheck(&models.Check{Name: checkName, Owner: checkOwner}, sessionId)
 		if errDb != nil {
 			state.Finish(context.TODO(), true)
 			state.SetState(context.TODO(), models.StateDefault)
