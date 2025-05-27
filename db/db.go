@@ -232,8 +232,24 @@ func InitDB() (*sql.DB, error) {
 	return db, nil
 }
 
+// Creates a record in checks and sessions db.
+func bindSessionAndCheck(db *sql.DB, sessionId, checkId int64) error {
+	sql := `INSERT INTO checks_and_sessions (session_id, check_id) VALUES (?, ?)`
+	statement, err := db.Prepare(sql)
+	if err != nil {
+		log.Printf("error while preparing query db: %v", err)
+		return err
+	}
+	_, err = statement.Exec(sessionId, checkId)
+	if err != nil {
+		log.Printf("error with executing the statement: %v", err)
+		return err
+	}
+	return nil
+}
+
 // adds a check in db and returns id of that chec if no error occured.
-func AddCheck(c *models.Check) (int64, error) {
+func AddCheck(c *models.Check, sessionId int64) (int64, error) {
 	db, err := InitDB()
 	if err != nil {
 		return -1, err
@@ -255,7 +271,10 @@ func AddCheck(c *models.Check) (int64, error) {
 	if err != nil {
 		return -1, nil
 	}
-
+	if err := bindSessionAndCheck(db, sessionId, id); err != nil {
+		log.Printf("error binding check with session: %v", err)
+		return id, err
+	}
 	return id, nil
 }
 
@@ -281,13 +300,7 @@ func AddItems(items ...models.Item) error {
 	return nil
 }
 
-func addNewSession() (int64, error) {
-	db, err := InitDB()
-	if err != nil {
-		return -1, err
-	}
-	defer db.Close()
-
+func addNewSession(db *sql.DB) (int64, error) {
 	statement, err := db.Prepare("INSERT INTO sessions (opened_at, is_open) VALUES (?, ?)")
 	if err != nil {
 		log.Printf("error while preparing query db: %v", err)
@@ -323,14 +336,14 @@ func GetSessionId() (int64, error) {
 	err = row.Scan(&id)
 
 	if err == sql.ErrNoRows {
-		id, errAdd := addNewSession()
+		id, errAdd := addNewSession(db)
 		if errAdd != nil {
 			return -1, errAdd
 		}
 		return id, nil
 	}
 
-	return -1, err
+	return id, err
 }
 
 // Finishes a session with given id. Means setting is_open to false

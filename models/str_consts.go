@@ -20,6 +20,7 @@ const (
 const (
 	ITEMS_LIST = "items_list"
 	CHECK_ID   = "check_id"
+	SESSION_ID = "session_id"
 )
 
 // error msgs
