@@ -43,3 +43,17 @@ func CreateItemsListResponse(itemsList ...models.Item) string {
 
 	return msg
 }
+
+func ExtractAdminsIDs(adminsStr string) []int64 {
+	adminsStr = strings.ReplaceAll(adminsStr, " ", "")
+	adminsStr = strings.ReplaceAll(adminsStr, "[", "")
+	adminsStr = strings.ReplaceAll(adminsStr, "]", "")
+	admins := strings.Split(adminsStr, ",")
+	var res []int64
+	for _, s := range admins {
+		n, _ := strconv.ParseInt(s, 10, 64)
+		res = append(res, n)
+	}
+
+	return res
+}

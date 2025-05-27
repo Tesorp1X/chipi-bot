@@ -1,6 +1,7 @@
 package util_test
 
 import (
+	"slices"
 	"testing"
 
 	"github.com/Tesorp1X/chipi-bot/models"
@@ -64,4 +65,31 @@ func TestCreateItemsListResponse(t *testing.T) {
 	if got != want {
 		t.Errorf("Got:\n%s\n Wanted:\n%s", got, want)
 	}
+}
+
+func TestExtractAdminsIDs(t *testing.T) {
+	t.Run("line like [id, id]", func(t *testing.T) {
+		s := "[123, 234, 456]"
+		got := util.ExtractAdminsIDs(s)
+		want := []int64{123, 234, 456}
+		if !slices.Equal(got, want) {
+			t.Fatalf("got %v want %v", got, want)
+		}
+	})
+	t.Run("line like id, id", func(t *testing.T) {
+		s := "123, 234, 456"
+		got := util.ExtractAdminsIDs(s)
+		want := []int64{123, 234, 456}
+		if !slices.Equal(got, want) {
+			t.Fatalf("got %v want %v", got, want)
+		}
+	})
+	t.Run("line without spaces", func(t *testing.T) {
+		s := "[123,234,456]"
+		got := util.ExtractAdminsIDs(s)
+		want := []int64{123, 234, 456}
+		if !slices.Equal(got, want) {
+			t.Fatalf("got %v want %v", got, want)
+		}
+	})
 }
