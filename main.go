@@ -9,11 +9,13 @@ import (
 	"github.com/Tesorp1X/chipi-bot/handlers"
 	"github.com/Tesorp1X/chipi-bot/middlewares"
 	"github.com/Tesorp1X/chipi-bot/models"
+	"github.com/Tesorp1X/chipi-bot/util"
 
 	"github.com/vitaliy-ukiru/fsm-telebot/v2"
 	"github.com/vitaliy-ukiru/fsm-telebot/v2/fsmopt"
 	"github.com/vitaliy-ukiru/fsm-telebot/v2/pkg/storage/memory"
 	"github.com/vitaliy-ukiru/telebot-filter/v2/dispatcher"
+	"gopkg.in/telebot.v4/middleware"
 
 	//"github.com/vitaliy-ukiru/telebot-filter/v2/routing"
 	"github.com/joho/godotenv"
@@ -39,8 +41,9 @@ func main() {
 		log.Fatal(err)
 		return
 	}
-
+	adminsList := util.ExtractAdminsIDs(os.Getenv("ADMINS"))
 	g := bot.Group()
+	g.Use(middleware.Whitelist(adminsList...))
 	m := fsm.New(memory.NewStorage())
 
 	// Bind to bot group for call before filters.
