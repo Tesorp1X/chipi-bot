@@ -84,5 +84,5 @@ func ItemPriceResponseHandler(c tele.Context, state fsm.Context) error {
 		"Пау <3", models.CallbackActionItemOwner.String(), models.OWNER_PAU,
 		"Оба", models.CallbackActionItemOwner.String(), models.OWNER_BOTH,
 	)
-	return c.Send("Хорошо. Кто заплатил?🤑", selector)
+	return c.Send("Хорошо. Чей это товар?😺", selector)
 }
