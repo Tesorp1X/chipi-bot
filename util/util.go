@@ -1,6 +1,7 @@
 package util
 
 import (
+	"fmt"
 	"strconv"
 	"strings"
 
@@ -108,4 +109,15 @@ func CalculateSessionTotal(sessionId int64, checks []*models.CheckWithItems) *mo
 	}
 
 	return st
+}
+
+func GetTotalResponse(sessionTotal *models.SessionTotal) string {
+	msg := fmt.Sprintf("Вот промежуточный итог за этот период:\nВсего заплачено: %.2f руб\n", sessionTotal.Total)
+	if sessionTotal.Recipient == models.OWNER_LIZ {
+		msg += fmt.Sprintf("Пау должен Лиз %.2f руб.", sessionTotal.Amount)
+	} else {
+		msg += fmt.Sprintf("Лиз должна Пау %.2f руб.", sessionTotal.Amount)
+	}
+
+	return msg
 }
