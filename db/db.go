@@ -385,3 +385,36 @@ func getAllCheckIdsWithSessionId(db *sql.DB, sessionId int64) ([]int64, error) {
 	return checkIds, nil
 }
 
+func getCheckWithId(db *sql.DB, checkId int64) (*models.Check, error) {
+
+	sql := `SELECT Name, Owner FROM checks WHERE id = ?`
+
+	row := db.QueryRow(sql, checkId)
+
+	c := models.Check{}
+	if err := row.Scan(&c.Name, &c.Owner); err != nil {
+		return nil, err
+	}
+
+	return &c, nil
+}
+
+func getItemsForCheckId(db *sql.DB, checkId int64) ([]models.Item, error) {
+	sql := `SELECT * FROM items WHERE check_id = ?`
+	rows, err := db.Query(sql, checkId)
+	if err != nil {
+		return nil, err
+	}
+	var items []models.Item
+	for rows.Next() {
+		i := models.Item{}
+		var id int64
+		if err := rows.Scan(&id, &i.CheckId, &i.Name, &i.Owner, &i.Price); err != nil {
+			return items, err
+		}
+		items = append(items, i)
+	}
+
+	return items, nil
+}
+
