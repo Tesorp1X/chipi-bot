@@ -364,6 +364,22 @@ func FinishSession(id int64) error {
 	return nil
 }
 
+func CreateTotal(st *models.SessionTotal) error {
+	db, err := InitDB()
+	if err != nil {
+		return err
+	}
+	defer db.Close()
+
+	sql := `INSERT INTO totals (session_id, total, recipient, amount) VALUES (?, ?, ?, ?)`
+	_, err = db.Exec(sql, st.SessionId, st.Total, st.Recipient, st.Amount)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
 func getAllCheckIdsWithSessionId(db *sql.DB, sessionId int64) ([]int64, error) {
 
 	sql := `SELECT check_id FROM checks_and_sessions WHERE session_id = ?`
