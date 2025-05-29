@@ -46,6 +46,14 @@ func (c *CheckWithItems) SetCheck(check *Check) {
 func (c *CheckWithItems) SetItems(items []Item) {
 	c.items = items
 }
+
+type SessionTotal struct {
+	SessionId int64
+	Total     float64
+	Recipient string
+	Amount    float64
+}
+
 type CheckTotal struct {
 	Id int64
 

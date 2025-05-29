@@ -74,3 +74,38 @@ func CalculateCheckTotal(check *models.CheckWithItems) *models.CheckTotal {
 	return ct
 }
 
+type total struct {
+	Owner  float64
+	Debtor float64
+	All    float64
+}
+
+func CalculateSessionTotal(sessionId int64, checks []*models.CheckWithItems) *models.SessionTotal {
+
+	lizTotal := total{}
+	pauTotal := total{}
+
+	for _, check := range checks {
+		t := CalculateCheckTotal(check)
+		if check.GetCheckOwner() == models.OWNER_LIZ {
+			lizTotal.Owner += t.OwnerTotal
+			lizTotal.Debtor += t.DebtorTotal
+			lizTotal.All += t.Total
+		} else {
+			pauTotal.Owner += t.OwnerTotal
+			pauTotal.Debtor += t.DebtorTotal
+			pauTotal.All += t.Total
+		}
+	}
+
+	st := &models.SessionTotal{SessionId: sessionId, Total: lizTotal.All + pauTotal.All}
+	if lizTotal.Debtor > pauTotal.Debtor {
+		st.Recipient = models.OWNER_LIZ
+		st.Amount = lizTotal.Debtor - pauTotal.Debtor
+	} else {
+		st.Recipient = models.OWNER_PAU
+		st.Amount = pauTotal.Debtor - lizTotal.Debtor
+	}
+
+	return st
+}
