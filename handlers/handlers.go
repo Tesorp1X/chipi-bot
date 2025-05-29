@@ -2,9 +2,12 @@ package handlers
 
 import (
 	"context"
+	"fmt"
 	"strconv"
 
+	"github.com/Tesorp1X/chipi-bot/db"
 	"github.com/Tesorp1X/chipi-bot/models"
+	"github.com/Tesorp1X/chipi-bot/util"
 
 	"github.com/vitaliy-ukiru/fsm-telebot/v2"
 	tele "gopkg.in/telebot.v4"
@@ -86,3 +89,36 @@ func ItemPriceResponseHandler(c tele.Context, state fsm.Context) error {
 	)
 	return c.Send("Хорошо. Чей это товар?😺", selector)
 }
+
+// /current -- shows how much both payed and who owns money to whom and how much.
+func ShowCurrentTotalCommand(c tele.Context, state fsm.Context) error {
+	sessionId, ok := c.Get(models.SESSION_ID).(int64)
+	if !ok {
+		var err error
+		sessionId, err = db.GetSessionId()
+		if err != nil {
+			return c.Send(models.ErrorSometingWentWrong)
+		}
+	}
+
+	checks, err := db.GetAllChecksWithItemsForSesssionId(sessionId)
+	if err != nil {
+		return c.Send(err)
+	}
+
+	sessionTotal := util.CalculateSessionTotal(sessionId, checks)
+
+	msg := fmt.Sprintf("Вот промежуточный итог за этот период:\nВсего заплачено: %.2f руб\n", sessionTotal.Total)
+	if sessionTotal.Recipient == models.OWNER_LIZ {
+		msg += fmt.Sprintf("Пау должен Лиз %.2f руб.", sessionTotal.Amount)
+	} else {
+		msg += fmt.Sprintf("Лиз должна Пау %.2f руб.", sessionTotal.Amount)
+	}
+
+	return c.Send(msg)
+}
+
+// // /finish -- finishes current session and makes a record in totals table.
+// func FinishSession(c tele.Context, state fsm.Context) error {
+
+// }
