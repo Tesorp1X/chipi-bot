@@ -2,7 +2,6 @@ package handlers
 
 import (
 	"context"
-	"fmt"
 	"strconv"
 
 	"github.com/Tesorp1X/chipi-bot/db"
@@ -108,17 +107,38 @@ func ShowCurrentTotalCommand(c tele.Context, state fsm.Context) error {
 
 	sessionTotal := util.CalculateSessionTotal(sessionId, checks)
 
-	msg := fmt.Sprintf("Вот промежуточный итог за этот период:\nВсего заплачено: %.2f руб\n", sessionTotal.Total)
-	if sessionTotal.Recipient == models.OWNER_LIZ {
-		msg += fmt.Sprintf("Пау должен Лиз %.2f руб.", sessionTotal.Amount)
-	} else {
-		msg += fmt.Sprintf("Лиз должна Пау %.2f руб.", sessionTotal.Amount)
-	}
+	msg := util.GetTotalResponse(sessionTotal)
 
 	return c.Send(msg)
 }
 
-// // /finish -- finishes current session and makes a record in totals table.
-// func FinishSession(c tele.Context, state fsm.Context) error {
+// /finish -- finishes current session and makes a record in totals table.
+func FinishSession(c tele.Context, state fsm.Context) error {
+	sessionId, ok := c.Get(models.SESSION_ID).(int64)
+	if !ok {
+		var err error
+		sessionId, err = db.GetSessionId()
+		if err != nil {
+			return c.Send(models.ErrorSometingWentWrong)
+		}
+	}
 
-// }
+	checks, err := db.GetAllChecksWithItemsForSesssionId(sessionId)
+	if err != nil {
+		return c.Send(err)
+	}
+
+	sessionTotal := util.CalculateSessionTotal(sessionId, checks)
+
+	msg := util.GetTotalResponse(sessionTotal)
+
+	if err := db.CreateTotal(sessionTotal); err != nil {
+		return c.Send(models.ErrorSavingInDB)
+	}
+
+	if err := db.FinishSession(sessionId); err != nil {
+		return c.Send(models.ErrorSavingInDB)
+	}
+
+	return c.Send(msg)
+}
