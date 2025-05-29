@@ -51,6 +51,8 @@ func main() {
 	// It helps make less allocations
 	g.Use(m.WrapContext)
 
+	g.Use(middlewares.AutoSessionAssigner)
+
 	dp := dispatcher.NewDispatcher(g)
 
 	dp.Dispatch(
@@ -58,6 +60,14 @@ func main() {
 			fsmopt.On("/cancel"),          // set endpoint
 			fsmopt.OnStates(fsm.AnyState), // set state filter
 			fsmopt.Do(handlers.CancelHandler),
+		),
+	)
+
+	dp.Dispatch(
+		m.New(
+			fsmopt.On("/current"),         // set endpoint
+			fsmopt.OnStates(fsm.AnyState), // set state filter
+			fsmopt.Do(handlers.ShowCurrentTotalCommand),
 		),
 	)
 
@@ -73,7 +83,7 @@ func main() {
 		m.New(
 			fsmopt.On("/newcheck"),
 			fsmopt.OnStates(fsm.AnyState),
-			fsmopt.Use(middlewares.AutoSessionAssigner),
+			//fsmopt.Use(middlewares.AutoSessionAssigner),
 			fsmopt.Do(handlers.NewCheckHandler),
 		),
 	)
