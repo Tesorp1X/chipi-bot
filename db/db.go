@@ -441,3 +441,34 @@ func GetCheckWithItemsForId(checkId int64) (*models.CheckWithItems, error) {
 	return res, nil
 }
 
+func GetAllChecksWithItemsForSesssionId(sessionId int64) ([]*models.CheckWithItems, error) {
+	db, err := InitDB()
+	if err != nil {
+		return nil, err
+	}
+	defer db.Close()
+
+	checkIds, err := getAllCheckIdsWithSessionId(db, sessionId)
+	if err != nil {
+		return nil, err
+	}
+
+	var checksWithItems []*models.CheckWithItems
+	for _, checkId := range checkIds {
+		check, err := getCheckWithId(db, checkId)
+		if err != nil {
+			return nil, err
+		}
+
+		items, err := getItemsForCheckId(db, checkId)
+		if err != nil {
+			return nil, err
+		}
+		c := &models.CheckWithItems{Id: checkId}
+		c.SetCheck(check)
+		c.SetItems(items)
+		checksWithItems = append(checksWithItems, c)
+	}
+
+	return checksWithItems, nil
+}
