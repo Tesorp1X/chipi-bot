@@ -13,6 +13,7 @@ func AutoSessionAssigner(next tele.HandlerFunc) tele.HandlerFunc {
 		sessionId, err := db.GetSessionId()
 		if err != nil {
 			log.Fatal(err)
+			return next(c)
 		}
 		c.Set(models.SESSION_ID, sessionId)
 		return next(c) // continue execution chain
