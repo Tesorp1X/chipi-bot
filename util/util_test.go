@@ -93,3 +93,77 @@ func TestExtractAdminsIDs(t *testing.T) {
 		}
 	})
 }
+
+func TestCalculateCheckTotal(t *testing.T) {
+	items := []models.Item{
+		{
+			CheckId: 1,
+			Price:   123,
+			Owner:   models.OWNER_LIZ,
+		},
+		{
+			CheckId: 1,
+			Price:   23,
+			Owner:   models.OWNER_LIZ,
+		},
+		{
+			CheckId: 1,
+			Price:   222,
+			Owner:   models.OWNER_BOTH,
+		},
+		{
+			CheckId: 1,
+			Price:   73,
+			Owner:   models.OWNER_BOTH,
+		},
+		{
+			CheckId: 1,
+			Price:   222,
+			Owner:   models.OWNER_PAU,
+		},
+		{
+			CheckId: 1,
+			Price:   50,
+			Owner:   models.OWNER_PAU,
+		},
+		{
+			CheckId: 1,
+			Price:   321,
+			Owner:   models.OWNER_PAU,
+		},
+	}
+
+	check := &models.CheckWithItems{Id: 1}
+	check.SetCheck(&models.Check{Name: "test 1", Owner: models.OWNER_PAU})
+	check.SetItems(items)
+
+	wantTotal := models.CheckTotal{
+		Id:          1,
+		OwnerId:     models.OWNER_PAU,
+		OwnerTotal:  740.5,
+		DebtorTotal: 293.5,
+		Total:       1034,
+	}
+
+	gotTotal := util.CalculateCheckTotal(check)
+
+	if gotTotal.Id != wantTotal.Id {
+		t.Fatalf("wanted id: %d got id: %d", wantTotal.Id, gotTotal.Id)
+	}
+
+	if gotTotal.OwnerId != wantTotal.OwnerId {
+		t.Fatalf("wanted OwnerId: %s got OwnerId: %s", wantTotal.OwnerId, gotTotal.OwnerId)
+	}
+
+	if gotTotal.OwnerTotal != wantTotal.OwnerTotal {
+		t.Fatalf("wanted OwnerTotal: %f got OwnerTotal: %f", wantTotal.OwnerTotal, gotTotal.OwnerTotal)
+	}
+
+	if gotTotal.DebtorTotal != wantTotal.DebtorTotal {
+		t.Fatalf("wanted OwnerDebtorTotal: %f got DebtorTotal: %f", wantTotal.DebtorTotal, gotTotal.DebtorTotal)
+	}
+
+	if gotTotal.Total != wantTotal.Total {
+		t.Fatalf("wanted Total: %f got Total: %f", wantTotal.Total, gotTotal.Total)
+	}
+}

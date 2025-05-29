@@ -57,3 +57,20 @@ func ExtractAdminsIDs(adminsStr string) []int64 {
 
 	return res
 }
+
+func CalculateCheckTotal(check *models.CheckWithItems) *models.CheckTotal {
+	ct := &models.CheckTotal{Id: check.Id, OwnerId: check.GetCheckOwner()}
+	for _, item := range check.GetItems() {
+		if item.Owner == ct.OwnerId {
+			ct.OwnerTotal += item.Price
+		} else if item.Owner == models.OWNER_BOTH {
+			ct.OwnerTotal += item.Price / 2
+			ct.DebtorTotal += item.Price / 2
+		} else {
+			ct.DebtorTotal += item.Price
+		}
+		ct.Total += item.Price
+	}
+	return ct
+}
+
