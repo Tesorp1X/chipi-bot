@@ -363,3 +363,25 @@ func FinishSession(id int64) error {
 
 	return nil
 }
+
+func getAllCheckIdsWithSessionId(db *sql.DB, sessionId int64) ([]int64, error) {
+
+	sql := `SELECT check_id FROM checks_and_sessions WHERE session_id = ?`
+
+	rows, err := db.Query(sql, sessionId)
+	if err != nil {
+		return nil, err
+	}
+	var checkIds []int64
+	var id int64
+	for rows.Next() {
+		err := rows.Scan(&id)
+		if err != nil {
+			return checkIds, err
+		}
+		checkIds = append(checkIds, id)
+	}
+
+	return checkIds, nil
+}
+
