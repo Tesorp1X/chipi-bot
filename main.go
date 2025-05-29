@@ -73,6 +73,14 @@ func main() {
 
 	dp.Dispatch(
 		m.New(
+			fsmopt.On("/finish"),          // set endpoint
+			fsmopt.OnStates(fsm.AnyState), // set state filter
+			fsmopt.Do(handlers.FinishSession),
+		),
+	)
+
+	dp.Dispatch(
+		m.New(
 			fsmopt.On("/hello"),
 			fsmopt.OnStates(fsm.AnyState),
 			fsmopt.Do(handlers.HelloHandler),
