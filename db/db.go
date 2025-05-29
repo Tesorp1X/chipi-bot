@@ -418,3 +418,26 @@ func getItemsForCheckId(db *sql.DB, checkId int64) ([]models.Item, error) {
 	return items, nil
 }
 
+func GetCheckWithItemsForId(checkId int64) (*models.CheckWithItems, error) {
+	db, err := InitDB()
+	if err != nil {
+		return nil, err
+	}
+	defer db.Close()
+
+	check, err := getCheckWithId(db, checkId)
+	if err != nil {
+		return nil, err
+	}
+
+	items, err := getItemsForCheckId(db, checkId)
+	if err != nil {
+		return nil, err
+	}
+	res := &models.CheckWithItems{Id: checkId}
+	res.SetCheck(check)
+	res.SetItems(items)
+
+	return res, nil
+}
+
