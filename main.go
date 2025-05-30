@@ -17,7 +17,6 @@ import (
 	"github.com/vitaliy-ukiru/telebot-filter/v2/dispatcher"
 	"gopkg.in/telebot.v4/middleware"
 
-	//"github.com/vitaliy-ukiru/telebot-filter/v2/routing"
 	"github.com/joho/godotenv"
 	tele "gopkg.in/telebot.v4"
 )
@@ -91,7 +90,6 @@ func main() {
 		m.New(
 			fsmopt.On("/newcheck"),
 			fsmopt.OnStates(fsm.AnyState),
-			//fsmopt.Use(middlewares.AutoSessionAssigner),
 			fsmopt.Do(handlers.NewCheckHandler),
 		),
 	)

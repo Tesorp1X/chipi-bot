@@ -3,7 +3,6 @@ package handlers
 import (
 	"context"
 	"log"
-	"strconv"
 
 	"github.com/Tesorp1X/chipi-bot/db"
 	"github.com/Tesorp1X/chipi-bot/models"
@@ -25,7 +24,8 @@ func HandleCallbackAction(c tele.Context, state fsm.Context) error {
 		return err
 	}
 	switch {
-	case currentState == models.StateWaitForCheckOwner && models.CallbackActionCheckOwner.DataMatches(c.Callback().Data):
+	case currentState == models.StateWaitForCheckOwner &&
+		models.CallbackActionCheckOwner.DataMatches(c.Callback().Data):
 		// state: [StateWaitForCheckOwner]; saving check to db and asking to name first item
 		checkOwner := util.ExtractDataFromCallback(c.Callback().Data, models.CallbackActionCheckOwner)
 		if err := state.Update(context.TODO(), models.CHECK_OWNER, checkOwner); err != nil {
@@ -51,22 +51,15 @@ func HandleCallbackAction(c tele.Context, state fsm.Context) error {
 			return c.Send(models.ErrorStateDataUpdate)
 		}
 
-		msg := "Чек создан!😇\n"
-		switch checkOwner {
-		case models.OWNER_LIZ:
-			msg += "Заплатила Лиз💜\n"
-		case models.OWNER_PAU:
-			msg += "Заплатил Пау💙\n"
-		}
-		msg += "Теперь давай добавим покупочки😋\n\n"
-		msg += "Название товара?👀"
+		msg := util.GetCheckCreatedResponse(checkOwner)
 
 		if err := state.SetState(context.TODO(), models.StateWaitForItemName); err != nil {
 			c.Send(models.ErrorSetState)
 			return CancelHandler(c, state)
 		}
 		c.Send(msg)
-	case currentState == models.StateWaitForItemOwner && models.CallbackActionItemOwner.DataMatches(c.Callback().Data):
+	case currentState == models.StateWaitForItemOwner &&
+		models.CallbackActionItemOwner.DataMatches(c.Callback().Data):
 		// state: [StateWaitForItemOwner]; saving item to [state.dataStorage] and asking if ther is one more item
 		itemOwner := util.ExtractDataFromCallback(c.Callback().Data, models.CallbackActionItemOwner)
 		var (
@@ -91,19 +84,10 @@ func HandleCallbackAction(c tele.Context, state fsm.Context) error {
 			c.Send(models.ErrorStateDataUpdate)
 		}
 
-		msg := "Товар добавлен.\n"
-		switch itemOwner {
-		case models.OWNER_LIZ:
-			msg += "Заплатила Лиз💜\n"
-		case models.OWNER_PAU:
-			msg += "Заплатил Пау💙\n"
-		case models.OWNER_BOTH:
-			msg += "Товар общий💜💙\n"
-		}
-		msg += "Цена: " + strconv.FormatFloat(itemPrice, 'f', 2, 64) + "\n\n"
-		msg += "Еще товары?"
+		msg := util.GetItemAdded(itemOwner, newItem.Price)
 
-		selector := models.CreateSelectorInlineKb(2,
+		selector := models.CreateSelectorInlineKb(
+			2,
 			models.Button{BtnTxt: "Да", Unique: models.CallbackActionHasNewItem.String(), Data: models.HAS_MORE_ITEMS_TRUE},
 			models.Button{BtnTxt: "Нет", Unique: models.CallbackActionHasNewItem.String(), Data: models.HAS_MORE_ITEMS_FALSE},
 		)
@@ -114,7 +98,8 @@ func HandleCallbackAction(c tele.Context, state fsm.Context) error {
 
 		return c.Send(msg, selector)
 
-	case currentState == models.StateWaitForNewItem && models.CallbackActionHasNewItem.DataMatches(c.Callback().Data):
+	case currentState == models.StateWaitForNewItem &&
+		models.CallbackActionHasNewItem.DataMatches(c.Callback().Data):
 
 		hasNewItems := util.ExtractDataFromCallback(c.Callback().Data, models.CallbackActionHasNewItem)
 		var (
@@ -148,6 +133,8 @@ func HandleCallbackAction(c tele.Context, state fsm.Context) error {
 			return c.Send(models.ErrorSetState)
 		}
 		return c.Send(msg)
+	default:
+		return c.Send(models.ErrorSometingWentWrong)
 	}
 
 	return nil

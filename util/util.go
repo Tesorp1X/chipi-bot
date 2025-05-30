@@ -121,3 +121,33 @@ func GetTotalResponse(sessionTotal *models.SessionTotal) string {
 
 	return msg
 }
+
+func GetCheckCreatedResponse(checkOwner string) string {
+	msg := "Чек создан!😇\n"
+	switch checkOwner {
+	case models.OWNER_LIZ:
+		msg += "Заплатила Лиз💜\n"
+	case models.OWNER_PAU:
+		msg += "Заплатил Пау💙\n"
+	}
+	msg += "Теперь давай добавим покупочки😋\n\n"
+	msg += "Название товара?👀"
+
+	return msg
+}
+
+func GetItemAdded(itemOwner string, itemPrice float64) string {
+	msg := "Товар добавлен.\n"
+	switch itemOwner {
+	case models.OWNER_LIZ:
+		msg += "Заплатила Лиз💜\n"
+	case models.OWNER_PAU:
+		msg += "Заплатил Пау💙\n"
+	case models.OWNER_BOTH:
+		msg += "Товар общий💜💙\n"
+	}
+	msg += "Цена: " + strconv.FormatFloat(itemPrice, 'f', 2, 64) + "\n\n"
+	msg += "Еще товары?"
+
+	return msg
+}
