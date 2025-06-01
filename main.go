@@ -15,10 +15,10 @@ import (
 	"github.com/vitaliy-ukiru/fsm-telebot/v2/fsmopt"
 	"github.com/vitaliy-ukiru/fsm-telebot/v2/pkg/storage/memory"
 	"github.com/vitaliy-ukiru/telebot-filter/v2/dispatcher"
-	"gopkg.in/telebot.v4/middleware"
 
 	"github.com/joho/godotenv"
 	tele "gopkg.in/telebot.v4"
+	"gopkg.in/telebot.v4/middleware"
 )
 
 var debug = flag.Bool("debug", false, "log debug info")
@@ -80,7 +80,7 @@ func main() {
 
 	dp.Dispatch(
 		m.New(
-			fsmopt.On("/hello"),
+			fsmopt.On("/halo"),
 			fsmopt.OnStates(fsm.AnyState),
 			fsmopt.Do(handlers.HelloHandler),
 		),
@@ -123,5 +123,4 @@ func main() {
 	)
 
 	bot.Start()
-	log.Println("Bot is operational!")
 }

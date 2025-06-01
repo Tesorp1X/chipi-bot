@@ -18,7 +18,7 @@ func CancelHandler(c tele.Context, state fsm.Context) error {
 }
 
 func HelloHandler(c tele.Context, state fsm.Context) error {
-	return c.Send("Hello!")
+	return c.Send("Hello, " + strconv.FormatInt(c.Message().Sender.ID, 10))
 }
 
 func NewCheckHandler(c tele.Context, state fsm.Context) error {
