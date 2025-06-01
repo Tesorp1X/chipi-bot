@@ -113,7 +113,7 @@ func ShowCurrentTotalCommand(c tele.Context, state fsm.Context) error {
 }
 
 // /finish -- finishes current session and makes a record in totals table.
-func FinishSession(c tele.Context, state fsm.Context) error {
+func FinishSessionCommand(c tele.Context, state fsm.Context) error {
 	sessionId, ok := c.Get(models.SESSION_ID).(int64)
 	if !ok {
 		var err error

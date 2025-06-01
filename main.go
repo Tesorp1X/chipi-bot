@@ -74,7 +74,7 @@ func main() {
 		m.New(
 			fsmopt.On("/finish"),          // set endpoint
 			fsmopt.OnStates(fsm.AnyState), // set state filter
-			fsmopt.Do(handlers.FinishSession),
+			fsmopt.Do(handlers.FinishSessionCommand),
 		),
 	)
 
