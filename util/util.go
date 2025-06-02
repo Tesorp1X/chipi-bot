@@ -151,3 +151,66 @@ func GetItemAdded(itemOwner string, itemPrice float64) string {
 
 	return msg
 }
+
+func GetCheckWithItemsResponse(check models.CheckWithItems) string {
+	msg := "Чек: " + check.GetCheckName() + " "
+	msg += "Заплачено: " + check.GetCheckOwner() + "\n\n"
+
+	lizItems := "Товары Лиз💜:\n"
+	pauItems := "Товары Пау💙:\n"
+	mutualItems := "Общие товары💜💙:\n"
+	lizCount := 1
+	pauCount := 1
+	mutualCount := 1
+
+	var (
+		total     float64
+		lizSum    float64
+		pauSum    float64
+		mutualSum float64
+	)
+
+	for _, item := range check.GetItems() {
+		switch item.Owner {
+		case models.OWNER_LIZ:
+			lizItems += strconv.Itoa(lizCount) + ") " + item.Name + " -- " + strconv.FormatFloat(item.Price, 'f', 2, 64) + "\n"
+			lizSum += item.Price
+			lizCount++
+		case models.OWNER_PAU:
+			pauItems += strconv.Itoa(pauCount) + ") " + item.Name + " -- " + strconv.FormatFloat(item.Price, 'f', 2, 64) + "\n"
+			pauSum += item.Price
+			pauCount++
+		case models.OWNER_BOTH:
+			mutualItems += strconv.Itoa(mutualCount) + ") " + item.Name + " -- " + strconv.FormatFloat(item.Price, 'f', 2, 64) + "\n"
+			mutualSum += item.Price
+			mutualCount++
+		}
+
+		total += item.Price
+	}
+
+	msg += lizItems
+	if lizCount > 1 {
+		msg += "\n" + "Товаров Лиз на: " + strconv.FormatFloat(lizSum, 'f', 2, 64) + " руб\n\n"
+	} else {
+		msg += "товаров нет" + "\n\n"
+	}
+
+	msg += pauItems
+	if pauCount > 1 {
+		msg += "\n" + "Товаров Пау на: " + strconv.FormatFloat(pauSum, 'f', 2, 64) + " руб\n\n"
+	} else {
+		msg += "товаров нет" + "\n\n"
+	}
+
+	msg += mutualItems
+	if mutualCount > 1 {
+		msg += "\n" + "Общих товаров на: " + strconv.FormatFloat(mutualSum, 'f', 2, 64) + " руб\n\n"
+	} else {
+		msg += "товаров нет" + "\n\n"
+	}
+
+	msg += "Итого: " + strconv.FormatFloat(total, 'f', 2, 64) + " бублей."
+
+	return msg
+}
