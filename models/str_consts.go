@@ -14,13 +14,18 @@ const (
 
 	HAS_MORE_ITEMS_TRUE  = "true"
 	HAS_MORE_ITEMS_FALSE = "false"
+
+	FORWARD = "forward"
+	BACK    = "back"
 )
 
 // storage keys
 const (
-	ITEMS_LIST = "items_list"
-	CHECK_ID   = "check_id"
-	SESSION_ID = "session_id"
+	ITEMS_LIST    = "items_list"
+	CHECK_ID      = "check_id"
+	SESSION_ID    = "session_id"
+	CHECKS        = "checks"
+	CURRENT_INDEX = "current_index"
 )
 
 // error msgs
@@ -32,4 +37,5 @@ const (
 	ErrorItemPriceMustBeANumberMsg = "Цена должна быть числом без пробелов."
 	ErrorItemsListNotFound         = "Ошибка, лист с покупками не найден."
 	ErrorSavingInDB                = "Произошла ошибка при сохранении данных в базу данных."
+	ErrorInvalidRequest            = "Invalid request"
 )
