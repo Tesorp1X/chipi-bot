@@ -80,6 +80,14 @@ func main() {
 
 	dp.Dispatch(
 		m.New(
+			fsmopt.On("/show"),            // set endpoint
+			fsmopt.OnStates(fsm.AnyState), // set state filter
+			fsmopt.Do(handlers.ShowCommand),
+		),
+	)
+
+	dp.Dispatch(
+		m.New(
 			fsmopt.On("/halo"),
 			fsmopt.OnStates(fsm.AnyState),
 			fsmopt.Do(handlers.HelloHandler),
