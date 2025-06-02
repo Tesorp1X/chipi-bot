@@ -19,6 +19,10 @@ func HandleCallbackAction(c tele.Context, state fsm.Context) error {
 		return err
 	}
 	switch {
+	case currentState == models.StateShowingChecks:
+
+		return ShowChecksMenuButtonCallback(c, state)
+
 	case currentState == models.StateWaitForCheckOwner &&
 		models.CallbackActionCheckOwner.DataMatches(c.Callback().Data):
 		//Response to callback
@@ -157,4 +161,78 @@ func HandleCallbackAction(c tele.Context, state fsm.Context) error {
 	}
 
 	return nil
+}
+
+func ShowChecksMenuButtonCallback(c tele.Context, state fsm.Context) error {
+	// Trying to get checks from context.
+	var checks []*models.CheckWithItems
+	if err := state.Data(context.TODO(), models.CHECKS, &checks); err != nil {
+		checks, err = getChecksForCurrentSession(c)
+		if err != nil {
+			return c.Send(models.ErrorSometingWentWrong)
+		}
+		state.Update(context.TODO(), models.CHECKS, checks)
+	}
+
+	var currentIndex int = 0
+	// If currentIndex is not stored in context, then it will be just zero.
+	state.Data(context.TODO(), models.CURRENT_INDEX, &currentIndex)
+
+	buttonPressed := util.ExtractDataFromCallback(c.Callback().Data, models.CallbackActionMenuButtonPress)
+	switch buttonPressed {
+	case models.FORWARD:
+		currentIndex++
+		if currentIndex == len(checks) {
+			// to eliminate OutOfBounds Error
+			if err := c.Respond(&tele.CallbackResponse{
+				Text: "Это последний чек!",
+			}); err != nil {
+				log.Fatalf("couldn't respond to callback %v: %v", c.Callback(), err)
+			}
+			return nil
+		}
+	case models.BACK:
+		currentIndex--
+		if currentIndex < 0 {
+			// to eliminate OutOfBounds Error
+
+			if err := c.Respond(&tele.CallbackResponse{
+				Text: "Это первый чек!",
+			}); err != nil {
+
+				log.Fatalf("couldn't respond to callback %v: %v", c.Callback(), err)
+			}
+			return nil
+		}
+	default:
+		return c.Respond(&tele.CallbackResponse{
+			Text: models.ErrorInvalidRequest,
+		})
+	}
+	if err := c.Respond(&tele.CallbackResponse{}); err != nil {
+		log.Fatalf("couldn't respond to callback %v: %v", c.Callback(), err)
+	}
+
+	state.Update(context.TODO(), models.CURRENT_INDEX, currentIndex)
+
+	kb := models.CreateSelectorInlineKb(
+		2,
+		models.Button{
+			BtnTxt: "<<",
+			Unique: models.CallbackActionMenuButtonPress.String(),
+			Data:   models.BACK,
+		},
+		models.Button{
+			BtnTxt: ">>",
+			Unique: models.CallbackActionMenuButtonPress.String(),
+			Data:   models.FORWARD,
+		},
+	)
+	// set state ShowinChecks
+	if err := state.SetState(context.TODO(), models.StateShowingChecks); err != nil {
+		state.Finish(context.TODO(), true)
+		return c.Send(models.ErrorSetState)
+	}
+
+	return c.EditOrReply(util.GetCheckWithItemsResponse(*checks[currentIndex]), kb)
 }
