@@ -163,6 +163,7 @@ func HandleCallbackAction(c tele.Context, state fsm.Context) error {
 	return nil
 }
 
+// Handles buuton-presses('<<' and '>>'), while scrolling through checks in '/show checks'.
 func ShowChecksMenuButtonCallback(c tele.Context, state fsm.Context) error {
 	// Trying to get checks from context.
 	var checks []*models.CheckWithItems

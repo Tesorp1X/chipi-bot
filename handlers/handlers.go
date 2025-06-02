@@ -143,6 +143,7 @@ func FinishSessionCommand(c tele.Context, state fsm.Context) error {
 	return c.Send(msg)
 }
 
+// Handler for '/show <arg>' command
 func ShowCommand(c tele.Context, state fsm.Context) error {
 	args := c.Args()
 	var arg string
@@ -204,6 +205,8 @@ func ShowCommand(c tele.Context, state fsm.Context) error {
 	}
 }
 
+// Helper function. that gets current sessionId and pulls all checks for it from db.
+// Can return errors only occured during [Bot.Send()]
 func getChecksForCurrentSession(c tele.Context) ([]*models.CheckWithItems, error) {
 	sessionId, ok := c.Get(models.SESSION_ID).(int64)
 	if !ok {
