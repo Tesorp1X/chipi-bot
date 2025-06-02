@@ -142,3 +142,20 @@ func FinishSessionCommand(c tele.Context, state fsm.Context) error {
 
 	return c.Send(msg)
 }
+func getChecksForCurrentSession(c tele.Context) ([]*models.CheckWithItems, error) {
+	sessionId, ok := c.Get(models.SESSION_ID).(int64)
+	if !ok {
+		var err error
+		sessionId, err = db.GetSessionId()
+		if err != nil {
+			return nil, c.Send(models.ErrorSometingWentWrong)
+		}
+	}
+
+	checks, err := db.GetAllChecksWithItemsForSesssionId(sessionId)
+	if err != nil {
+		return nil, c.Send(err)
+	}
+
+	return checks, nil
+}
