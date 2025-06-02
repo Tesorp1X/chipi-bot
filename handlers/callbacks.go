@@ -12,12 +12,7 @@ import (
 )
 
 func HandleCallbackAction(c tele.Context, state fsm.Context) error {
-	//Response to callback
-	if err := c.Respond(&tele.CallbackResponse{}); err != nil {
-		log.Fatalf("couldn't respond to callback %v: %v", c.Callback(), err)
-	}
-	//Remove keyboard from callback-message
-	c.Bot().EditReplyMarkup(c.Message(), &tele.ReplyMarkup{})
+
 	currentState, err := state.State(context.Background())
 	if err != nil {
 		log.Fatalf("couldn't recieve users(%d) current state: %v", c.Sender().ID, err)
@@ -26,6 +21,12 @@ func HandleCallbackAction(c tele.Context, state fsm.Context) error {
 	switch {
 	case currentState == models.StateWaitForCheckOwner &&
 		models.CallbackActionCheckOwner.DataMatches(c.Callback().Data):
+		//Response to callback
+		if err := c.Respond(&tele.CallbackResponse{}); err != nil {
+			log.Fatalf("couldn't respond to callback %v: %v", c.Callback(), err)
+		}
+		//Remove keyboard from callback-message
+		c.Bot().EditReplyMarkup(c.Message(), &tele.ReplyMarkup{})
 		// state: [StateWaitForCheckOwner]; saving check to db and asking to name first item
 		checkOwner := util.ExtractDataFromCallback(c.Callback().Data, models.CallbackActionCheckOwner)
 		if err := state.Update(context.TODO(), models.CHECK_OWNER, checkOwner); err != nil {
@@ -58,8 +59,15 @@ func HandleCallbackAction(c tele.Context, state fsm.Context) error {
 			return CancelHandler(c, state)
 		}
 		c.Send(msg)
+
 	case currentState == models.StateWaitForItemOwner &&
 		models.CallbackActionItemOwner.DataMatches(c.Callback().Data):
+		//Response to callback
+		if err := c.Respond(&tele.CallbackResponse{}); err != nil {
+			log.Fatalf("couldn't respond to callback %v: %v", c.Callback(), err)
+		}
+		//Remove keyboard from callback-message
+		c.Bot().EditReplyMarkup(c.Message(), &tele.ReplyMarkup{})
 		// state: [StateWaitForItemOwner]; saving item to [state.dataStorage] and asking if ther is one more item
 		itemOwner := util.ExtractDataFromCallback(c.Callback().Data, models.CallbackActionItemOwner)
 		var (
@@ -100,6 +108,12 @@ func HandleCallbackAction(c tele.Context, state fsm.Context) error {
 
 	case currentState == models.StateWaitForNewItem &&
 		models.CallbackActionHasNewItem.DataMatches(c.Callback().Data):
+		//Response to callback
+		if err := c.Respond(&tele.CallbackResponse{}); err != nil {
+			log.Fatalf("couldn't respond to callback %v: %v", c.Callback(), err)
+		}
+		//Remove keyboard from callback-message
+		c.Bot().EditReplyMarkup(c.Message(), &tele.ReplyMarkup{})
 
 		hasNewItems := util.ExtractDataFromCallback(c.Callback().Data, models.CallbackActionHasNewItem)
 		var (
@@ -133,8 +147,13 @@ func HandleCallbackAction(c tele.Context, state fsm.Context) error {
 			return c.Send(models.ErrorSetState)
 		}
 		return c.Send(msg)
+
 	default:
-		return c.Send(models.ErrorSometingWentWrong)
+		//Response to callback
+		if err := c.Respond(&tele.CallbackResponse{}); err != nil {
+			log.Fatalf("couldn't respond to callback %v: %v", c.Callback(), err)
+		}
+		return c.Send(models.ErrorInvalidRequest)
 	}
 
 	return nil
