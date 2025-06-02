@@ -142,6 +142,68 @@ func FinishSessionCommand(c tele.Context, state fsm.Context) error {
 
 	return c.Send(msg)
 }
+
+func ShowCommand(c tele.Context, state fsm.Context) error {
+	args := c.Args()
+	var arg string
+	if len(args) > 0 {
+		arg = args[0]
+	}
+	switch arg {
+	case "checks":
+		// Trying to get checks from context.
+		var checks []*models.CheckWithItems
+		if err := state.Data(context.TODO(), models.CHECKS, &checks); err != nil || len(checks) == 0 {
+			// If nothing is stored in context or slices len is 0, make a request to db.
+			checks, err = getChecksForCurrentSession(c)
+			if err != nil {
+				return err
+			}
+		}
+
+		var currentIndex int = 0
+		// If currentIndex is not stored in context, then it will be just zero.
+		state.Data(context.TODO(), models.CURRENT_INDEX, &currentIndex)
+
+		// Context should be short-lived (few mins).
+		// TODO make it short-lived
+		// TODO error handling
+		state.Update(context.TODO(), models.CHECKS, checks)
+		state.Update(context.TODO(), models.CURRENT_INDEX, currentIndex)
+
+		kb := models.CreateSelectorInlineKb(
+			2,
+			models.Button{
+				BtnTxt: "<<",
+				Unique: models.CallbackActionMenuButtonPress.String(),
+				Data:   models.BACK,
+			},
+			models.Button{
+				BtnTxt: ">>",
+				Unique: models.CallbackActionMenuButtonPress.String(),
+				Data:   models.FORWARD,
+			},
+		)
+		// set state ShowinChecks
+		if err := state.SetState(context.TODO(), models.StateShowingChecks); err != nil {
+			state.Finish(context.TODO(), true)
+			return c.Send(models.ErrorSetState)
+		}
+
+		return c.Send(util.GetCheckWithItemsResponse(*checks[currentIndex]), kb)
+	default:
+		msg := "Команда /show требует аргумента. Например:\n/show checks -- покажет чеки\nДругие аргументы пока что в разработке."
+		kb := &tele.ReplyMarkup{ResizeKeyboard: true}
+		btnChecks := kb.Text("/show checks")
+
+		kb.Reply(
+			kb.Row(btnChecks),
+		)
+
+		return c.Send(msg, kb)
+	}
+}
+
 func getChecksForCurrentSession(c tele.Context) ([]*models.CheckWithItems, error) {
 	sessionId, ok := c.Get(models.SESSION_ID).(int64)
 	if !ok {
