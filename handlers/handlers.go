@@ -205,9 +205,14 @@ func ShowCommand(c tele.Context, state fsm.Context) error {
 	}
 }
 
+type checksForSession struct {
+	SessionId int64
+	Checks    []*models.CheckWithItems
+}
+
 // Helper function. that gets current sessionId and pulls all checks for it from db.
 // Can return errors only occured during [Bot.Send()]
-func getChecksForCurrentSession(c tele.Context) ([]*models.CheckWithItems, error) {
+func getChecksForCurrentSession(c tele.Context) (*checksForSession, error) {
 	sessionId, ok := c.Get(models.SESSION_ID).(int64)
 	if !ok {
 		var err error
@@ -222,5 +227,5 @@ func getChecksForCurrentSession(c tele.Context) ([]*models.CheckWithItems, error
 		return nil, c.Send(err)
 	}
 
-	return checks, nil
+	return &checksForSession{SessionId: sessionId, Checks: checks}, nil
 }
