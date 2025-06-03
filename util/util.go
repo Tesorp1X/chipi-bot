@@ -111,8 +111,16 @@ func CalculateSessionTotal(sessionId int64, checks []*models.CheckWithItems) *mo
 	return st
 }
 
-func GetTotalResponse(sessionTotal *models.SessionTotal) string {
-	msg := fmt.Sprintf("Вот промежуточный итог за этот период:\nВсего заплачено: %.2f руб\n", sessionTotal.Total)
+// Returns a responce based on [models.SessionTotal].
+// Make [isPreliminary] true, if you wish to get preliminary results message.
+func GetTotalResponse(sessionTotal *models.SessionTotal, isPreliminary bool) string {
+	var msg string
+	if isPreliminary {
+		msg = fmt.Sprintf("Вот промежуточный итог за этот период:\nВсего заплачено: %.2f руб\n", sessionTotal.Total)
+	} else {
+		msg = fmt.Sprintf("Вот итог за этот период:\nВсего заплачено: %.2f руб\n", sessionTotal.Total)
+	}
+
 	if sessionTotal.Recipient == models.OWNER_LIZ {
 		msg += fmt.Sprintf("Пау должен Лиз %.2f руб.", sessionTotal.Amount)
 	} else {
