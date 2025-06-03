@@ -2,6 +2,7 @@ package handlers
 
 import (
 	"context"
+	"os"
 	"strconv"
 
 	"github.com/Tesorp1X/chipi-bot/db"
@@ -112,12 +113,13 @@ func ShowCurrentTotalCommand(c tele.Context, state fsm.Context) error {
 
 	sessionTotal := util.CalculateSessionTotal(session.SessionId, session.Checks)
 
-	msg := util.GetTotalResponse(sessionTotal)
+	msg := util.GetTotalResponse(sessionTotal, true)
 
 	return c.Send(msg)
 }
 
 // /finish -- finishes current session and makes a record in totals table.
+// Also notifies another person about it.
 func FinishSessionCommand(c tele.Context, state fsm.Context) error {
 	// sessionId, ok := c.Get(models.SESSION_ID).(int64)
 	// if !ok {
@@ -140,7 +142,7 @@ func FinishSessionCommand(c tele.Context, state fsm.Context) error {
 
 	sessionTotal := util.CalculateSessionTotal(session.SessionId, session.Checks)
 
-	msg := util.GetTotalResponse(sessionTotal)
+	msg := util.GetTotalResponse(sessionTotal, false)
 
 	if err := db.CreateTotal(sessionTotal); err != nil {
 		return c.Send(models.ErrorSavingInDB)
@@ -148,6 +150,17 @@ func FinishSessionCommand(c tele.Context, state fsm.Context) error {
 
 	if err := db.FinishSession(session.SessionId); err != nil {
 		return c.Send(models.ErrorSavingInDB)
+	}
+
+	// sending notification to another person
+	adminsList := util.ExtractAdminsIDs(os.Getenv("ADMINS"))
+	for _, adminId := range adminsList {
+		if adminId != c.Sender().ID {
+			broadcastMsg := "Сессия была завершена!\n" + msg
+			if _, err := c.Bot().Send(&tele.User{ID: adminId}, broadcastMsg); err != nil {
+				return err
+			}
+		}
 	}
 
 	return c.Send(msg)
