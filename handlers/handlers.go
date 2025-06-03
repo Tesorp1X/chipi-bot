@@ -195,6 +195,8 @@ func ShowCommand(c tele.Context, state fsm.Context) error {
 				Data:   models.FORWARD,
 			},
 		)
+		kb.RemoveKeyboard = true
+
 		// set state ShowinChecks
 		if err := state.SetState(context.TODO(), models.StateShowingChecks); err != nil {
 			state.Finish(context.TODO(), true)
@@ -204,7 +206,7 @@ func ShowCommand(c tele.Context, state fsm.Context) error {
 		return c.Send(util.GetCheckWithItemsResponse(*session.Checks[currentIndex]), kb)
 	default:
 		msg := "Команда /show требует аргумента. Например:\n/show checks -- покажет чеки\nДругие аргументы пока что в разработке."
-		kb := &tele.ReplyMarkup{ResizeKeyboard: true}
+		kb := &tele.ReplyMarkup{ResizeKeyboard: true, OneTimeKeyboard: true}
 		btnChecks := kb.Text("/show checks")
 
 		kb.Reply(
