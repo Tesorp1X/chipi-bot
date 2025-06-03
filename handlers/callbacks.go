@@ -165,14 +165,14 @@ func HandleCallbackAction(c tele.Context, state fsm.Context) error {
 
 // Handles buuton-presses('<<' and '>>'), while scrolling through checks in '/show checks'.
 func ShowChecksMenuButtonCallback(c tele.Context, state fsm.Context) error {
-	// Trying to get checks from context.
-	var checks []*models.CheckWithItems
-	if err := state.Data(context.TODO(), models.CHECKS, &checks); err != nil {
-		checks, err = getChecksForCurrentSession(c)
+	// Trying to get session from context.
+	var session *checksForSession
+	if err := state.Data(context.TODO(), models.CHECKS, &session); err != nil {
+		session, err = getChecksForCurrentSession(c)
 		if err != nil {
 			return c.Send(models.ErrorSometingWentWrong)
 		}
-		state.Update(context.TODO(), models.CHECKS, checks)
+		state.Update(context.TODO(), models.CHECKS, session)
 	}
 
 	var currentIndex int = 0
@@ -183,7 +183,7 @@ func ShowChecksMenuButtonCallback(c tele.Context, state fsm.Context) error {
 	switch buttonPressed {
 	case models.FORWARD:
 		currentIndex++
-		if currentIndex == len(checks) {
+		if currentIndex == len(session.Checks) {
 			// to eliminate OutOfBounds Error
 			if err := c.Respond(&tele.CallbackResponse{
 				Text: "Это последний чек!",
@@ -235,5 +235,5 @@ func ShowChecksMenuButtonCallback(c tele.Context, state fsm.Context) error {
 		return c.Send(models.ErrorSetState)
 	}
 
-	return c.EditOrReply(util.GetCheckWithItemsResponse(*checks[currentIndex]), kb)
+	return c.EditOrReply(util.GetCheckWithItemsResponse(*session.Checks[currentIndex]), kb)
 }

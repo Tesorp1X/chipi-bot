@@ -91,21 +91,26 @@ func ItemPriceResponseHandler(c tele.Context, state fsm.Context) error {
 
 // /current -- shows how much both payed and who owns money to whom and how much.
 func ShowCurrentTotalCommand(c tele.Context, state fsm.Context) error {
-	sessionId, ok := c.Get(models.SESSION_ID).(int64)
-	if !ok {
-		var err error
-		sessionId, err = db.GetSessionId()
-		if err != nil {
-			return c.Send(models.ErrorSometingWentWrong)
-		}
-	}
+	// sessionId, ok := c.Get(models.SESSION_ID).(int64)
+	// if !ok {
+	// 	var err error
+	// 	sessionId, err = db.GetSessionId()
+	// 	if err != nil {
+	// 		return c.Send(models.ErrorSometingWentWrong)
+	// 	}
+	// }
 
-	checks, err := db.GetAllChecksWithItemsForSesssionId(sessionId)
+	// checks, err := db.GetAllChecksWithItemsForSesssionId(sessionId)
+	// if err != nil {
+	// 	return c.Send(err)
+	// }
+
+	session, err := getChecksForCurrentSession(c)
 	if err != nil {
-		return c.Send(err)
+		return err
 	}
 
-	sessionTotal := util.CalculateSessionTotal(sessionId, checks)
+	sessionTotal := util.CalculateSessionTotal(session.SessionId, session.Checks)
 
 	msg := util.GetTotalResponse(sessionTotal)
 
@@ -114,21 +119,26 @@ func ShowCurrentTotalCommand(c tele.Context, state fsm.Context) error {
 
 // /finish -- finishes current session and makes a record in totals table.
 func FinishSessionCommand(c tele.Context, state fsm.Context) error {
-	sessionId, ok := c.Get(models.SESSION_ID).(int64)
-	if !ok {
-		var err error
-		sessionId, err = db.GetSessionId()
-		if err != nil {
-			return c.Send(models.ErrorSometingWentWrong)
-		}
-	}
+	// sessionId, ok := c.Get(models.SESSION_ID).(int64)
+	// if !ok {
+	// 	var err error
+	// 	sessionId, err = db.GetSessionId()
+	// 	if err != nil {
+	// 		return c.Send(models.ErrorSometingWentWrong)
+	// 	}
+	// }
 
-	checks, err := db.GetAllChecksWithItemsForSesssionId(sessionId)
+	// checks, err := db.GetAllChecksWithItemsForSesssionId(sessionId)
+	// if err != nil {
+	// 	return c.Send(err)
+	// }
+
+	session, err := getChecksForCurrentSession(c)
 	if err != nil {
-		return c.Send(err)
+		return err
 	}
 
-	sessionTotal := util.CalculateSessionTotal(sessionId, checks)
+	sessionTotal := util.CalculateSessionTotal(session.SessionId, session.Checks)
 
 	msg := util.GetTotalResponse(sessionTotal)
 
@@ -136,7 +146,7 @@ func FinishSessionCommand(c tele.Context, state fsm.Context) error {
 		return c.Send(models.ErrorSavingInDB)
 	}
 
-	if err := db.FinishSession(sessionId); err != nil {
+	if err := db.FinishSession(session.SessionId); err != nil {
 		return c.Send(models.ErrorSavingInDB)
 	}
 
@@ -152,11 +162,11 @@ func ShowCommand(c tele.Context, state fsm.Context) error {
 	}
 	switch arg {
 	case "checks":
-		// Trying to get checks from context.
-		var checks []*models.CheckWithItems
-		if err := state.Data(context.TODO(), models.CHECKS, &checks); err != nil || len(checks) == 0 {
+		// Trying to get session from context.
+		var session *checksForSession
+		if err := state.Data(context.TODO(), models.CHECKS, &session); err != nil || len(session.Checks) == 0 {
 			// If nothing is stored in context or slices len is 0, make a request to db.
-			checks, err = getChecksForCurrentSession(c)
+			session, err = getChecksForCurrentSession(c)
 			if err != nil {
 				return err
 			}
@@ -169,7 +179,7 @@ func ShowCommand(c tele.Context, state fsm.Context) error {
 		// Context should be short-lived (few mins).
 		// TODO make it short-lived
 		// TODO error handling
-		state.Update(context.TODO(), models.CHECKS, checks)
+		state.Update(context.TODO(), models.CHECKS, session)
 		state.Update(context.TODO(), models.CURRENT_INDEX, currentIndex)
 
 		kb := models.CreateSelectorInlineKb(
@@ -191,7 +201,7 @@ func ShowCommand(c tele.Context, state fsm.Context) error {
 			return c.Send(models.ErrorSetState)
 		}
 
-		return c.Send(util.GetCheckWithItemsResponse(*checks[currentIndex]), kb)
+		return c.Send(util.GetCheckWithItemsResponse(*session.Checks[currentIndex]), kb)
 	default:
 		msg := "Команда /show требует аргумента. Например:\n/show checks -- покажет чеки\nДругие аргументы пока что в разработке."
 		kb := &tele.ReplyMarkup{ResizeKeyboard: true}
