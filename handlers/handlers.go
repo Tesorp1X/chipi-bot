@@ -175,48 +175,7 @@ func ShowCommand(c tele.Context, state fsm.Context) error {
 	}
 	switch arg {
 	case "checks":
-		// Trying to get session from context.
-		var session *checksForSession
-		if err := state.Data(context.TODO(), models.CHECKS, &session); err != nil || len(session.Checks) == 0 {
-			// If nothing is stored in context or slices len is 0, make a request to db.
-			session, err = getChecksForCurrentSession(c)
-			if err != nil {
-				return err
-			}
-		}
-
-		var currentIndex int = 0
-		// If currentIndex is not stored in context, then it will be just zero.
-		state.Data(context.TODO(), models.CURRENT_INDEX, &currentIndex)
-
-		// Context should be short-lived (few mins).
-		// TODO make it short-lived
-		// TODO error handling
-		state.Update(context.TODO(), models.CHECKS, session)
-		state.Update(context.TODO(), models.CURRENT_INDEX, currentIndex)
-
-		kb := models.CreateSelectorInlineKb(
-			2,
-			models.Button{
-				BtnTxt: "<<",
-				Unique: models.CallbackActionMenuButtonPress.String(),
-				Data:   models.BACK,
-			},
-			models.Button{
-				BtnTxt: ">>",
-				Unique: models.CallbackActionMenuButtonPress.String(),
-				Data:   models.FORWARD,
-			},
-		)
-		kb.RemoveKeyboard = true
-
-		// set state ShowinChecks
-		if err := state.SetState(context.TODO(), models.StateShowingChecks); err != nil {
-			state.Finish(context.TODO(), true)
-			return c.Send(models.ErrorSetState)
-		}
-
-		return c.Send(util.GetCheckWithItemsResponse(*session.Checks[currentIndex]), kb)
+		return showChecks(c, state)
 	default:
 		msg := "Команда /show требует аргумента. Например:\n/show checks -- покажет чеки\nДругие аргументы пока что в разработке."
 		kb := &tele.ReplyMarkup{ResizeKeyboard: true, OneTimeKeyboard: true}
@@ -228,6 +187,51 @@ func ShowCommand(c tele.Context, state fsm.Context) error {
 
 		return c.Send(msg, kb)
 	}
+}
+
+func showChecks(c tele.Context, state fsm.Context) error {
+	// Trying to get session from context.
+	var session *checksForSession
+	if err := state.Data(context.TODO(), models.CHECKS, &session); err != nil || len(session.Checks) == 0 {
+		// If nothing is stored in context or slices len is 0, make a request to db.
+		session, err = getChecksForCurrentSession(c)
+		if err != nil {
+			return err
+		}
+	}
+
+	var currentIndex int = 0
+	// If currentIndex is not stored in context, then it will be just zero.
+	state.Data(context.TODO(), models.CURRENT_INDEX, &currentIndex)
+
+	// Context should be short-lived (few mins).
+	// TODO make it short-lived
+	// TODO error handling
+	state.Update(context.TODO(), models.CHECKS, session)
+	state.Update(context.TODO(), models.CURRENT_INDEX, currentIndex)
+
+	kb := models.CreateSelectorInlineKb(
+		2,
+		models.Button{
+			BtnTxt: "<<",
+			Unique: models.CallbackActionMenuButtonPress.String(),
+			Data:   models.BACK,
+		},
+		models.Button{
+			BtnTxt: ">>",
+			Unique: models.CallbackActionMenuButtonPress.String(),
+			Data:   models.FORWARD,
+		},
+	)
+	kb.RemoveKeyboard = true
+
+	// set state ShowinChecks
+	if err := state.SetState(context.TODO(), models.StateShowingChecks); err != nil {
+		state.Finish(context.TODO(), true)
+		return c.Send(models.ErrorSetState)
+	}
+
+	return c.Send(util.GetCheckWithItemsResponse(*session.Checks[currentIndex]), kb)
 }
 
 type checksForSession struct {
