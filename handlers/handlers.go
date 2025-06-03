@@ -84,7 +84,7 @@ func ItemPriceResponseHandler(c tele.Context, state fsm.Context) error {
 	selector := models.ItemOwnershipSelectorInlineKb(
 		"Liz :3", models.CallbackActionItemOwner.String(), models.OWNER_LIZ,
 		"Пау <3", models.CallbackActionItemOwner.String(), models.OWNER_PAU,
-		"Оба", models.CallbackActionItemOwner.String(), models.OWNER_BOTH,
+		"Общий", models.CallbackActionItemOwner.String(), models.OWNER_BOTH,
 	)
 	return c.Send("Хорошо. Чей это товар?😺", selector)
 }
