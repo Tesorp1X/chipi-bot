@@ -19,7 +19,8 @@ func HandleCallbackAction(c tele.Context, state fsm.Context) error {
 		return err
 	}
 	switch {
-	case currentState == models.StateShowingChecks:
+	case currentState == models.StateShowingChecks &&
+		models.CallbackActionMenuButtonPress.DataMatches(c.Callback().Data):
 
 		return ShowChecksMenuButtonCallback(c, state)
 
