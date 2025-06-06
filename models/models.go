@@ -1,5 +1,7 @@
 package models
 
+import "time"
+
 type Check struct {
 	Name  string
 	Owner string
@@ -47,11 +49,41 @@ func (c *CheckWithItems) SetItems(items []Item) {
 	c.items = items
 }
 
+type Session struct {
+	// seesion_id
+	Id int64
+	// opened_at (format [time.DateTime])
+	OpenedAt *time.Time
+	// closed_at (format [time.DateTime])
+	ClosedAt *time.Time
+	// is_open
+	IsOpen bool
+}
+
 type SessionTotal struct {
+	// TODO get rid of SessionId usage
 	SessionId int64
 	Total     float64
 	Recipient string
 	Amount    float64
+	// Can be null...
+	session *Session
+}
+
+func (st *SessionTotal) GetSessionId() int64 {
+	return st.session.Id
+}
+
+func (st *SessionTotal) GetOpenedAtTime() *time.Time {
+	return st.session.OpenedAt
+}
+
+func (st *SessionTotal) GetClosedAtTime() *time.Time {
+	return st.session.ClosedAt
+}
+
+func (st *SessionTotal) SetSession(s *Session) {
+	st.session = s
 }
 
 type CheckTotal struct {
