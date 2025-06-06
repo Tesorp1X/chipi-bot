@@ -3,6 +3,7 @@ package models
 import "time"
 
 type Check struct {
+	Id    int64
 	Name  string
 	Owner string
 }
