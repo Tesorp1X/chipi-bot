@@ -5,6 +5,7 @@ import (
 	"errors"
 	"log"
 	"os"
+	"strconv"
 	"time"
 
 	"github.com/Tesorp1X/chipi-bot/models"
@@ -487,4 +488,53 @@ func GetAllChecksWithItemsForSesssionId(sessionId int64) ([]*models.CheckWithIte
 	}
 
 	return checksWithItems, nil
+}
+func getSessionById(db *sql.DB, sessionId int64) (*models.Session, error) {
+	var (
+		id        int64
+		opened_at string
+		closed_at string
+		is_open   string
+	)
+	sql := `SELECT * FROM sessions WHERE id = ?`
+	row := db.QueryRow(sql, sessionId)
+
+	if err := row.Scan(&id, &opened_at, &closed_at, &is_open); err != nil {
+		return nil, err
+	}
+
+	s := new(models.Session)
+
+	s.Id = id
+
+	if openedAt, err := time.Parse(time.DateTime, opened_at); err == nil {
+		s.OpenedAt = &openedAt
+	} else {
+		return nil, err
+	}
+
+	if closedAt, err := time.Parse(time.DateTime, closed_at); err == nil {
+		s.ClosedAt = &closedAt
+	} else {
+		return nil, err
+	}
+
+	if isOpen, err := strconv.ParseBool(is_open); err == nil {
+		s.IsOpen = isOpen
+	} else {
+		return nil, err
+	}
+
+	return s, nil
+}
+
+// Public version of getSessionById, that sets, up a db connection and passes it to getSessionById.
+func GetSessionById(id int64) (*models.Session, error) {
+	db, err := InitDB()
+	if err != nil {
+		return nil, err
+	}
+	defer db.Close()
+
+	return getSessionById(db, id)
 }
