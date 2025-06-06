@@ -21,11 +21,12 @@ const (
 
 // storage keys
 const (
-	ITEMS_LIST    = "items_list"
-	CHECK_ID      = "check_id"
-	SESSION_ID    = "session_id"
-	CHECKS        = "checks"
-	CURRENT_INDEX = "current_index"
+	ITEMS_LIST     = "items_list"
+	CHECK_ID       = "check_id"
+	SESSION_ID     = "session_id"
+	CHECKS         = "checks"
+	CURRENT_INDEX  = "current_index"
+	SESSION_TOTALS = "session_totals"
 )
 
 // error msgs
