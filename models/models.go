@@ -1,13 +1,17 @@
 package models
 
-import "time"
+import (
+	"time"
+)
 
+// Represents a row in 'checks' table.
 type Check struct {
 	Id    int64
 	Name  string
 	Owner string
 }
 
+// Represents a row in 'items' table with a [Check] obj.
 type Item struct {
 	CheckId int64
 	Name    string
@@ -16,6 +20,7 @@ type Item struct {
 }
 
 type CheckWithItems struct {
+	// TODO defer to use check.Id istead of Id
 	Id    int64
 	check Check
 	items []Item
@@ -50,6 +55,7 @@ func (c *CheckWithItems) SetItems(items []Item) {
 	c.items = items
 }
 
+// Represents a row in 'sessions' table
 type Session struct {
 	// seesion_id
 	Id int64
@@ -61,6 +67,7 @@ type Session struct {
 	IsOpen bool
 }
 
+// Represents a row in 'totals' table with a [Session] obj.
 type SessionTotal struct {
 	// TODO get rid of SessionId usage
 	SessionId int64
@@ -85,7 +92,7 @@ func (st *SessionTotal) GetClosedAtTime() *time.Time {
 
 func (st *SessionTotal) SetSession(s *Session) {
 	if s != nil {
-	st.session = s
+		st.session = s
 	} else {
 		st.session = new(Session)
 	}
