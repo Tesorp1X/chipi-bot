@@ -176,6 +176,8 @@ func ShowCommand(c tele.Context, state fsm.Context) error {
 	switch arg {
 	case "checks":
 		return showChecks(c, state)
+	case "totals":
+		return showTotals(c, state)
 	default:
 		msg := "Команда /show требует аргумента. Например:\n/show checks -- покажет чеки\nДругие аргументы пока что в разработке."
 		kb := &tele.ReplyMarkup{ResizeKeyboard: true, OneTimeKeyboard: true}
@@ -225,13 +227,47 @@ func showChecks(c tele.Context, state fsm.Context) error {
 	)
 	kb.RemoveKeyboard = true
 
-	// set state ShowinChecks
-	if err := state.SetState(context.TODO(), models.StateShowingChecks); err != nil {
+
+func showTotals(c tele.Context, state fsm.Context) error {
+
+	totals, err := db.GetAllSessionTotals()
+	if err != nil {
+		return c.Send(models.ErrorSometingWentWrong)
+	}
+
+	// Context should be short-lived (few mins).
+	// TODO make it short-lived
+	if err := state.Update(context.TODO(), models.SESSION_TOTALS, totals); err != nil {
+		state.Finish(context.TODO(), true)
+		return c.Send(models.ErrorStateDataUpdate)
+	}
+
+	var currentIndex int
+	if err := state.Update(context.TODO(), models.CURRENT_INDEX, currentIndex); err != nil {
+		state.Finish(context.TODO(), true)
+		return c.Send(models.ErrorStateDataUpdate)
+	}
+
+	if err := state.SetState(context.TODO(), models.StateShowingTotals); err != nil {
 		state.Finish(context.TODO(), true)
 		return c.Send(models.ErrorSetState)
 	}
 
-	return c.Send(util.GetCheckWithItemsResponse(*session.Checks[currentIndex]), kb)
+	kb := models.CreateSelectorInlineKb(
+		2,
+		models.Button{
+			BtnTxt: "<<",
+			Unique: models.CallbackActionMenuButtonPress.String(),
+			Data:   models.BACK,
+		},
+		models.Button{
+			BtnTxt: ">>",
+			Unique: models.CallbackActionMenuButtonPress.String(),
+			Data:   models.FORWARD,
+		},
+	)
+
+	return c.Send(util.GetShowTotalsResponse(totals[currentIndex]), kb)
 }
 
 type checksForSession struct {
