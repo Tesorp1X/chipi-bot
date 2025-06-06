@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"strconv"
 	"strings"
+	"time"
 
 	"github.com/Tesorp1X/chipi-bot/models"
 )
@@ -219,6 +220,22 @@ func GetCheckWithItemsResponse(check models.CheckWithItems) string {
 	}
 
 	msg += "Итого: " + strconv.FormatFloat(total, 'f', 2, 64) + " бублей."
+
+	return msg
+}
+
+// Responce for '/show totals' command. Show one at a time.
+func GetShowTotalsResponse(total *models.SessionTotal) string {
+	msg := "Результат сессии №" + strconv.FormatInt(total.GetSessionId(), 10) + ":\n\n"
+
+	msg += "Дата начала: " + total.GetOpenedAtTime().Format(time.DateTime) + "\n"
+	msg += "Дата окончания: " + total.GetClosedAtTime().Format(time.DateTime) + "\n\n"
+
+	if total.Recipient == models.OWNER_LIZ {
+		msg += fmt.Sprintf("Пау должен Лиз %.2f руб.", total.Amount)
+	} else {
+		msg += fmt.Sprintf("Лиз должна Пау %.2f руб.", total.Amount)
+	}
 
 	return msg
 }
