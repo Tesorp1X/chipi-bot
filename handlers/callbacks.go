@@ -63,7 +63,14 @@ func ShowChecksMenuButtonCallback(c tele.Context, state fsm.Context) error {
 
 	var currentIndex int = 0
 	// If currentIndex is not stored in context, then it will be just zero.
-	state.Data(context.TODO(), models.CURRENT_INDEX, &currentIndex)
+	if err := state.Data(context.TODO(), models.CURRENT_INDEX, &currentIndex); err != nil {
+		return c.Respond(&tele.CallbackResponse{
+			Text: models.ErrorSometingWentWrong + " Попробуйте еще раз.",
+		})
+	}
+	if currentIndex < 0 || currentIndex >= len(session.Checks) {
+		currentIndex = 0
+	}
 
 	buttonPressed := util.ExtractDataFromCallback(c.Callback().Data, models.CallbackActionMenuButtonPress)
 	switch buttonPressed {
