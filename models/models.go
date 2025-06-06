@@ -84,7 +84,12 @@ func (st *SessionTotal) GetClosedAtTime() *time.Time {
 }
 
 func (st *SessionTotal) SetSession(s *Session) {
+	if s != nil {
 	st.session = s
+	} else {
+		st.session = new(Session)
+	}
+
 }
 
 type CheckTotal struct {
