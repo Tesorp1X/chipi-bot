@@ -208,9 +208,20 @@ func showChecks(c tele.Context, state fsm.Context) error {
 
 	// Context should be short-lived (few mins).
 	// TODO make it short-lived
-	// TODO error handling
-	state.Update(context.TODO(), models.CHECKS, session)
-	state.Update(context.TODO(), models.CURRENT_INDEX, currentIndex)
+	if err := state.Update(context.TODO(), models.CHECKS, session); err != nil {
+		state.Finish(context.TODO(), true)
+		return c.Send(models.ErrorStateDataUpdate)
+	}
+
+	if err := state.Update(context.TODO(), models.CURRENT_INDEX, currentIndex); err != nil {
+		state.Finish(context.TODO(), true)
+		return c.Send(models.ErrorStateDataUpdate)
+	}
+	// set state ShowinChecks
+	if err := state.SetState(context.TODO(), models.StateShowingChecks); err != nil {
+		state.Finish(context.TODO(), true)
+		return c.Send(models.ErrorSetState)
+	}
 
 	kb := models.CreateSelectorInlineKb(
 		2,
@@ -227,6 +238,8 @@ func showChecks(c tele.Context, state fsm.Context) error {
 	)
 	kb.RemoveKeyboard = true
 
+	return c.Send(util.GetCheckWithItemsResponse(*session.Checks[currentIndex]), kb)
+}
 
 func showTotals(c tele.Context, state fsm.Context) error {
 
