@@ -489,6 +489,41 @@ func GetAllChecksWithItemsForSesssionId(sessionId int64) ([]*models.CheckWithIte
 
 	return checksWithItems, nil
 }
+
+func GetAllSessionTotals() ([]*models.SessionTotal, error) {
+	db, err := InitDB()
+	if err != nil {
+		return nil, err
+	}
+	defer db.Close()
+
+	sql := `SELECT * FROM totals`
+	rows, err := db.Query(sql)
+	if err != nil {
+		return nil, err
+	}
+
+	var totals []*models.SessionTotal
+
+	for rows.Next() {
+		var id int64
+		total := new(models.SessionTotal)
+		if err := rows.Scan(&id, &total.SessionId, &total.Total, &total.Recipient, &total.Amount); err != nil {
+			return totals, err
+		}
+
+		s, err := getSessionById(db, total.SessionId)
+		if err != nil {
+			return totals, err
+		}
+
+		total.SetSession(s)
+		totals = append(totals, total)
+	}
+
+	return totals, nil
+}
+
 func getSessionById(db *sql.DB, sessionId int64) (*models.Session, error) {
 	var (
 		id        int64
