@@ -20,6 +20,7 @@ const (
 	StateWaitForNewItem   fsm.State = "wait_for_new_item"
 
 	StateShowingChecks fsm.State = "showing_checks"
+	StateShowingTotals fsm.State = "showing_totals"
 )
 
 type CallbackAction string
