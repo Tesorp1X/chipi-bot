@@ -490,6 +490,8 @@ func GetAllChecksWithItemsForSesssionId(sessionId int64) ([]*models.CheckWithIte
 	return checksWithItems, nil
 }
 
+// Returns a slice of session-totals from table 'totals'.
+// Function may return not all totals, and an error.
 func GetAllSessionTotals() ([]*models.SessionTotal, error) {
 	db, err := InitDB()
 	if err != nil {
@@ -563,7 +565,8 @@ func getSessionById(db *sql.DB, sessionId int64) (*models.Session, error) {
 	return s, nil
 }
 
-// Public version of getSessionById, that sets, up a db connection and passes it to getSessionById.
+// Returns [models.Session] with provided id from 'sessions' table.
+// Public wrapper for getSessionById, that sets, up a db connection and passes it to getSessionById.
 func GetSessionById(id int64) (*models.Session, error) {
 	db, err := InitDB()
 	if err != nil {
