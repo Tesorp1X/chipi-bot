@@ -175,20 +175,32 @@ func ShowCommand(c tele.Context, state fsm.Context) error {
 	}
 	switch arg {
 	case "checks":
+
 		return showChecks(c, state)
+
 	case "totals":
+
 		return showTotals(c, state)
+
 	default:
-		msg := "Команда /show требует аргумента. Например:\n/show checks -- покажет чеки\nДругие аргументы пока что в разработке."
-		kb := &tele.ReplyMarkup{ResizeKeyboard: true, OneTimeKeyboard: true}
-		btnChecks := kb.Text("/show checks")
 
-		kb.Reply(
-			kb.Row(btnChecks),
-		)
+		return showHelp(c, state)
 
-		return c.Send(msg, kb)
 	}
+}
+
+func showHelp(c tele.Context, state fsm.Context) error {
+	msg := "Команда /show требует аргумента. Например:\n"
+	checksHelp := "/show checks -- покажет чеки\n"
+	msg += checksHelp + "Другие аргументы пока что в разработке."
+	kb := &tele.ReplyMarkup{ResizeKeyboard: true, OneTimeKeyboard: true}
+	btnChecks := kb.Text("/show checks")
+
+	kb.Reply(
+		kb.Row(btnChecks),
+	)
+
+	return c.Send(msg, kb)
 }
 
 func showChecks(c tele.Context, state fsm.Context) error {
