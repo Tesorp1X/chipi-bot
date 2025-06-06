@@ -232,9 +232,9 @@ func GetShowTotalsResponse(total *models.SessionTotal) string {
 	msg += "Дата окончания: " + total.GetClosedAtTime().Format(time.DateTime) + "\n\n"
 
 	if total.Recipient == models.OWNER_LIZ {
-		msg += fmt.Sprintf("Пау должен Лиз %.2f руб.", total.Amount)
+		msg += fmt.Sprintf("Пау перевел Лиз %.2f руб.", total.Amount)
 	} else {
-		msg += fmt.Sprintf("Лиз должна Пау %.2f руб.", total.Amount)
+		msg += fmt.Sprintf("Лиз перевела Пау %.2f руб.", total.Amount)
 	}
 
 	return msg
