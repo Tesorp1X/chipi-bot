@@ -192,12 +192,17 @@ func ShowCommand(c tele.Context, state fsm.Context) error {
 func showHelp(c tele.Context, state fsm.Context) error {
 	msg := "Команда /show требует аргумента. Например:\n"
 	checksHelp := "/show checks -- покажет чеки\n"
-	msg += checksHelp + "Другие аргументы пока что в разработке."
+	totalsHelp := "/show totals -- покажет отчеты о прошлых сессиях\n"
+
+	msg += checksHelp + totalsHelp + "Другие аргументы пока что в разработке."
+
 	kb := &tele.ReplyMarkup{ResizeKeyboard: true, OneTimeKeyboard: true}
 	btnChecks := kb.Text("/show checks")
+	btnTotals := kb.Text("/show totals")
 
 	kb.Reply(
 		kb.Row(btnChecks),
+		kb.Row(btnTotals),
 	)
 
 	return c.Send(msg, kb)
