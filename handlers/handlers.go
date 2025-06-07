@@ -241,11 +241,16 @@ func showChecks(c tele.Context, state fsm.Context) error {
 	}
 
 	kb := models.CreateSelectorInlineKb(
-		2,
+		3,
 		models.Button{
 			BtnTxt: "<<",
 			Unique: models.CallbackActionMenuButtonPress.String(),
 			Data:   models.BTN_BACK,
+		},
+		models.Button{
+			BtnTxt: "edit",
+			Unique: models.CallbackActionMenuButtonPress.String(),
+			Data:   models.BTN_EDIT,
 		},
 		models.Button{
 			BtnTxt: ">>",
