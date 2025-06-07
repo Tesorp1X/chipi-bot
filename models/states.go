@@ -42,4 +42,6 @@ const (
 	CallbackActionHasNewItem CallbackAction = "has_new_item"
 
 	CallbackActionMenuButtonPress CallbackAction = "menu_button_press"
+
+	CallbackActionEditMenuButtonPress CallbackAction = "edit_menu_button_press"
 )

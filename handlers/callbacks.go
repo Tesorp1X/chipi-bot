@@ -146,22 +146,22 @@ func ShowChecksEditButtonCallback(c tele.Context, state fsm.Context) error {
 		3,
 		models.Button{
 			BtnTxt: "Владелец",
-			Unique: models.CallbackActionMenuButtonPress.String(),
+			Unique: models.CallbackActionEditMenuButtonPress.String(),
 			Data:   models.CHECK_OWNER,
 		},
 		models.Button{
 			BtnTxt: "Название",
-			Unique: models.CallbackActionMenuButtonPress.String(),
+			Unique: models.CallbackActionEditMenuButtonPress.String(),
 			Data:   models.CHECK_NAME,
 		},
 		models.Button{
 			BtnTxt: "Товары",
-			Unique: models.CallbackActionMenuButtonPress.String(),
+			Unique: models.CallbackActionEditMenuButtonPress.String(),
 			Data:   models.ITEMS_LIST,
 		},
 		models.Button{
 			BtnTxt: "Назад",
-			Unique: models.CallbackActionMenuButtonPress.String(),
+			Unique: models.CallbackActionEditMenuButtonPress.String(),
 			Data:   models.BTN_BACK,
 		},
 	)
