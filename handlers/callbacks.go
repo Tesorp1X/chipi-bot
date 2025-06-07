@@ -44,11 +44,8 @@ func HandleCallbackAction(c tele.Context, state fsm.Context) error {
 		return ShowTotalsMenuButtonCallback(c, state)
 
 	default:
-		//Response to callback
-		if err := c.Respond(&tele.CallbackResponse{}); err != nil {
-			log.Fatalf("couldn't respond to callback %v: %v", c.Callback(), err)
-		}
-		return c.Send(models.ErrorInvalidRequest)
+
+		return c.Respond(&tele.CallbackResponse{Text: models.ErrorInvalidRequest})
 	}
 
 }
