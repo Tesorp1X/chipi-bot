@@ -22,7 +22,7 @@ func HandleCallbackAction(c tele.Context, state fsm.Context) error {
 	case currentState == models.StateShowingChecks &&
 		models.CallbackActionMenuButtonPress.DataMatches(c.Callback().Data):
 
-		return ShowChecksMenuButtonCallback(c, state)
+		return ShowChecksScrollButtonCallback(c, state)
 
 	case currentState == models.StateWaitForCheckOwner &&
 		models.CallbackActionCheckOwner.DataMatches(c.Callback().Data):
@@ -54,7 +54,7 @@ func HandleCallbackAction(c tele.Context, state fsm.Context) error {
 }
 
 // Handles buuton-presses('<<' and '>>'), while scrolling through checks in '/show checks'.
-func ShowChecksMenuButtonCallback(c tele.Context, state fsm.Context) error {
+func ShowChecksScrollButtonCallback(c tele.Context, state fsm.Context) error {
 	// Trying to get session from context.
 	var session *checksForSession
 	if err := state.Data(context.TODO(), models.CHECKS, &session); err != nil {
