@@ -140,6 +140,10 @@ func ShowChecksScrollButtonCallback(c tele.Context, state fsm.Context) error {
 
 // Handles buuton-presses('edit'), while scrolling through checks in '/show checks'.
 func ShowChecksEditButtonCallback(c tele.Context, state fsm.Context) error {
+	if err := c.Respond(&tele.CallbackResponse{}); err != nil {
+		log.Fatalf("couldn't respond to callback %v: %v", c.Callback(), err)
+	}
+
 	msg := "Что хотите изменить?👀"
 
 	kb := models.CreateSelectorInlineKb(
