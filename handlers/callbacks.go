@@ -53,7 +53,7 @@ func HandleCallbackAction(c tele.Context, state fsm.Context) error {
 
 }
 
-// Handles buuton-presses('<<' and '>>'), while scrolling through checks in '/show checks'.
+// Handles button-presses('<<' and '>>'), while scrolling through checks in '/show checks'.
 func ShowChecksScrollButtonCallback(c tele.Context, state fsm.Context) error {
 	if util.ExtractDataFromCallback(c.Callback().Data, models.CallbackActionMenuButtonPress) == models.BTN_EDIT {
 		return ShowChecksEditButtonCallback(c, state)
@@ -138,7 +138,7 @@ func ShowChecksScrollButtonCallback(c tele.Context, state fsm.Context) error {
 	return c.EditOrReply(util.GetCheckWithItemsResponse(*session.Checks[currentIndex]), kb)
 }
 
-// Handles buuton-presses('edit'), while scrolling through checks in '/show checks'.
+// Handles button-presses('edit'), while scrolling through checks in '/show checks'.
 func ShowChecksEditButtonCallback(c tele.Context, state fsm.Context) error {
 	if err := c.Respond(&tele.CallbackResponse{}); err != nil {
 		log.Fatalf("couldn't respond to callback %v: %v", c.Callback(), err)
