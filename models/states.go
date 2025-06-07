@@ -21,6 +21,7 @@ const (
 
 	StateShowingChecks fsm.State = "showing_checks"
 	StateShowingTotals fsm.State = "showing_totals"
+	StateEditingCheck  fsm.State = "editing_check"
 )
 
 type CallbackAction string
