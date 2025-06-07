@@ -55,6 +55,9 @@ func HandleCallbackAction(c tele.Context, state fsm.Context) error {
 
 // Handles buuton-presses('<<' and '>>'), while scrolling through checks in '/show checks'.
 func ShowChecksScrollButtonCallback(c tele.Context, state fsm.Context) error {
+	if util.ExtractDataFromCallback(c.Callback().Data, models.CallbackActionMenuButtonPress) == models.BTN_EDIT {
+		return ShowChecksEditButtonCallback(c, state)
+	}
 	// Trying to get session from context.
 	var session *checksForSession
 	if err := state.Data(context.TODO(), models.CHECKS, &session); err != nil {
@@ -133,6 +136,37 @@ func ShowChecksScrollButtonCallback(c tele.Context, state fsm.Context) error {
 	}
 
 	return c.EditOrReply(util.GetCheckWithItemsResponse(*session.Checks[currentIndex]), kb)
+}
+
+// Handles buuton-presses('edit'), while scrolling through checks in '/show checks'.
+func ShowChecksEditButtonCallback(c tele.Context, state fsm.Context) error {
+	msg := "Что хотите изменить?👀"
+
+	kb := models.CreateSelectorInlineKb(
+		3,
+		models.Button{
+			BtnTxt: "Владелец",
+			Unique: models.CallbackActionMenuButtonPress.String(),
+			Data:   models.CHECK_OWNER,
+		},
+		models.Button{
+			BtnTxt: "Название",
+			Unique: models.CallbackActionMenuButtonPress.String(),
+			Data:   models.CHECK_NAME,
+		},
+		models.Button{
+			BtnTxt: "Товары",
+			Unique: models.CallbackActionMenuButtonPress.String(),
+			Data:   models.ITEMS_LIST,
+		},
+		models.Button{
+			BtnTxt: "Назад",
+			Unique: models.CallbackActionMenuButtonPress.String(),
+			Data:   models.BTN_BACK,
+		},
+	)
+
+	return c.EditOrReply(msg, kb)
 }
 
 // Handles check ownership responce (from inline keyboard).
