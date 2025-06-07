@@ -65,6 +65,10 @@ func ShowChecksScrollButtonCallback(c tele.Context, state fsm.Context) error {
 		if err != nil {
 			return c.Send(models.ErrorSometingWentWrong)
 		}
+		// length is still zero, then there must be no checks for this session yet.
+		if len(session.Checks) == 0 {
+			return c.EditOrReply("В текущей сессии покаа что нет чеков.", &tele.ReplyMarkup{})
+		}
 		state.Update(context.TODO(), models.CHECKS, session)
 	}
 
