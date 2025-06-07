@@ -43,6 +43,11 @@ func HandleCallbackAction(c tele.Context, state fsm.Context) error {
 
 		return ShowTotalsMenuButtonCallback(c, state)
 
+	case currentState == models.StateEditingCheck &&
+		models.CallbackActionEditMenuButtonPress.DataMatches(c.Callback().Data):
+
+		return EditChecksButtonCallback(c, state)
+
 	default:
 
 		return c.Respond(&tele.CallbackResponse{Text: models.ErrorInvalidRequest})
@@ -178,6 +183,47 @@ func ShowChecksEditButtonCallback(c tele.Context, state fsm.Context) error {
 	}
 
 	return c.EditOrReply(msg, kb)
+}
+
+// Handles button-presses('edit'), while scrolling through checks in '/show checks'.
+func EditChecksButtonCallback(c tele.Context, state fsm.Context) error {
+	buttonPressed := util.ExtractDataFromCallback(c.Callback().Data, models.CallbackActionEditMenuButtonPress)
+
+	switch buttonPressed {
+	case models.CHECK_OWNER:
+		// set state EditingCheck
+		if err := state.SetState(context.TODO(), models.StateWaitForCheckOwner); err != nil {
+			state.Finish(context.TODO(), true)
+			return c.Send(models.ErrorSetState)
+		}
+
+		msg := "Кто новый владелец?"
+		kb := models.CreateSelectorInlineKb(
+			2,
+			models.Button{
+				BtnTxt: "Лиз💜",
+				Unique: models.CallbackActionEditMenuButtonPress.String(),
+				Data:   models.OWNER_LIZ,
+			},
+			models.Button{
+				BtnTxt: "Пау💙",
+				Unique: models.CallbackActionEditMenuButtonPress.String(),
+				Data:   models.OWNER_PAU,
+			},
+		)
+		return c.EditOrReply(msg, kb)
+
+	case models.CHECK_NAME:
+		return nil
+	case models.ITEMS_LIST:
+		return nil
+	case models.BTN_BACK:
+		return nil
+	default:
+		return c.Respond(&tele.CallbackResponse{
+			Text: models.ErrorInvalidRequest,
+		})
+	}
 }
 
 // Handles check ownership responce (from inline keyboard).
