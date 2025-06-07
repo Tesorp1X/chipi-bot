@@ -70,7 +70,6 @@ func CreateSelectorInlineKb(btnsPerRow int, buttons ...Button) *tele.ReplyMarkup
 	}
 	rm := &tele.ReplyMarkup{}
 	rm.Inline(rm.Split(btnsPerRow, rowsOfButtons)...)
-	rm.OneTimeKeyboard = true
 
 	return rm
 }
