@@ -170,6 +170,12 @@ func ShowChecksEditButtonCallback(c tele.Context, state fsm.Context) error {
 		},
 	)
 
+	// set state EditingCheck
+	if err := state.SetState(context.TODO(), models.StateEditingCheck); err != nil {
+		state.Finish(context.TODO(), true)
+		return c.Send(models.ErrorSetState)
+	}
+
 	return c.EditOrReply(msg, kb)
 }
 
