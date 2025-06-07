@@ -15,8 +15,9 @@ const (
 	HAS_MORE_ITEMS_TRUE  = "true"
 	HAS_MORE_ITEMS_FALSE = "false"
 
-	FORWARD = "forward"
-	BACK    = "back"
+	BTN_FORWARD = "forward"
+	BTN_BACK    = "back"
+	BTN_EDIT    = "edit"
 )
 
 // storage keys

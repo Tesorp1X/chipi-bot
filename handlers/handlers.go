@@ -245,12 +245,12 @@ func showChecks(c tele.Context, state fsm.Context) error {
 		models.Button{
 			BtnTxt: "<<",
 			Unique: models.CallbackActionMenuButtonPress.String(),
-			Data:   models.BACK,
+			Data:   models.BTN_BACK,
 		},
 		models.Button{
 			BtnTxt: ">>",
 			Unique: models.CallbackActionMenuButtonPress.String(),
-			Data:   models.FORWARD,
+			Data:   models.BTN_FORWARD,
 		},
 	)
 	kb.RemoveKeyboard = true
@@ -288,12 +288,12 @@ func showTotals(c tele.Context, state fsm.Context) error {
 		models.Button{
 			BtnTxt: "<<",
 			Unique: models.CallbackActionMenuButtonPress.String(),
-			Data:   models.BACK,
+			Data:   models.BTN_BACK,
 		},
 		models.Button{
 			BtnTxt: ">>",
 			Unique: models.CallbackActionMenuButtonPress.String(),
-			Data:   models.FORWARD,
+			Data:   models.BTN_FORWARD,
 		},
 	)
 

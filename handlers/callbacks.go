@@ -78,7 +78,7 @@ func ShowChecksScrollButtonCallback(c tele.Context, state fsm.Context) error {
 
 	buttonPressed := util.ExtractDataFromCallback(c.Callback().Data, models.CallbackActionMenuButtonPress)
 	switch buttonPressed {
-	case models.FORWARD:
+	case models.BTN_FORWARD:
 		currentIndex++
 		if currentIndex == len(session.Checks) {
 			// to eliminate OutOfBounds Error
@@ -89,7 +89,7 @@ func ShowChecksScrollButtonCallback(c tele.Context, state fsm.Context) error {
 			}
 			return nil
 		}
-	case models.BACK:
+	case models.BTN_BACK:
 		currentIndex--
 		if currentIndex < 0 {
 			// to eliminate OutOfBounds Error
@@ -118,12 +118,12 @@ func ShowChecksScrollButtonCallback(c tele.Context, state fsm.Context) error {
 		models.Button{
 			BtnTxt: "<<",
 			Unique: models.CallbackActionMenuButtonPress.String(),
-			Data:   models.BACK,
+			Data:   models.BTN_BACK,
 		},
 		models.Button{
 			BtnTxt: ">>",
 			Unique: models.CallbackActionMenuButtonPress.String(),
-			Data:   models.FORWARD,
+			Data:   models.BTN_FORWARD,
 		},
 	)
 	// set state ShowinChecks
@@ -292,7 +292,7 @@ func ShowTotalsMenuButtonCallback(c tele.Context, state fsm.Context) error {
 
 	buttonPressed := util.ExtractDataFromCallback(c.Callback().Data, models.CallbackActionMenuButtonPress)
 	switch buttonPressed {
-	case models.FORWARD:
+	case models.BTN_FORWARD:
 		currentIndex++
 		if currentIndex == len(totals) {
 			// to eliminate OutOfBounds Error
@@ -304,7 +304,7 @@ func ShowTotalsMenuButtonCallback(c tele.Context, state fsm.Context) error {
 			}
 			return nil
 		}
-	case models.BACK:
+	case models.BTN_BACK:
 		currentIndex--
 		if currentIndex < 0 {
 			// to eliminate OutOfBounds Error
@@ -338,12 +338,12 @@ func ShowTotalsMenuButtonCallback(c tele.Context, state fsm.Context) error {
 		models.Button{
 			BtnTxt: "<<",
 			Unique: models.CallbackActionMenuButtonPress.String(),
-			Data:   models.BACK,
+			Data:   models.BTN_BACK,
 		},
 		models.Button{
 			BtnTxt: ">>",
 			Unique: models.CallbackActionMenuButtonPress.String(),
-			Data:   models.FORWARD,
+			Data:   models.BTN_FORWARD,
 		},
 	)
 
