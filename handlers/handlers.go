@@ -219,7 +219,7 @@ func showChecks(c tele.Context, state fsm.Context) error {
 		}
 		// length is still zero, then there must be no checks for this session yet.
 		if len(session.Checks) == 0 {
-			return c.Send("В текущей сессии покаа что нет чеков.")
+			return c.Send("В текущей сессии пока что нет чеков.")
 		}
 	}
 
