@@ -49,7 +49,8 @@ func HandleCallbackAction(c tele.Context, state fsm.Context) error {
 		return EditChecksButtonCallback(c, state)
 
 	default:
-
+		// if callback query is old, remove inline buttons from that message
+		c.Bot().EditReplyMarkup(c.Callback().Message, &tele.ReplyMarkup{})
 		return c.Respond(&tele.CallbackResponse{Text: models.ErrorInvalidRequest})
 	}
 
