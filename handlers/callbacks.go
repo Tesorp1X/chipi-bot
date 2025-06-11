@@ -214,11 +214,11 @@ func EditChecksButtonCallback(c tele.Context, state fsm.Context) error {
 		return c.EditOrReply(msg, kb)
 
 	case models.CHECK_NAME:
-		return nil
+		return c.Respond(&tele.CallbackResponse{Text: "Фича еще в разрабоотке."})
 	case models.ITEMS_LIST:
-		return nil
+		return c.Respond(&tele.CallbackResponse{Text: "Фича еще в разрабоотке."})
 	case models.BTN_BACK:
-		return nil
+		return c.Respond(&tele.CallbackResponse{Text: "Фича еще в разрабоотке."})
 	default:
 		return c.Respond(&tele.CallbackResponse{
 			Text: models.ErrorInvalidRequest,
