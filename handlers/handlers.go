@@ -244,25 +244,7 @@ func showChecks(c tele.Context, state fsm.Context) error {
 		return c.Send(models.ErrorSetState)
 	}
 
-	kb := models.CreateSelectorInlineKb(
-		3,
-		models.Button{
-			BtnTxt: "<<",
-			Unique: models.CallbackActionMenuButtonPress.String(),
-			Data:   models.BTN_BACK,
-		},
-		models.Button{
-			BtnTxt: "edit",
-			Unique: models.CallbackActionMenuButtonPress.String(),
-			Data:   models.BTN_EDIT,
-		},
-		models.Button{
-			BtnTxt: ">>",
-			Unique: models.CallbackActionMenuButtonPress.String(),
-			Data:   models.BTN_FORWARD,
-		},
-	)
-	kb.RemoveKeyboard = true
+	kb := models.GetScrollKb()
 
 	return c.Send(util.GetCheckWithItemsResponse(*session.Checks[currentIndex]), kb)
 }

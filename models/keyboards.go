@@ -73,3 +73,22 @@ func CreateSelectorInlineKb(btnsPerRow int, buttons ...Button) *tele.ReplyMarkup
 
 	return rm
 }
+
+func GetScrollKb() *tele.ReplyMarkup {
+	return CreateSelectorInlineKb(3,
+		Button{
+			BtnTxt: "<<",
+			Unique: CallbackActionMenuButtonPress.String(),
+			Data:   BTN_BACK,
+		},
+		Button{
+			BtnTxt: "edit",
+			Unique: CallbackActionMenuButtonPress.String(),
+			Data:   BTN_EDIT,
+		},
+		Button{
+			BtnTxt: ">>",
+			Unique: CallbackActionMenuButtonPress.String(),
+			Data:   BTN_FORWARD,
+		})
+}

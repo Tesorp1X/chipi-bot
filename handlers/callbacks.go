@@ -128,24 +128,7 @@ func ShowChecksScrollButtonCallback(c tele.Context, state fsm.Context) error {
 
 	state.Update(context.TODO(), models.CURRENT_INDEX, currentIndex)
 
-	kb := models.CreateSelectorInlineKb(
-		2,
-		models.Button{
-			BtnTxt: "<<",
-			Unique: models.CallbackActionMenuButtonPress.String(),
-			Data:   models.BTN_BACK,
-		},
-		models.Button{
-			BtnTxt: "edit",
-			Unique: models.CallbackActionMenuButtonPress.String(),
-			Data:   models.BTN_EDIT,
-		},
-		models.Button{
-			BtnTxt: ">>",
-			Unique: models.CallbackActionMenuButtonPress.String(),
-			Data:   models.BTN_FORWARD,
-		},
-	)
+	kb := models.GetScrollKb()
 	// set state ShowinChecks
 	if err := state.SetState(context.TODO(), models.StateShowingChecks); err != nil {
 		state.Finish(context.TODO(), true)
@@ -527,19 +510,7 @@ func ShowTotalsMenuButtonCallback(c tele.Context, state fsm.Context) error {
 		log.Fatalf("couldn't respond to callback %v: %v", c.Callback(), err)
 	}
 
-	kb := models.CreateSelectorInlineKb(
-		2,
-		models.Button{
-			BtnTxt: "<<",
-			Unique: models.CallbackActionMenuButtonPress.String(),
-			Data:   models.BTN_BACK,
-		},
-		models.Button{
-			BtnTxt: ">>",
-			Unique: models.CallbackActionMenuButtonPress.String(),
-			Data:   models.BTN_FORWARD,
-		},
-	)
+	kb := models.GetScrollKb()
 
 	return c.EditOrReply(util.GetShowTotalsResponse(totals[currentIndex]), kb)
 }
