@@ -444,9 +444,9 @@ func NewItemCallback(c tele.Context, state fsm.Context) error {
 	return c.Send(msg)
 }
 
-// Handles buuton-presses('<<' and '>>'), while scrolling through checks in '/show totals'.
+// Handles buton-presses('<<' and '>>'), while scrolling through checks in '/show totals'.
 func ShowTotalsMenuButtonCallback(c tele.Context, state fsm.Context) error {
-	// retrieve totals from contexxt or db
+	// retrieve totals from context or db
 	var totals []*models.SessionTotal
 	if err := state.Data(context.TODO(), models.SESSION_TOTALS, &totals); err != nil {
 		totals, err = db.GetAllSessionTotals()
@@ -456,7 +456,7 @@ func ShowTotalsMenuButtonCallback(c tele.Context, state fsm.Context) error {
 			})
 		}
 	}
-	// retrieve currentIndex from contexxt or it will be zero
+	// retrieve currentIndex from context or it will be zero
 	var currentIndex int = 0
 	if err := state.Data(context.TODO(), models.CURRENT_INDEX, &currentIndex); err != nil {
 		return c.Respond(&tele.CallbackResponse{
