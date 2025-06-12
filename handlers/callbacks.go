@@ -312,7 +312,7 @@ func NewCheckOwnerCallback(c tele.Context, state fsm.Context) error {
 	return c.EditOrReply(msg, kb)
 }
 
-// Handles check ownership responce (from inline keyboard).
+// Handles check ownership response (from inline keyboard).
 func CheckOwnerCallback(c tele.Context, state fsm.Context) error {
 	//Response to callback
 	if err := c.Respond(&tele.CallbackResponse{}); err != nil {
@@ -354,7 +354,7 @@ func CheckOwnerCallback(c tele.Context, state fsm.Context) error {
 	return c.Send(msg)
 }
 
-// Handles item ownership responce (from inline keyboard).v
+// Handles item ownership response (from inline keyboard).v
 func ItemOwnerCallback(c tele.Context, state fsm.Context) error {
 	//Response to callback
 	if err := c.Respond(&tele.CallbackResponse{}); err != nil {
@@ -401,7 +401,7 @@ func ItemOwnerCallback(c tele.Context, state fsm.Context) error {
 	return c.Send(msg, selector)
 }
 
-// Handles responce to question if there more items (from inline keyboard).
+// Handles response to question if there more items (from inline keyboard).
 func NewItemCallback(c tele.Context, state fsm.Context) error {
 	//Response to callback
 	if err := c.Respond(&tele.CallbackResponse{}); err != nil {
