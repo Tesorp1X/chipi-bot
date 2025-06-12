@@ -48,6 +48,11 @@ func HandleCallbackAction(c tele.Context, state fsm.Context) error {
 
 		return EditChecksButtonCallback(c, state)
 
+	case currentState == models.StateWaitForCheckOwner &&
+		models.CallbackActionEditMenuButtonPress.DataMatches(c.Callback().Data):
+
+		return NewCheckOwnerCallback(c, state)
+
 	default:
 		// if callback query is old, remove inline buttons from that message
 		c.Bot().EditReplyMarkup(c.Callback().Message, &tele.ReplyMarkup{})
@@ -190,6 +195,37 @@ func ShowChecksEditButtonCallback(c tele.Context, state fsm.Context) error {
 func EditChecksButtonCallback(c tele.Context, state fsm.Context) error {
 	buttonPressed := util.ExtractDataFromCallback(c.Callback().Data, models.CallbackActionEditMenuButtonPress)
 
+	// Trying to get session from context.
+	var session *checksForSession
+	if err := state.Data(context.TODO(), models.CHECKS, &session); err != nil {
+		session, err = getChecksForCurrentSession(c)
+		if err != nil {
+			return c.Send(models.ErrorSometingWentWrong)
+		}
+		// length is still zero, then there must be no checks for this session yet.
+		if len(session.Checks) == 0 {
+			return c.EditOrReply("В текущей сессии покаа что нет чеков.", &tele.ReplyMarkup{})
+		}
+		state.Update(context.TODO(), models.CHECKS, session)
+	}
+
+	var currentIndex int = 0
+	// If currentIndex is not stored in context, then it will be just zero.
+	if err := state.Data(context.TODO(), models.CURRENT_INDEX, &currentIndex); err != nil {
+		return c.Respond(&tele.CallbackResponse{
+			Text: models.ErrorTryAgain,
+		})
+	}
+
+	check := session.Checks[currentIndex]
+
+	if err := state.Update(context.TODO(), models.CHECK, check); err != nil {
+		state.Finish(context.Background(), true)
+		return c.Respond(&tele.CallbackResponse{
+			Text: models.ErrorStateDataUpdate,
+		})
+	}
+
 	switch buttonPressed {
 	case models.CHECK_OWNER:
 		// set state EditingCheck
@@ -225,6 +261,67 @@ func EditChecksButtonCallback(c tele.Context, state fsm.Context) error {
 			Text: models.ErrorInvalidRequest,
 		})
 	}
+}
+
+// Assigns new owner to a check in check-editing scenario
+func NewCheckOwnerCallback(c tele.Context, state fsm.Context) error {
+	// finding check, that is being edited in storage
+	var check *models.CheckWithItems
+	if err := state.Data(context.Background(), models.CHECK, &check); err != nil {
+		state.Finish(context.TODO(), true)
+		return c.Send(models.ErrorSetState)
+	}
+
+	newOwner := util.ExtractDataFromCallback(c.Callback().Data, models.CallbackActionEditMenuButtonPress)
+
+	switch newOwner {
+	case models.OWNER_LIZ, models.OWNER_PAU:
+		if err := db.EditCheckOwner(check.Id, newOwner); err != nil {
+			return c.Respond(&tele.CallbackResponse{Text: models.ErrorTryAgain})
+		}
+	default:
+		c.Bot().EditReplyMarkup(c.Callback().Message, &tele.ReplyMarkup{})
+		return c.Respond(&tele.CallbackResponse{Text: models.ErrorInvalidRequest})
+	}
+
+	session, err := getChecksForCurrentSession(c)
+	if err != nil {
+		state.Finish(context.Background(), true)
+		return c.Respond(&tele.CallbackResponse{Text: models.ErrorSometingWentWrong})
+	}
+
+	var currentIndex int
+	if err := state.Data(context.TODO(), models.CURRENT_INDEX, &currentIndex); err != nil {
+		return c.Respond(&tele.CallbackResponse{
+			Text: models.ErrorTryAgain,
+		})
+	}
+
+	kb := models.CreateSelectorInlineKb(
+		3,
+		models.Button{
+			BtnTxt: "Владелец",
+			Unique: models.CallbackActionEditMenuButtonPress.String(),
+			Data:   models.CHECK_OWNER,
+		},
+		models.Button{
+			BtnTxt: "Название",
+			Unique: models.CallbackActionEditMenuButtonPress.String(),
+			Data:   models.CHECK_NAME,
+		},
+		models.Button{
+			BtnTxt: "Товары",
+			Unique: models.CallbackActionEditMenuButtonPress.String(),
+			Data:   models.ITEMS_LIST,
+		},
+		models.Button{
+			BtnTxt: "Назад",
+			Unique: models.CallbackActionEditMenuButtonPress.String(),
+			Data:   models.BTN_BACK,
+		},
+	)
+
+	return c.EditOrReply(util.GetCheckWithItemsResponse(*session.Checks[currentIndex]), kb)
 }
 
 // Handles check ownership responce (from inline keyboard).
