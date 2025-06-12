@@ -25,6 +25,7 @@ const (
 	ITEMS_LIST     = "items_list"
 	CHECK_ID       = "check_id"
 	SESSION_ID     = "session_id"
+	CHECK          = "check"
 	CHECKS         = "checks"
 	CURRENT_INDEX  = "current_index"
 	SESSION_TOTALS = "session_totals"
@@ -40,4 +41,5 @@ const (
 	ErrorItemsListNotFound         = "Ошибка, лист с покупками не найден."
 	ErrorSavingInDB                = "Произошла ошибка при сохранении данных в базу данных."
 	ErrorInvalidRequest            = "Invalid request"
+	ErrorTryAgain                  = "Произошла ошибка, попробуйте еще раз."
 )
