@@ -34,6 +34,11 @@ func (c *CheckWithItems) GetCheckOwner() string {
 	return c.check.Owner
 }
 
+// Returns a copy of check stroed in c.
+func (c *CheckWithItems) GetCheck() Check {
+	return c.check
+}
+
 func (c *CheckWithItems) GetItems() []Item {
 	return c.items
 }
