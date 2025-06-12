@@ -308,8 +308,8 @@ func NewCheckOwnerCallback(c tele.Context, state fsm.Context) error {
 			Data:   models.BTN_BACK,
 		},
 	)
-
-	return c.EditOrReply(util.GetCheckWithItemsResponse(*session.Checks[currentIndex]), kb)
+	msg := "Готово!\n\n" + util.GetCheckWithItemsResponse(*session.Checks[currentIndex])
+	return c.EditOrReply(msg, kb)
 }
 
 // Handles check ownership responce (from inline keyboard).
