@@ -3,6 +3,7 @@ package db
 import (
 	"database/sql"
 	"errors"
+	"fmt"
 	"log"
 	"os"
 	"strconv"
@@ -575,4 +576,62 @@ func GetSessionById(id int64) (*models.Session, error) {
 	defer db.Close()
 
 	return getSessionById(db, id)
+}
+
+func alterCheck(db *sql.DB, check *models.Check) error {
+	if check.Name == "" && check.Owner == "" {
+		return fmt.Errorf("expected at least one non-empty param, but provided: %+v", *check)
+	}
+
+	var sql string
+	var err error
+	switch {
+	case check.Name == "" && check.Owner != "":
+		sql = `UPDATE checks SET Owner = ? WHERE id = ?`
+		_, err = db.Exec(sql, check.Owner, check.Id)
+	case check.Name != "" && check.Owner == "":
+		sql = `UPDATE checks SET Name = ? WHERE id = ?`
+		_, err = db.Exec(sql, check.Name, check.Id)
+	default:
+		sql = `UPDATE checks SET Name = ?, Owner = ? WHERE id = ?`
+		_, err = db.Exec(sql, check.Name, check.Owner, check.Id)
+	}
+
+	return err
+}
+
+func EditCheckName(checkId int64, newName string) error {
+	db, err := InitDB()
+	if err != nil {
+		return err
+	}
+	defer db.Close()
+
+	newCheck := &models.Check{Id: checkId, Name: newName}
+
+	return alterCheck(db, newCheck)
+}
+
+func EditCheckOwner(checkId int64, newOwner string) error {
+	db, err := InitDB()
+	if err != nil {
+		return err
+	}
+	defer db.Close()
+
+	newCheck := &models.Check{Id: checkId, Owner: newOwner}
+
+	return alterCheck(db, newCheck)
+}
+
+func EditCheck(checkId int64, newName string, newOwner string) error {
+	db, err := InitDB()
+	if err != nil {
+		return err
+	}
+	defer db.Close()
+
+	newCheck := &models.Check{Id: checkId, Name: newName, Owner: newOwner}
+
+	return alterCheck(db, newCheck)
 }
