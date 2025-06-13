@@ -253,7 +253,7 @@ func EditChecksButtonCallback(c tele.Context, state fsm.Context) error {
 
 // Assigns new owner to a check in check-editing scenario
 func NewCheckOwnerCallback(c tele.Context, state fsm.Context) error {
-	// finding check, that is being edited in storage
+	// finding check, that is being edited, in storage
 	var check *models.CheckWithItems
 	if err := state.Data(context.Background(), models.CHECK, &check); err != nil {
 		state.Finish(context.TODO(), true)
@@ -285,29 +285,8 @@ func NewCheckOwnerCallback(c tele.Context, state fsm.Context) error {
 		})
 	}
 
-	kb := models.CreateSelectorInlineKb(
-		3,
-		models.Button{
-			BtnTxt: "Владелец",
-			Unique: models.CallbackActionEditMenuButtonPress.String(),
-			Data:   models.CHECK_OWNER,
-		},
-		models.Button{
-			BtnTxt: "Название",
-			Unique: models.CallbackActionEditMenuButtonPress.String(),
-			Data:   models.CHECK_NAME,
-		},
-		models.Button{
-			BtnTxt: "Товары",
-			Unique: models.CallbackActionEditMenuButtonPress.String(),
-			Data:   models.ITEMS_LIST,
-		},
-		models.Button{
-			BtnTxt: "Назад",
-			Unique: models.CallbackActionEditMenuButtonPress.String(),
-			Data:   models.BTN_BACK,
-		},
-	)
+	kb := models.GetScrollKb()
+
 	msg := "Готово!\n\n" + util.GetCheckWithItemsResponse(*session.Checks[currentIndex])
 	return c.EditOrReply(msg, kb)
 }
