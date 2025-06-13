@@ -144,7 +144,13 @@ func ShowChecksEditButtonCallback(c tele.Context, state fsm.Context) error {
 		log.Fatalf("couldn't respond to callback %v: %v", c.Callback(), err)
 	}
 
-	msg := "Что хотите изменить?👀"
+	// set state EditingCheck
+	if err := state.SetState(context.TODO(), models.StateEditingCheck); err != nil {
+		state.Finish(context.TODO(), true)
+		return c.Send(models.ErrorSetState)
+	}
+
+	msg := c.Callback().Message.Text + "\n\nЧто хотите изменить?👀"
 
 	kb := models.CreateSelectorInlineKb(
 		3,
@@ -169,12 +175,6 @@ func ShowChecksEditButtonCallback(c tele.Context, state fsm.Context) error {
 			Data:   models.BTN_BACK,
 		},
 	)
-
-	// set state EditingCheck
-	if err := state.SetState(context.TODO(), models.StateEditingCheck); err != nil {
-		state.Finish(context.TODO(), true)
-		return c.Send(models.ErrorSetState)
-	}
 
 	return c.EditOrReply(msg, kb)
 }
