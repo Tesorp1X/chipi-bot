@@ -41,10 +41,15 @@ func CheckNameResponseHandler(c tele.Context, state fsm.Context) error {
 	if len(msgText) == 0 {
 		return c.Send(models.ErrorNameMustBeTxtMsg)
 	}
-	state.Update(context.TODO(), models.CHECK_NAME, msgText)
+
+	if err := state.Update(context.TODO(), models.CHECK_NAME, msgText); err != nil {
+		return c.Send(models.ErrorStateDataUpdate)
+	}
+
 	if err := state.SetState(context.TODO(), models.StateWaitForCheckOwner); err != nil {
 		return c.Send(models.ErrorSometingWentWrong)
 	}
+
 	selector := models.CheckOwnershipSelectorInlineKb(
 		"Liz :3", models.CallbackActionCheckOwner.String(), models.OWNER_LIZ,
 		"Пау <3", models.CallbackActionCheckOwner.String(), models.OWNER_PAU,
