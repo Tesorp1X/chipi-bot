@@ -50,11 +50,21 @@ func CheckNameResponseHandler(c tele.Context, state fsm.Context) error {
 		return c.Send(models.ErrorSometingWentWrong)
 	}
 
-	selector := models.CheckOwnershipSelectorInlineKb(
-		"Liz :3", models.CallbackActionCheckOwner.String(), models.OWNER_LIZ,
-		"Пау <3", models.CallbackActionCheckOwner.String(), models.OWNER_PAU,
+	kb := models.CreateSelectorInlineKb(
+		2,
+		models.Button{
+			BtnTxt: "Лиз :3",
+			Unique: models.CallbackActionCheckOwner.String(),
+			Data:   models.OWNER_LIZ,
+		},
+		models.Button{
+			BtnTxt: "Пау <3",
+			Unique: models.CallbackActionCheckOwner.String(),
+			Data:   models.OWNER_PAU,
+		},
 	)
-	return c.Send("Хорошо. Кто заплатил?🤑", selector)
+
+	return c.Send("Хорошо. Кто заплатил?🤑", kb)
 }
 
 func ItemNameResponseHandler(c tele.Context, state fsm.Context) error {
