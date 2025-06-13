@@ -184,12 +184,12 @@ func ShowCommand(c tele.Context, state fsm.Context) error {
 
 	default:
 
-		return showHelp(c, state)
+		return showHelp(c)
 
 	}
 }
 
-func showHelp(c tele.Context, state fsm.Context) error {
+func showHelp(c tele.Context) error {
 	msg := "Команда /show требует аргумента. Например:\n"
 	checksHelp := "/show checks -- покажет чеки\n"
 	totalsHelp := "/show totals -- покажет отчеты о прошлых сессиях\n"
