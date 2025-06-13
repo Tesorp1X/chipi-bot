@@ -239,7 +239,13 @@ func EditChecksButtonCallback(c tele.Context, state fsm.Context) error {
 		return c.EditOrReply(msg, kb)
 
 	case models.CHECK_NAME:
-		return c.Respond(&tele.CallbackResponse{Text: "Фича еще в разрабоотке."})
+		if err := state.SetState(context.TODO(), models.StateWaitForNewCheckName); err != nil {
+			return c.Respond(&tele.CallbackResponse{Text: models.ErrorTryAgain})
+		}
+		msg := "Хорошо, какое новое название?"
+
+		return c.EditOrReply(msg, &tele.ReplyMarkup{})
+
 	case models.ITEMS_LIST:
 		return c.Respond(&tele.CallbackResponse{Text: "Фича еще в разрабоотке."})
 	case models.BTN_BACK:
@@ -258,6 +264,11 @@ func NewCheckOwnerCallback(c tele.Context, state fsm.Context) error {
 	if err := state.Data(context.Background(), models.CHECK, &check); err != nil {
 		state.Finish(context.TODO(), true)
 		return c.Send(models.ErrorSetState)
+	}
+
+	if err := state.Update(context.TODO(), models.CHECK, nil); err != nil {
+		state.Finish(context.TODO(), true)
+		return c.Send(models.ErrorStateDataUpdate)
 	}
 
 	newOwner := util.ExtractDataFromCallback(c.Callback().Data, models.CallbackActionEditMenuButtonPress)
