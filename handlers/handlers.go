@@ -36,6 +36,56 @@ func NewCheckHandler(c tele.Context, state fsm.Context) error {
 	return c.Send("Хорошо, как назовем новый чек?👀")
 }
 
+// NewCheckNameResponseHandler is called when user sends a new check name.
+// It updates the check name in the database and returns to 'check-scroll' menu with state ShowingChecks.
+func NewCheckNameResponseHandler(c tele.Context, state fsm.Context) error {
+	msgText := c.Text()
+	if len(msgText) == 0 {
+		return c.Send(models.ErrorNameMustBeTxtMsg)
+	}
+	var check *models.CheckWithItems
+	if err := state.Data(context.TODO(), models.CHECK, &check); err != nil {
+		state.Finish(context.TODO(), true)
+		return c.Send(models.ErrorStateDataUpdate)
+	}
+
+	if err := db.EditCheckName(check.Id, msgText); err != nil {
+		state.Finish(context.TODO(), true)
+		return c.Send(models.ErrorSavingInDB)
+	}
+
+	if err := state.Update(context.TODO(), models.CHECK, nil); err != nil {
+		state.Finish(context.TODO(), true)
+		return c.Send(models.ErrorStateDataUpdate)
+	}
+
+	session, err := getChecksForCurrentSession(c)
+	if err != nil {
+		state.Finish(context.TODO(), true)
+		return c.Send(models.ErrorStateDataUpdate)
+	}
+
+	if err := state.Update(context.TODO(), models.CHECKS, session); err != nil {
+		state.Finish(context.TODO(), true)
+		return c.Send(models.ErrorStateDataUpdate)
+	}
+
+	var currentIndex int
+	if err := state.Data(context.TODO(), models.CURRENT_INDEX, &currentIndex); err != nil {
+		state.Finish(context.TODO(), true)
+		return c.Send(models.ErrorStateDataUpdate)
+	}
+
+	if err := state.SetState(context.TODO(), models.StateShowingChecks); err != nil {
+		return c.Send(models.ErrorSetState)
+	}
+
+	msg := "Название изменено!\n\n" + util.GetCheckWithItemsResponse(*session.Checks[currentIndex])
+	kb := models.GetScrollKb()
+
+	return c.EditOrReply(msg, kb)
+}
+
 func CheckNameResponseHandler(c tele.Context, state fsm.Context) error {
 	msgText := c.Text()
 	if len(msgText) == 0 {
