@@ -278,6 +278,11 @@ func NewCheckOwnerCallback(c tele.Context, state fsm.Context) error {
 		return c.Respond(&tele.CallbackResponse{Text: models.ErrorSometingWentWrong})
 	}
 
+	if err := state.Update(context.Background(), models.CHECKS, session); err != nil {
+		state.Finish(context.Background(), true)
+		return c.Send(models.ErrorStateDataUpdate)
+	}
+
 	var currentIndex int
 	if err := state.Data(context.TODO(), models.CURRENT_INDEX, &currentIndex); err != nil {
 		return c.Respond(&tele.CallbackResponse{
@@ -286,6 +291,11 @@ func NewCheckOwnerCallback(c tele.Context, state fsm.Context) error {
 	}
 
 	kb := models.GetScrollKb()
+
+	if err := state.SetState(context.TODO(), models.StateShowingChecks); err != nil {
+		state.Finish(context.Background(), true)
+		return c.Send(models.ErrorSetState)
+	}
 
 	msg := "Готово!\n\n" + util.GetCheckWithItemsResponse(*session.Checks[currentIndex])
 	return c.EditOrReply(msg, kb)
