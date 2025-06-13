@@ -11,8 +11,9 @@ const (
 
 	StateStart fsm.State = "start"
 
-	StateWaitForCheckName  fsm.State = "wait_for_check_name"
-	StateWaitForCheckOwner fsm.State = "wait_for_check_owner"
+	StateWaitForCheckName    fsm.State = "wait_for_check_name"
+	StateWaitForNewCheckName fsm.State = "wait_for_new_check_name"
+	StateWaitForCheckOwner   fsm.State = "wait_for_check_owner"
 
 	StateWaitForItemName  fsm.State = "wait_for_item_name"
 	StateWaitForItemPrice fsm.State = "wait_for_item_price"
