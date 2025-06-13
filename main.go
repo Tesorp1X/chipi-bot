@@ -111,6 +111,13 @@ func main() {
 
 	m.Bind(
 		dp,
+		fsmopt.On(tele.OnText),
+		fsmopt.OnStates(models.StateWaitForNewCheckName),
+		fsmopt.Do(handlers.NewCheckNameResponseHandler),
+	)
+
+	m.Bind(
+		dp,
 		fsmopt.On(tele.OnCallback),
 		fsmopt.OnStates(fsm.AnyState),
 		fsmopt.Do(handlers.HandleCallbackAction),
