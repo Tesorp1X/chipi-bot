@@ -30,9 +30,10 @@ func main() {
 	}
 
 	pref := tele.Settings{
-		Token:   os.Getenv("API_KEY"),
-		Poller:  &tele.LongPoller{Timeout: 10 * time.Second},
-		Verbose: *debug,
+		Token:     os.Getenv("API_KEY"),
+		Poller:    &tele.LongPoller{Timeout: 10 * time.Second},
+		Verbose:   *debug,
+		ParseMode: tele.ModeMarkdownV2,
 	}
 
 	bot, err := tele.NewBot(pref)
