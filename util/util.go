@@ -25,7 +25,7 @@ func CreateItemsListResponse(itemsList ...models.Item) string {
 
 	for i, item := range itemsList {
 		no = i + 1
-		msg += strconv.Itoa(no) + ") " + item.Name + " " + strconv.FormatFloat(item.Price, 'f', 2, 64) + " руб\n"
+		msg += "<i>" + strconv.Itoa(no) + ") " + item.Name + " " + strconv.FormatFloat(item.Price, 'f', 2, 64) + " руб</i>\n"
 
 		total += item.Price
 		switch item.Owner {
