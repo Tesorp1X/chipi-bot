@@ -39,9 +39,9 @@ func CreateItemsListResponse(itemsList ...models.Item) string {
 		}
 	}
 
-	msg += "Лиз заплатила: " + strconv.FormatFloat(sumL, 'f', 2, 64) + " руб\n"
-	msg += "Пау заплатил: " + strconv.FormatFloat(sumP, 'f', 2, 64) + " руб\n"
-	msg += "Итого: " + strconv.FormatFloat(total, 'f', 2, 64) + " бублей."
+	msg += "\nЛиз заплатила: <b>" + strconv.FormatFloat(sumL, 'f', 2, 64) + " руб</b>\n"
+	msg += "Пау заплатил: <b>" + strconv.FormatFloat(sumP, 'f', 2, 64) + " руб</b>\n\n"
+	msg += "Итого: <b>" + strconv.FormatFloat(total, 'f', 2, 64) + " бублей.</b>"
 
 	return msg
 }
