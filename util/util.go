@@ -30,12 +30,12 @@ func CreateItemsListResponse(itemsList ...models.Item) string {
 		total += item.Price
 		switch item.Owner {
 		case models.OWNER_LIZ:
-			sumL += float64(item.Price)
+			sumL += item.Price
 		case models.OWNER_PAU:
-			sumP += float64(item.Price)
+			sumP += item.Price
 		default:
-			sumL += float64(item.Price) / 2
-			sumP += float64(item.Price) / 2
+			sumL += item.Price / 2
+			sumP += item.Price / 2
 		}
 	}
 
