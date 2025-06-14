@@ -33,7 +33,7 @@ func main() {
 		Token:     os.Getenv("API_KEY"),
 		Poller:    &tele.LongPoller{Timeout: 10 * time.Second},
 		Verbose:   *debug,
-		ParseMode: tele.ModeMarkdownV2,
+		ParseMode: tele.ModeHTML,
 	}
 
 	bot, err := tele.NewBot(pref)
