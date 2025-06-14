@@ -232,15 +232,15 @@ func GetCheckWithItemsResponse(check models.CheckWithItems) string {
 
 // Responce for '/show totals' command. Show one at a time.
 func GetShowTotalsResponse(total *models.SessionTotal) string {
-	msg := "Результат сессии №" + strconv.FormatInt(total.GetSessionId(), 10) + ":\n\n"
+	msg := "<b>Результат сессии №" + strconv.FormatInt(total.GetSessionId(), 10) + ":</b> \n\n"
 
-	msg += "Дата начала: " + total.GetOpenedAtTime().Format(time.DateTime) + "\n"
-	msg += "Дата окончания: " + total.GetClosedAtTime().Format(time.DateTime) + "\n\n"
+	msg += "<i><b>Дата начала:</b> " + total.GetOpenedAtTime().Format(time.DateTime) + "</i>\n"
+	msg += "<i><b>Дата окончания:</b> " + total.GetClosedAtTime().Format(time.DateTime) + "</i>\n\n"
 
 	if total.Recipient == models.OWNER_LIZ {
-		msg += fmt.Sprintf("Пау перевел Лиз %.2f руб.", total.Amount)
+		msg += fmt.Sprintf("Пау перевел Лиз <b>%.2f руб.</b>", total.Amount)
 	} else {
-		msg += fmt.Sprintf("Лиз перевела Пау %.2f руб.", total.Amount)
+		msg += fmt.Sprintf("Лиз перевела Пау <b>%.2f руб.</b>", total.Amount)
 	}
 
 	return msg
