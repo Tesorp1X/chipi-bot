@@ -117,15 +117,15 @@ func CalculateSessionTotal(sessionId int64, checks []*models.CheckWithItems) *mo
 func GetTotalResponse(sessionTotal *models.SessionTotal, isPreliminary bool) string {
 	var msg string
 	if isPreliminary {
-		msg = fmt.Sprintf("Вот промежуточный итог за этот период:\nВсего заплачено: %.2f руб\n", sessionTotal.Total)
+		msg = fmt.Sprintf("<b>Вот промежуточный итог за этот период:</b>\n\n<b><u>Всего заплачено: %.2f руб</u></b>\n", sessionTotal.Total)
 	} else {
-		msg = fmt.Sprintf("Вот итог за этот период:\nВсего заплачено: %.2f руб\n", sessionTotal.Total)
+		msg = fmt.Sprintf("<b>Вот итог за этот период:</b>\n\n<b><u>Всего заплачено: %.2f руб</u></b>\n", sessionTotal.Total)
 	}
 
 	if sessionTotal.Recipient == models.OWNER_LIZ {
-		msg += fmt.Sprintf("Пау должен Лиз %.2f руб.", sessionTotal.Amount)
+		msg += fmt.Sprintf("<i>Пау должен Лиз <b>%.2f руб.</b></i>", sessionTotal.Amount)
 	} else {
-		msg += fmt.Sprintf("Лиз должна Пау %.2f руб.", sessionTotal.Amount)
+		msg += fmt.Sprintf("<i>Лиз должна Пау <b>%.2f руб.</b></i>", sessionTotal.Amount)
 	}
 
 	return msg
