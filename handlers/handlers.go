@@ -147,29 +147,16 @@ func ItemPriceResponseHandler(c tele.Context, state fsm.Context) error {
 		return c.Send(models.ErrorSometingWentWrong)
 	}
 
-	selector := models.ItemOwnershipSelectorInlineKb(
+	kb := models.ItemOwnershipSelectorInlineKb(
 		"Liz :3", models.CallbackActionItemOwner.String(), models.OWNER_LIZ,
 		"Пау <3", models.CallbackActionItemOwner.String(), models.OWNER_PAU,
 		"Общий", models.CallbackActionItemOwner.String(), models.OWNER_BOTH,
 	)
-	return c.Send("Хорошо. Чей это товар?😺", selector)
+	return c.Send("Хорошо. Чей это товар?😺", kb)
 }
 
 // /current -- shows how much both payed and who owns money to whom and how much.
 func ShowCurrentTotalCommand(c tele.Context, state fsm.Context) error {
-	// sessionId, ok := c.Get(models.SESSION_ID).(int64)
-	// if !ok {
-	// 	var err error
-	// 	sessionId, err = db.GetSessionId()
-	// 	if err != nil {
-	// 		return c.Send(models.ErrorSometingWentWrong)
-	// 	}
-	// }
-
-	// checks, err := db.GetAllChecksWithItemsForSesssionId(sessionId)
-	// if err != nil {
-	// 	return c.Send(err)
-	// }
 
 	session, err := getChecksForCurrentSession(c)
 	if err != nil {
@@ -186,19 +173,6 @@ func ShowCurrentTotalCommand(c tele.Context, state fsm.Context) error {
 // /finish -- finishes current session and makes a record in totals table.
 // Also notifies another person about it.
 func FinishSessionCommand(c tele.Context, state fsm.Context) error {
-	// sessionId, ok := c.Get(models.SESSION_ID).(int64)
-	// if !ok {
-	// 	var err error
-	// 	sessionId, err = db.GetSessionId()
-	// 	if err != nil {
-	// 		return c.Send(models.ErrorSometingWentWrong)
-	// 	}
-	// }
-
-	// checks, err := db.GetAllChecksWithItemsForSesssionId(sessionId)
-	// if err != nil {
-	// 	return c.Send(err)
-	// }
 
 	session, err := getChecksForCurrentSession(c)
 	if err != nil {
