@@ -13,6 +13,7 @@ type Check struct {
 
 // Represents a row in 'items' table with a [Check] obj.
 type Item struct {
+	Id      int64
 	CheckId int64
 	Name    string
 	Owner   string
