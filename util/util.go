@@ -166,9 +166,9 @@ func GetCheckWithItemsResponse(check models.CheckWithItems) string {
 
 	switch check.GetCheckOwner() {
 	case models.OWNER_LIZ:
-		msg += "<b>Заплачено:</b> <i>Лиз :3</i>\n\n"
+		msg += "<b>Заплачено:</b> <i>Лиз :3 </i>\n\n"
 	case models.OWNER_PAU:
-		msg += "<b>Заплачено:</b> <i>Пау <3</i>\n\n"
+		msg += "<b>Заплачено:</b> <i>Пау &lt;3 </i>\n\n"
 	}
 
 	lizItems := "<b><u>Товары Лиз</u></b>💜:\n"
