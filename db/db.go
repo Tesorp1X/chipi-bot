@@ -426,8 +426,7 @@ func getItemsForCheckId(db *sql.DB, checkId int64) ([]models.Item, error) {
 	var items []models.Item
 	for rows.Next() {
 		i := models.Item{}
-		var id int64
-		if err := rows.Scan(&id, &i.CheckId, &i.Name, &i.Owner, &i.Price); err != nil {
+		if err := rows.Scan(&i.Id, &i.CheckId, &i.Name, &i.Owner, &i.Price); err != nil {
 			return items, err
 		}
 		items = append(items, i)
