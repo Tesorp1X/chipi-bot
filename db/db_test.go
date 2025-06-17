@@ -259,11 +259,11 @@ func TestAlterItem(t *testing.T) {
 		item := &models.Item{Id: 1, Name: "Updated Item 1"}
 
 		if err := alterItem(db, item); err != nil {
-			t.Fatalf("expected no error, got %v", err)
+			t.Fatalf("expected no error, but got %v", err)
 		}
 
 		var nameGot string
-		err := db.QueryRow("SELECT name FROM items WHERE id = ?", item.Id).Scan(&nameGot)
+		err := db.QueryRow("SELECT Name FROM items WHERE id = ?", item.Id).Scan(&nameGot)
 		if err != nil {
 			t.Fatalf("failed to query updated item: %v", err)
 		}
@@ -277,17 +277,35 @@ func TestAlterItem(t *testing.T) {
 		item := &models.Item{Id: 2, Owner: models.OWNER_PAU}
 
 		if err := alterItem(db, item); err != nil {
-			t.Fatalf("expected no error, got %v", err)
+			t.Fatalf("expected no error, but got %v", err)
 		}
 
 		var ownerGot string
-		err := db.QueryRow("SELECT owner FROM items WHERE id = ?", item.Id).Scan(&ownerGot)
+		err := db.QueryRow("SELECT Owner FROM items WHERE id = ?", item.Id).Scan(&ownerGot)
 		if err != nil {
 			t.Fatalf("failed to query updated item: %v", err)
 		}
 
 		if ownerGot != item.Owner {
 			t.Fatalf("expected item owner to be '%s', got '%s'", item.Owner, ownerGot)
+		}
+	})
+
+	t.Run("update item price", func(t *testing.T) {
+		item := &models.Item{Id: 3, Price: 22.8}
+
+		if err := alterItem(db, item); err != nil {
+			t.Fatalf("expected no error, but got %v", err)
+		}
+
+		var priceGot float64
+		err := db.QueryRow("SELECT Price FROM items WHERE id = ?", item.Id).Scan(&priceGot)
+		if err != nil {
+			t.Fatalf("failed to query updated item: %v", err)
+		}
+
+		if priceGot != item.Price {
+			t.Fatalf("expected item price to be '%.2f', got '%.2f'", item.Price, priceGot)
 		}
 	})
 
