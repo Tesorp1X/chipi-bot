@@ -262,14 +262,32 @@ func TestAlterItem(t *testing.T) {
 			t.Fatalf("expected no error, got %v", err)
 		}
 
-		var name string
-		err := db.QueryRow("SELECT name FROM items WHERE id = ?", item.Id).Scan(&name)
+		var nameGot string
+		err := db.QueryRow("SELECT name FROM items WHERE id = ?", item.Id).Scan(&nameGot)
 		if err != nil {
 			t.Fatalf("failed to query updated item: %v", err)
 		}
 
-		if name != item.Name {
-			t.Fatalf("expected item name to be '%s', got '%s'", item.Name, name)
+		if nameGot != item.Name {
+			t.Fatalf("expected item name to be '%s', got '%s'", item.Name, nameGot)
+		}
+	})
+
+	t.Run("update item owner", func(t *testing.T) {
+		item := &models.Item{Id: 2, Owner: models.OWNER_PAU}
+
+		if err := alterItem(db, item); err != nil {
+			t.Fatalf("expected no error, got %v", err)
+		}
+
+		var ownerGot string
+		err := db.QueryRow("SELECT owner FROM items WHERE id = ?", item.Id).Scan(&ownerGot)
+		if err != nil {
+			t.Fatalf("failed to query updated item: %v", err)
+		}
+
+		if ownerGot != item.Owner {
+			t.Fatalf("expected item owner to be '%s', got '%s'", item.Owner, ownerGot)
 		}
 	})
 
