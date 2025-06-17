@@ -323,4 +323,18 @@ func TestAlterItem(t *testing.T) {
 		}
 	})
 
+	t.Run("error: negative id", func(t *testing.T) {
+		item := &models.Item{Id: -420, Price: 42.0}
+		errWant := "invalid item.Id: -420"
+
+		errGot := alterItem(db, item)
+		if errGot == nil {
+			t.Fatal("expected an error, but got non")
+		}
+
+		if errGot.Error() != errWant {
+			t.Fatalf("error message expected to be '%s', but got '%s'", errWant, errGot)
+		}
+	})
+
 }
