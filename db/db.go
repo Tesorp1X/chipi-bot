@@ -637,11 +637,12 @@ func EditCheck(checkId int64, newName string, newOwner string) error {
 }
 
 func alterItem(db *sql.DB, item *models.Item) error {
-	if item.Id == 0 {
+	switch {
+	case item.Id == 0:
 		return errors.New("item.Id must be set, but provided")
-	}
-
-	if item.Name == "" && item.Owner == "" && item.Price == 0 {
+	case item.Id < 0:
+		return fmt.Errorf("invalid item.Id: %d", item.Id)
+	case item.Name == "" && item.Owner == "" && item.Price == 0:
 		return fmt.Errorf("expected at least one non-empty param, but provided: %+v", *item)
 	}
 
