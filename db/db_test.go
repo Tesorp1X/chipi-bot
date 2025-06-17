@@ -244,3 +244,33 @@ func populateItemsDB(t *testing.T, db *sql.DB, items []models.Item) {
 		}
 	}
 }
+
+func TestAlterItem(t *testing.T) {
+	db := makeInMemoryDB(t)
+	defer db.Close()
+
+	populateItemsDB(t, db, []models.Item{
+		{Id: 1, CheckId: 1, Name: "Item 1", Owner: "Owner 1", Price: 100},
+		{Id: 2, CheckId: 1, Name: "Item 2", Owner: "Owner 1", Price: 200},
+		{Id: 3, CheckId: 2, Name: "Item 3", Owner: "Owner 2", Price: 300},
+	})
+
+	t.Run("update item name", func(t *testing.T) {
+		item := &models.Item{Id: 1, Name: "Updated Item 1"}
+
+		if err := alterItem(db, item); err != nil {
+			t.Fatalf("expected no error, got %v", err)
+		}
+
+		var name string
+		err := db.QueryRow("SELECT name FROM items WHERE id = ?", item.Id).Scan(&name)
+		if err != nil {
+			t.Fatalf("failed to query updated item: %v", err)
+		}
+
+		if name != item.Name {
+			t.Fatalf("expected item name to be '%s', got '%s'", item.Name, name)
+		}
+	})
+
+}
