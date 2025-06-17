@@ -623,6 +623,7 @@ func EditCheckOwner(checkId int64, newOwner string) error {
 	return alterCheck(db, newCheck)
 }
 
+// TODO change params to Check struct
 func EditCheck(checkId int64, newName string, newOwner string) error {
 	db, err := InitDB()
 	if err != nil {
@@ -633,4 +634,48 @@ func EditCheck(checkId int64, newName string, newOwner string) error {
 	newCheck := &models.Check{Id: checkId, Name: newName, Owner: newOwner}
 
 	return alterCheck(db, newCheck)
+}
+
+func alterItem(db *sql.DB, item *models.Item) error {
+	if item.Id == 0 {
+		return fmt.Errorf("item.Id must be set, but provided: %d", item.Id)
+	}
+
+	if item.Name == "" && item.Owner == "" && item.Price == 0 {
+		return fmt.Errorf("expected at least one non-empty param, but provided: %+v", *item)
+	}
+
+	// TODO: is this any good???
+	var sql string
+	var err error
+	switch {
+	case item.Name == "" && item.Owner != "" && item.Price != 0:
+		sql = `UPDATE items SET Owner = ?, Price = ? WHERE id = ?`
+		_, err = db.Exec(sql, item.Owner, item.Price, item.Id)
+	case item.Name != "" && item.Owner == "" && item.Price != 0:
+		sql = `UPDATE items SET Name = ?, Price = ? WHERE id = ?`
+		_, err = db.Exec(sql, item.Name, item.Price, item.Id)
+	case item.Name != "" && item.Owner != "" && item.Price == 0:
+		sql = `UPDATE items SET Name = ?, Owner = ? WHERE id = ?`
+		_, err = db.Exec(sql, item.Name, item.Owner, item.Id)
+	default:
+		sql = `UPDATE items SET Name = ?, Owner = ?, Price = ? WHERE id = ?`
+		_, err = db.Exec(sql, item.Name, item.Owner, item.Price, item.Id)
+	}
+
+	return err
+}
+
+// TODO change params to Item struct
+// EditItem changes item with given id in db.
+func EditItem(itemId int64, newName string, newOwner string, newPrice float64) error {
+	db, err := InitDB()
+	if err != nil {
+		return err
+	}
+	defer db.Close()
+
+	newItem := &models.Item{Id: itemId, Name: newName, Owner: newOwner, Price: newPrice}
+	// perhaps select item before altering. if nothing's new, then do nothing
+	return alterItem(db, newItem)
 }
