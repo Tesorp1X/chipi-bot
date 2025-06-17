@@ -245,6 +245,19 @@ func populateItemsDB(t *testing.T, db *sql.DB, items []models.Item) {
 	}
 }
 
+// Validates error
+func assertError(t *testing.T, errGot error, errWant string) {
+	t.Helper()
+
+	if errGot == nil {
+		t.Fatal("expected an error, but got non")
+	}
+
+	if errGot.Error() != errWant {
+		t.Fatalf("error message expected to be '%s', but got '%s'", errWant, errGot)
+	}
+}
+
 func TestAlterItem(t *testing.T) {
 	db := makeInMemoryDB(t)
 	defer db.Close()
@@ -314,13 +327,8 @@ func TestAlterItem(t *testing.T) {
 		errWant := "item.Id must be set, but provided"
 
 		errGot := alterItem(db, item)
-		if errGot == nil {
-			t.Fatal("expected an error, but got non")
-		}
 
-		if errGot.Error() != errWant {
-			t.Fatalf("error message expected to be '%s', but got '%s'", errWant, errGot)
-		}
+		assertError(t, errGot, errWant)
 	})
 
 	t.Run("error: negative id", func(t *testing.T) {
@@ -328,6 +336,10 @@ func TestAlterItem(t *testing.T) {
 		errWant := "invalid item.Id: -420"
 
 		errGot := alterItem(db, item)
+
+		assertError(t, errGot, errWant)
+	})
+
 	t.Run("error: empty Name, Owner, Price", func(t *testing.T) {
 		item := &models.Item{Id: 1}
 		errWant := "expected at least one non-empty param, but provided: {Id:1 CheckId:0 Name: Owner: Price:0}"
