@@ -309,4 +309,18 @@ func TestAlterItem(t *testing.T) {
 		}
 	})
 
+	t.Run("error: no id", func(t *testing.T) {
+		item := &models.Item{Price: 13.37}
+		errWant := "item.Id must be set, but provided"
+
+		errGot := alterItem(db, item)
+		if errGot == nil {
+			t.Fatal("expected an error, but got non")
+		}
+
+		if errGot.Error() != errWant {
+			t.Fatalf("error message expected to be '%s', but got '%s'", errWant, errGot)
+		}
+	})
+
 }
