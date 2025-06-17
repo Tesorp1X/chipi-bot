@@ -328,13 +328,13 @@ func TestAlterItem(t *testing.T) {
 		errWant := "invalid item.Id: -420"
 
 		errGot := alterItem(db, item)
-		if errGot == nil {
-			t.Fatal("expected an error, but got non")
-		}
+	t.Run("error: empty Name, Owner, Price", func(t *testing.T) {
+		item := &models.Item{Id: 1}
+		errWant := "expected at least one non-empty param, but provided: {Id:1 CheckId:0 Name: Owner: Price:0}"
 
-		if errGot.Error() != errWant {
-			t.Fatalf("error message expected to be '%s', but got '%s'", errWant, errGot)
-		}
+		errGot := alterItem(db, item)
+
+		assertError(t, errGot, errWant)
 	})
 
 }
