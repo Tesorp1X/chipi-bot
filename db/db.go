@@ -638,7 +638,7 @@ func EditCheck(checkId int64, newName string, newOwner string) error {
 
 func alterItem(db *sql.DB, item *models.Item) error {
 	if item.Id == 0 {
-		return fmt.Errorf("item.Id must be set, but provided: %d", item.Id)
+		return errors.New("item.Id must be set, but provided")
 	}
 
 	if item.Name == "" && item.Owner == "" && item.Price == 0 {
