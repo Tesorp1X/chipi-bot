@@ -233,3 +233,14 @@ func makeInMemoryDB(t *testing.T) *sql.DB {
 	return db
 }
 
+// Inserts items in db. fails the test if error occures
+func populateItemsDB(t *testing.T, db *sql.DB, items []models.Item) {
+	t.Helper()
+	for _, item := range items {
+		_, err := db.Exec("INSERT INTO items (id, check_id, name, owner, price) VALUES (?, ?, ?, ?, ?)",
+			item.Id, item.CheckId, item.Name, item.Owner, item.Price)
+		if err != nil {
+			t.Fatalf("failed to insert item: %v", err)
+		}
+	}
+}
