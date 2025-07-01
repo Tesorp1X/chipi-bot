@@ -1,5 +1,12 @@
 package util
 
+/*
+	Html-codes:
+	< &lt;
+	> &gt;
+	— &#8212;
+
+*/
 import (
 	"fmt"
 	"strconv"
