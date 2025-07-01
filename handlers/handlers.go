@@ -4,6 +4,7 @@ import (
 	"context"
 	"os"
 	"strconv"
+	"strings"
 
 	"github.com/Tesorp1X/chipi-bot/db"
 	"github.com/Tesorp1X/chipi-bot/models"
@@ -122,7 +123,10 @@ func ItemNameResponseHandler(c tele.Context, state fsm.Context) error {
 	if len(msgText) == 0 {
 		return c.Send(models.ErrorNameMustBeTxtMsg)
 	}
-	state.Update(context.TODO(), models.ITEM_NAME, msgText)
+	if err := state.Update(context.TODO(), models.ITEM_NAME, msgText); err != nil {
+		state.Finish(context.Background(), true)
+		return c.Send(models.ErrorStateDataUpdate)
+	}
 
 	if err := state.SetState(context.TODO(), models.StateWaitForItemPrice); err != nil {
 		return c.Send(models.ErrorSometingWentWrong)
@@ -157,13 +161,18 @@ func ItemPriceResponseHandler(c tele.Context, state fsm.Context) error {
 		price *= float64(amount)
 
 	} else {
-	if price, err = strconv.ParseFloat(msgText, 64); err != nil {
-		return c.Send(models.ErrorItemPriceMustBeANumberMsg)
-	}
+		if price, err = strconv.ParseFloat(msgText, 64); err != nil {
+			return c.Send(models.ErrorItemPriceMustBeANumberMsg)
+		}
 	}
 
+	if err := state.Update(context.TODO(), models.ITEM_PRICE, price); err != nil {
+		state.Finish(context.Background(), true)
+		return c.Send(models.ErrorStateDataUpdate)
+	}
 
 	if err := state.SetState(context.TODO(), models.StateWaitForItemOwner); err != nil {
+		state.Finish(context.Background(), true)
 		return c.Send(models.ErrorSometingWentWrong)
 	}
 
