@@ -128,20 +128,40 @@ func ItemNameResponseHandler(c tele.Context, state fsm.Context) error {
 		return c.Send(models.ErrorSometingWentWrong)
 	}
 
-	return c.Send("Сколько это столо?")
+	return c.Send("Сколько это столо?\n<i>Можно указать кол-во товаров вот так: 2*68 (2 товара по 68 руб)</i>")
 }
 
 func ItemPriceResponseHandler(c tele.Context, state fsm.Context) error {
 	msgText := c.Text()
 	var (
-		price float64
-		err   error
+		price  float64
+		amount int
+		err    error
 	)
 
+	msgText = strings.ReplaceAll(msgText, " ", "")
+	if strings.Contains(msgText, "*") {
+		tokens := strings.Split(msgText, "*")
+		if len(tokens) != 2 {
+			return c.Send(models.AmountOfItemsHelpMsg)
+		}
+
+		if amount, err = strconv.Atoi(tokens[0]); err != nil {
+			return c.Send(models.ErrorAmountOfItemsMustBeANumberMsg)
+		}
+
+		if price, err = strconv.ParseFloat(tokens[1], 64); err != nil {
+			return c.Send(models.ErrorItemPriceMustBeANumberMsg)
+		}
+
+		price *= float64(amount)
+
+	} else {
 	if price, err = strconv.ParseFloat(msgText, 64); err != nil {
 		return c.Send(models.ErrorItemPriceMustBeANumberMsg)
 	}
-	state.Update(context.TODO(), models.ITEM_PRICE, price)
+	}
+
 
 	if err := state.SetState(context.TODO(), models.StateWaitForItemOwner); err != nil {
 		return c.Send(models.ErrorSometingWentWrong)
