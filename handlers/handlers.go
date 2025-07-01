@@ -258,11 +258,11 @@ func ShowCommand(c tele.Context, state fsm.Context) error {
 }
 
 func showHelp(c tele.Context) error {
-	msg := "Команда /show требует аргумента. Например:\n"
-	checksHelp := "/show checks -- покажет чеки\n"
-	totalsHelp := "/show totals -- покажет отчеты о прошлых сессиях\n"
+	msg := "<b>Команда /show требует аргумента. Например:</b>\n"
+	checksHelp := "<i>/show checks  &#8212; покажет чеки</i>\n\n"
+	totalsHelp := "<i>/show totals &#8212; покажет отчеты о прошлых сессиях</>\n\n"
 
-	msg += checksHelp + totalsHelp + "Другие аргументы пока что в разработке."
+	msg += checksHelp + totalsHelp
 
 	kb := &tele.ReplyMarkup{ResizeKeyboard: true, OneTimeKeyboard: true}
 	btnChecks := kb.Text("/show checks")
