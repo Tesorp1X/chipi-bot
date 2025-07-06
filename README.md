@@ -56,3 +56,6 @@ As I said previosly, I've had some experience building telegram-bots before and 
 Finite State Machine for telebot. Based on aiogram FSM version. This is what said on the `README.md`:
 
 > It not a full implementation FSM. It just states manager for telegram bots.
+
+### Storage
+Cold storage was no-brainer for me &mdash; I chose `SQLite`. I didn't need any overhead with db, and... only two users. I guess it's a great choice in my case 😃. For temporary storage of any data I'm just using `context` and `FSM-Storage` from [fsm-telebot](github.com/vitaliy-ukiru/fsm-telebot/). But maybe, I need to use some Key/Value db, just to be sure 👀.
