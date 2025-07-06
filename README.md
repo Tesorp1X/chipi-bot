@@ -2,6 +2,21 @@
 
 ---
 
+# Overview
+
+### What does it do?
+
+Basic accounting for me and my partner. Under the hood there is state-manegment, db requests (raw sql), and string-processing.
+
+### What's in use?
+
+`Go 1.25`, `SQLight`, [telebot]("gopkg.in/telebot.v4"), [fsm-telebot](github.com/vitaliy-ukiru/fsm-telebot), `testing`.
+
+### Can it be accessed?
+No, it's a private bot only for both of us 💜. Simple desing and absolutely no room for scaling was intentional. Too much complexity must have a solid reason, not my case.
+
+---
+
 ## A story behiend this bot
 Hi, `chipi-bot` is an expence-tracking bot, that I've made for personal use with my partner. I was getting tired of doing an accounting work and I'm learning `Golang`, so I decided to automate a bit expence-tracking and learn a thing or two from it 😄.
 
