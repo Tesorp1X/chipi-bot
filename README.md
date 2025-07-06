@@ -34,3 +34,10 @@ My goals for `ver 1.0`:
 - Implement basic logging
 - Deploy
 
+### The bot-framework 
+Bot itself is just a HTTP-server, so I could've made it from scratch (for educational pupouses), but I thought it would add so much complexity, that I might never accomplish anything with project. Maybe one day... (`ver 3.0` goals???)
+
+As I said previosly, I've had some experience building telegram-bots before and it was done with [aiogram](https://github.com/aiogram/aiogram). It's very powerful and easy to use, so I wanted something similar but in Go. I've stumbeled upon two frameworks: [go-telegram](github.com/go-telegram/bot) and [telebot]("gopkg.in/telebot.v4"). I've tried both and I found [go-telegram](github.com/go-telegram/bot) harder to work with and its FSM (Finite State Machine). So, I decided to stick with [telebot]("gopkg.in/telebot.v4"). I also needed a FSM, and I found a [repo](github.com/vitaliy-ukiru/fsm-telebot/) from [vitaliy-ukiru](github.com/vitaliy-ukiru/). It's exactly what I nedded and was familiar with. 
+Finite State Machine for telebot. Based on aiogram FSM version. This is what said on the `README.md`:
+
+> It not a full implementation FSM. It just states manager for telegram bots.
