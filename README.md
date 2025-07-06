@@ -59,3 +59,6 @@ Finite State Machine for telebot. Based on aiogram FSM version. This is what sai
 
 ### Storage
 Cold storage was no-brainer for me &mdash; I chose `SQLite`. I didn't need any overhead with db, and... only two users. I guess it's a great choice in my case 😃. For temporary storage of any data I'm just using `context` and `FSM-Storage` from [fsm-telebot](github.com/vitaliy-ukiru/fsm-telebot/). But maybe, I need to use some Key/Value db, just to be sure 👀.
+
+Why no ORM? It's simple, I wanted to learn SQL and how to handle raw-queries. I kinda love to know "how it works on the inside" about everything, so why the hell not learn SQL 😃.
+
