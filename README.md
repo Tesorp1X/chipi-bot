@@ -10,7 +10,7 @@ Basic accounting for me and my partner. Under the hood there is state-manegment,
 
 ### What's in use?
 
-`Go 1.25`, `SQLight`, [telebot]("gopkg.in/telebot.v4"), [fsm-telebot](github.com/vitaliy-ukiru/fsm-telebot), `testing`.
+`Go 1.25`, `SQLiht`, [telebot]("gopkg.in/telebot.v4"), [fsm-telebot](github.com/vitaliy-ukiru/fsm-telebot), `testing`.
 
 ### Can it be accessed?
 No, it's a private bot only for both of us 💜. Simple desing and absolutely no room for scaling was intentional. Too much complexity must have a solid reason, not my case.
