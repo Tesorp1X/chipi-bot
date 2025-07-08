@@ -62,3 +62,32 @@ Cold storage was no-brainer for me &mdash; I chose `SQLite`. I didn't need any o
 
 Why no ORM? It's simple, I wanted to learn SQL and how to handle raw-queries. I kinda love to know "how it works on the inside" about everything, so why the hell not learn SQL 😃.
 
+### Architecture and planning
+Well, I guess my project structure and architecture is pretty chaotic 😅. Well, that was my idea &mdash; I wanted to see how it will end up. The result is expected: it's hard to add functionality, hard to test and no way of scaling. At least its seems so.
+
+To be honest, I encountered challenges with my ingenius design the moment I've tried to db-storage to my bot. For the moment for each request app opens db, queries and closes it. 
+
+Another problem I've encountered is logging. I wanted logging in different files, but how can I supply it to a message-handler function? No way in my implementation.
+
+And of course, it's kinda hard to write unit-tests for this thing, but more about that in Testing block.
+
+For the `ver 2.0` I already know what I'm going to change:
+
+- Bot object should live with db and logging services in one happy struct.
+```Go
+type App struct {
+    bot *tele.Bot
+    log *services.Log
+    db *services.DB
+}
+```
+And any handler must be a method of `App`, so it has access to logging and db of this app.
+
+- All three of these services will be running in their own goroutines, to optimize perfomans (I will try to benchmark it).
+
+- On app architecture I'm still undesided. Will talk about in `ver 2.0` dev-blog 😉👀.
+
+
+
+---
+To be continued...
