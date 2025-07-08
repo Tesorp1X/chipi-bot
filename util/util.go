@@ -1,5 +1,12 @@
 package util
 
+/*
+	Html-codes:
+	< &lt;
+	> &gt;
+	— &#8212;
+
+*/
 import (
 	"fmt"
 	"strconv"
@@ -63,12 +70,13 @@ func ExtractAdminsIDs(adminsStr string) []int64 {
 func CalculateCheckTotal(check *models.CheckWithItems) *models.CheckTotal {
 	ct := &models.CheckTotal{Id: check.Id, OwnerId: check.GetCheckOwner()}
 	for _, item := range check.GetItems() {
-		if item.Owner == ct.OwnerId {
+		switch item.Owner {
+		case ct.OwnerId:
 			ct.OwnerTotal += item.Price
-		} else if item.Owner == models.OWNER_BOTH {
+		case models.OWNER_BOTH:
 			ct.OwnerTotal += item.Price / 2
 			ct.DebtorTotal += item.Price / 2
-		} else {
+		default:
 			ct.DebtorTotal += item.Price
 		}
 		ct.Total += item.Price
