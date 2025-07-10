@@ -18,6 +18,7 @@ const (
 	BTN_FORWARD = "forward"
 	BTN_BACK    = "back"
 	BTN_EDIT    = "edit"
+	BTN_CHECKS  = "checks"
 )
 
 // storage keys
