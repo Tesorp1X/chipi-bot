@@ -72,7 +72,7 @@ func NewCheckNameResponseHandler(c tele.Context, state fsm.Context) error {
 	}
 
 	var currentIndex int
-	if err := state.Data(context.TODO(), models.CURRENT_INDEX, &currentIndex); err != nil {
+	if err := state.Data(context.TODO(), models.CURRENT_INDEX_CHECKS, &currentIndex); err != nil {
 		state.Finish(context.TODO(), true)
 		return c.Send(models.ErrorStateDataUpdate)
 	}
@@ -291,10 +291,6 @@ func showChecks(c tele.Context, state fsm.Context) error {
 		}
 	}
 
-	var currentIndex int = 0
-	// If currentIndex is not stored in context, then it will be just zero.
-	state.Data(context.TODO(), models.CURRENT_INDEX, &currentIndex)
-
 	// Context should be short-lived (few mins).
 	// TODO make it short-lived
 	if err := state.Update(context.TODO(), models.CHECKS, session); err != nil {
@@ -302,7 +298,8 @@ func showChecks(c tele.Context, state fsm.Context) error {
 		return c.Send(models.ErrorStateDataUpdate)
 	}
 
-	if err := state.Update(context.TODO(), models.CURRENT_INDEX, currentIndex); err != nil {
+	var currentIndex int = 0
+	if err := state.Update(context.TODO(), models.CURRENT_INDEX_CHECKS, currentIndex); err != nil {
 		state.Finish(context.TODO(), true)
 		return c.Send(models.ErrorStateDataUpdate)
 	}
@@ -332,7 +329,7 @@ func showTotals(c tele.Context, state fsm.Context) error {
 	}
 
 	var currentIndex int
-	if err := state.Update(context.TODO(), models.CURRENT_INDEX, currentIndex); err != nil {
+	if err := state.Update(context.TODO(), models.CURRENT_INDEX_TOTALS, currentIndex); err != nil {
 		state.Finish(context.TODO(), true)
 		return c.Send(models.ErrorStateDataUpdate)
 	}
