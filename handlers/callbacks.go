@@ -82,7 +82,7 @@ func ShowChecksScrollButtonCallback(c tele.Context, state fsm.Context) error {
 
 	var currentIndex int = 0
 	// If currentIndex is not stored in context, then it will be just zero.
-	if err := state.Data(context.TODO(), models.CURRENT_INDEX, &currentIndex); err != nil {
+	if err := state.Data(context.TODO(), models.CURRENT_INDEX_CHECKS, &currentIndex); err != nil {
 		return c.Respond(&tele.CallbackResponse{
 			Text: models.ErrorSometingWentWrong + " Попробуйте еще раз.",
 		})
@@ -126,7 +126,7 @@ func ShowChecksScrollButtonCallback(c tele.Context, state fsm.Context) error {
 		log.Fatalf("couldn't respond to callback %v: %v", c.Callback(), err)
 	}
 
-	state.Update(context.TODO(), models.CURRENT_INDEX, currentIndex)
+	state.Update(context.TODO(), models.CURRENT_INDEX_CHECKS, currentIndex)
 
 	kb := models.GetScrollKb()
 	// set state ShowinChecks
@@ -199,7 +199,7 @@ func EditChecksButtonCallback(c tele.Context, state fsm.Context) error {
 
 	var currentIndex int = 0
 	// If currentIndex is not stored in context, then it will be just zero.
-	if err := state.Data(context.TODO(), models.CURRENT_INDEX, &currentIndex); err != nil {
+	if err := state.Data(context.TODO(), models.CURRENT_INDEX_CHECKS, &currentIndex); err != nil {
 		return c.Respond(&tele.CallbackResponse{
 			Text: models.ErrorTryAgain,
 		})
@@ -295,7 +295,7 @@ func NewCheckOwnerCallback(c tele.Context, state fsm.Context) error {
 	}
 
 	var currentIndex int
-	if err := state.Data(context.TODO(), models.CURRENT_INDEX, &currentIndex); err != nil {
+	if err := state.Data(context.TODO(), models.CURRENT_INDEX_CHECKS, &currentIndex); err != nil {
 		return c.Respond(&tele.CallbackResponse{
 			Text: models.ErrorTryAgain,
 		})
@@ -458,7 +458,7 @@ func ShowTotalsMenuButtonCallback(c tele.Context, state fsm.Context) error {
 	}
 	// retrieve currentIndex from context or it will be zero
 	var currentIndex int = 0
-	if err := state.Data(context.TODO(), models.CURRENT_INDEX, &currentIndex); err != nil {
+	if err := state.Data(context.TODO(), models.CURRENT_INDEX_TOTALS, &currentIndex); err != nil {
 		return c.Respond(&tele.CallbackResponse{
 			Text: models.ErrorSometingWentWrong + " Попробуйте еще раз.",
 		})
@@ -501,7 +501,7 @@ func ShowTotalsMenuButtonCallback(c tele.Context, state fsm.Context) error {
 		})
 	}
 
-	if err := state.Update(context.TODO(), models.CURRENT_INDEX, currentIndex); err != nil {
+	if err := state.Update(context.TODO(), models.CURRENT_INDEX_TOTALS, currentIndex); err != nil {
 		return c.Respond(&tele.CallbackResponse{Text: models.ErrorStateDataUpdate})
 	}
 
