@@ -239,17 +239,19 @@ func GetCheckWithItemsResponse(check models.CheckWithItems) string {
 }
 
 // Responce for '/show totals' command. Show one at a time.
-func GetShowTotalsResponse(total *models.SessionTotal) string {
-	msg := "<b>Результат сессии №" + strconv.FormatInt(total.GetSessionId(), 10) + ":</b> \n\n"
+func GetShowTotalsResponse(sessionTotal *models.SessionTotal) string {
+	msg := "<b>Результат сессии №" + strconv.FormatInt(sessionTotal.GetSessionId(), 10) + ":</b> \n\n"
 
-	msg += "<i><b>Дата начала:</b> " + total.GetOpenedAtTime().Format(time.DateTime) + "</i>\n"
-	msg += "<i><b>Дата окончания:</b> " + total.GetClosedAtTime().Format(time.DateTime) + "</i>\n\n"
+	msg += "<i><b>Дата начала:</b> " + sessionTotal.GetOpenedAtTime().Format(time.DateTime) + "</i>\n"
+	msg += "<i><b>Дата окончания:</b> " + sessionTotal.GetClosedAtTime().Format(time.DateTime) + "</i>\n\n"
 
-	if total.Recipient == models.OWNER_LIZ {
-		msg += fmt.Sprintf("Пау перевел Лиз <b>%.2f руб.</b>", total.Amount)
+	if sessionTotal.Recipient == models.OWNER_LIZ {
+		msg += fmt.Sprintf("Пау перевел Лиз <b>%.2f руб.</b>\n\n", sessionTotal.Amount)
 	} else {
-		msg += fmt.Sprintf("Лиз перевела Пау <b>%.2f руб.</b>", total.Amount)
+		msg += fmt.Sprintf("Лиз перевела Пау <b>%.2f руб.</b>\n\n", sessionTotal.Amount)
 	}
+
+	msg += fmt.Sprintf("<b><u>Всего заплачено: %.2f руб</u></b>", sessionTotal.Total)
 
 	return msg
 }
