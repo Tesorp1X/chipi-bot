@@ -176,7 +176,7 @@ func ShowChecksEditButtonCallback(c tele.Context, state fsm.Context) error {
 		},
 	)
 
-	return c.EditOrReply(msg, kb)
+	return c.EditOrReply(msg, kb, tele.ModeMarkdown)
 }
 
 // Handles button-presses('edit'), while scrolling through checks in '/show checks'.
@@ -495,6 +495,12 @@ func ShowTotalsMenuButtonCallback(c tele.Context, state fsm.Context) error {
 			}
 			return nil
 		}
+	case models.BTN_CHECKS:
+
+		return c.Respond(&tele.CallbackResponse{
+			Text: models.ErrorNotImplemented,
+		})
+
 	default:
 		return c.Respond(&tele.CallbackResponse{
 			Text: models.ErrorInvalidRequest,
@@ -510,7 +516,24 @@ func ShowTotalsMenuButtonCallback(c tele.Context, state fsm.Context) error {
 		log.Fatalf("couldn't respond to callback %v: %v", c.Callback(), err)
 	}
 
-	kb := models.GetScrollKb()
+	kb := models.CreateSelectorInlineKb(
+		3,
+		models.Button{
+			BtnTxt: "<<",
+			Unique: models.CallbackActionMenuButtonPress.String(),
+			Data:   models.BTN_BACK,
+		},
+		models.Button{
+			BtnTxt: "Чеки",
+			Unique: models.CallbackActionMenuButtonPress.String(),
+			Data:   models.BTN_CHECKS,
+		},
+		models.Button{
+			BtnTxt: ">>",
+			Unique: models.CallbackActionMenuButtonPress.String(),
+			Data:   models.BTN_FORWARD,
+		},
+	)
 
 	return c.EditOrReply(util.GetShowTotalsResponse(totals[currentIndex]), kb)
 }

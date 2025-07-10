@@ -339,12 +339,19 @@ func showTotals(c tele.Context, state fsm.Context) error {
 		return c.Send(models.ErrorSetState)
 	}
 
+	response := util.GetShowTotalsResponse(totals[currentIndex])
+
 	kb := models.CreateSelectorInlineKb(
-		2,
+		3,
 		models.Button{
 			BtnTxt: "<<",
 			Unique: models.CallbackActionMenuButtonPress.String(),
 			Data:   models.BTN_BACK,
+		},
+		models.Button{
+			BtnTxt: "Чеки",
+			Unique: models.CallbackActionMenuButtonPress.String(),
+			Data:   models.BTN_CHECKS,
 		},
 		models.Button{
 			BtnTxt: ">>",
@@ -353,7 +360,7 @@ func showTotals(c tele.Context, state fsm.Context) error {
 		},
 	)
 
-	return c.Send(util.GetShowTotalsResponse(totals[currentIndex]), kb)
+	return c.Send(response, kb)
 }
 
 type checksForSession struct {
