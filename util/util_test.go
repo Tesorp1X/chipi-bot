@@ -402,3 +402,39 @@ func TestCalculateSessionTotal(t *testing.T) {
 		}
 	}
 }
+
+func TestGetShowTotalsResponse(t *testing.T) {
+	t.Run("Liz -> Pau", func(t *testing.T) {
+		closeTime := time.Now()
+		openTime := closeTime.Add(-48 * time.Hour)
+		session := &models.Session{
+			Id:       1,
+			OpenedAt: &openTime,
+			ClosedAt: &closeTime,
+			IsOpen:   false,
+		}
+		sessionTotal := &models.SessionTotal{
+			Total:     100,
+			TotalLiz:  38.5,
+			TotalPau:  61.5,
+			Recipient: models.OWNER_PAU,
+			Amount:    12,
+		}
+		sessionTotal.SetSession(session)
+
+		want := "<b>Результат сессии №1:</b>\n\n" +
+			"<i><b>Дата начала:</b> " + sessionTotal.GetOpenedAtTime().Format(time.DateTime) + "</i>\n" +
+			"<i><b>Дата окончания:</b> " + sessionTotal.GetClosedAtTime().Format(time.DateTime) + "</i>\n\n" +
+			fmt.Sprintf("Лиз перевела Пау <b>%.2f руб.</b>\n\n", sessionTotal.Amount) +
+			fmt.Sprintf("<b><i>Лиз купила на: %.2f руб</i></b>\n", sessionTotal.TotalLiz) +
+			fmt.Sprintf("<b><i>Пау купил на: %.2f руб</i></b>\n\n", sessionTotal.TotalPau) +
+			fmt.Sprintf("<b><u>Всего заплачено: %.2f руб</u></b>", sessionTotal.Total)
+
+		got := util.GetShowTotalsResponse(sessionTotal)
+
+		if got != want {
+			t.Fatalf("\nwant:\n%s\n%d\ngot:\n%s\n%d", want, len(want), got, len(got))
+		}
+
+	})
+}
