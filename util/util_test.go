@@ -53,12 +53,14 @@ func TestCreateItemsListResponse(t *testing.T) {
 		models.Item{Name: "Печенье", Price: 110, Owner: models.OWNER_LIZ},
 	)
 
-	want := `1) twix 79 руб
-2) Сырок 69 руб
-3) Печенье 110 руб
-Лиз заплатила: 149.50 руб
-Пау заплатил: 108.50 руб
-Итого: 258 бублей.`
+	want := `<i>1) twix 79.00 руб</i>
+<i>2) Сырок 69.00 руб</i>
+<i>3) Печенье 110.00 руб</i>
+
+Лиз заплатила: <b>149.50 руб</b>
+Пау заплатил: <b>108.50 руб</b>
+
+Итого: <b>258.00 бублей.</b>`
 
 	got := util.CreateItemsListResponse(items...)
 
