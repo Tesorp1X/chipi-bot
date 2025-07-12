@@ -80,6 +80,8 @@ type SessionTotal struct {
 	Total     float64
 	Recipient string
 	Amount    float64
+	TotalLiz  float64
+	TotalPau  float64
 	// Can be null...
 	session *Session
 }

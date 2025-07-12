@@ -108,7 +108,13 @@ func CalculateSessionTotal(sessionId int64, checks []*models.CheckWithItems) *mo
 		}
 	}
 
-	st := &models.SessionTotal{SessionId: sessionId, Total: lizTotal.All + pauTotal.All}
+	st := &models.SessionTotal{
+		SessionId: sessionId,
+		Total:     lizTotal.All + pauTotal.All,
+		TotalLiz:  lizTotal.All,
+		TotalPau:  pauTotal.All,
+	}
+
 	if lizTotal.Debtor > pauTotal.Debtor {
 		st.Recipient = models.OWNER_LIZ
 		st.Amount = lizTotal.Debtor - pauTotal.Debtor
