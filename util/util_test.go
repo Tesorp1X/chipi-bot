@@ -1,8 +1,10 @@
 package util_test
 
 import (
+	"fmt"
 	"slices"
 	"testing"
+	"time"
 
 	"github.com/Tesorp1X/chipi-bot/models"
 	"github.com/Tesorp1X/chipi-bot/util"
@@ -320,7 +322,14 @@ func TestCalculateSessionTotal(t *testing.T) {
 				sessionId: 1,
 				checks:    []*models.CheckWithItems{check1, check2, check3},
 			},
-			want: &models.SessionTotal{SessionId: 1, Total: 1618, Recipient: models.OWNER_LIZ, Amount: 765},
+			want: &models.SessionTotal{
+				SessionId: 1,
+				Total:     1618,
+				TotalLiz:  487,
+				TotalPau:  1331,
+				Recipient: models.OWNER_LIZ,
+				Amount:    765,
+			},
 		},
 		{
 			name: "2 checks. pau -> liz",
@@ -328,7 +337,14 @@ func TestCalculateSessionTotal(t *testing.T) {
 				sessionId: 2,
 				checks:    []*models.CheckWithItems{check2, check3},
 			},
-			want: &models.SessionTotal{SessionId: 2, Total: 584, Recipient: models.OWNER_LIZ, Amount: 24.5},
+			want: &models.SessionTotal{
+				SessionId: 2,
+				Total:     584,
+				TotalLiz:  193.5,
+				TotalPau:  390.5,
+				Recipient: models.OWNER_LIZ,
+				Amount:    24.5,
+			},
 		},
 		{
 			name: "3 checks. liz -> pau",
@@ -336,7 +352,14 @@ func TestCalculateSessionTotal(t *testing.T) {
 				sessionId: 3,
 				checks:    []*models.CheckWithItems{check2, check3, check4},
 			},
-			want: &models.SessionTotal{SessionId: 3, Total: 1618, Recipient: models.OWNER_PAU, Amount: 716},
+			want: &models.SessionTotal{
+				SessionId: 3,
+				Total:     1618,
+				TotalLiz:  934,
+				TotalPau:  684,
+				Recipient: models.OWNER_PAU,
+				Amount:    716,
+			},
 		},
 		{
 			name: "2 checks. parity",
@@ -344,24 +367,31 @@ func TestCalculateSessionTotal(t *testing.T) {
 				sessionId: 4,
 				checks:    []*models.CheckWithItems{check1, check4},
 			},
-			want: &models.SessionTotal{SessionId: 4, Total: 2068, Recipient: models.OWNER_LIZ, Amount: 0},
+			want: &models.SessionTotal{
+				SessionId: 4,
+				Total:     2068,
+				TotalLiz:  1034,
+				TotalPau:  1034,
+				Recipient: models.OWNER_LIZ,
+				Amount:    0,
+			},
 		},
 	}
 
 	validate := func(a, b *models.SessionTotal) bool {
-		if a.Total != b.Total {
+		if a.Total != b.Total || a.SessionId != b.SessionId || a.Amount != b.Amount {
 			return false
 		}
-		if a.SessionId != b.SessionId {
-			return false
-		}
-		if a.Amount != b.Amount {
-			return false
-		}
+
 		// if fuunction haven't returned yet, means  a.Amount and b.Amount are equal
 		if a.Recipient != b.Recipient && a.Amount != 0 {
 			return false
 		}
+
+		if a.TotalLiz != b.TotalLiz || a.TotalPau != b.TotalPau {
+			return false
+		}
+
 		return true
 	}
 
