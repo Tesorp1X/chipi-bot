@@ -246,7 +246,7 @@ func GetCheckWithItemsResponse(check models.CheckWithItems) string {
 
 // Responce for '/show totals' command. Show one at a time.
 func GetShowTotalsResponse(sessionTotal *models.SessionTotal) string {
-	msg := "<b>Результат сессии №" + strconv.FormatInt(sessionTotal.GetSessionId(), 10) + ":</b> \n\n"
+	msg := "<b>Результат сессии №" + strconv.FormatInt(sessionTotal.GetSessionId(), 10) + ":</b>\n\n"
 
 	msg += "<i><b>Дата начала:</b> " + sessionTotal.GetOpenedAtTime().Format(time.DateTime) + "</i>\n"
 	msg += "<i><b>Дата окончания:</b> " + sessionTotal.GetClosedAtTime().Format(time.DateTime) + "</i>\n\n"
@@ -257,6 +257,8 @@ func GetShowTotalsResponse(sessionTotal *models.SessionTotal) string {
 		msg += fmt.Sprintf("Лиз перевела Пау <b>%.2f руб.</b>\n\n", sessionTotal.Amount)
 	}
 
+	msg += fmt.Sprintf("<b><i>Лиз купила на: %.2f руб</i></b>\n", sessionTotal.TotalLiz)
+	msg += fmt.Sprintf("<b><i>Пау купил на: %.2f руб</i></b>\n\n", sessionTotal.TotalPau)
 	msg += fmt.Sprintf("<b><u>Всего заплачено: %.2f руб</u></b>", sessionTotal.Total)
 
 	return msg
