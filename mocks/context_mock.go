@@ -166,7 +166,7 @@ func NewMockContext(bot tele.API, update tele.Update, storage *MockStorage) *Moc
 // --------------------------------------------------------------------
 
 func (c *MockContext) IsResponseType(responseType int) bool {
-	return responseType != c.response.Type
+	return responseType == c.response.Type
 }
 
 // Methods bellow the line are to satisfy the tele.Context interface
