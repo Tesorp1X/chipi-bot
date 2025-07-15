@@ -39,6 +39,13 @@ func (s *MockStorage) Get(key string) any {
 	return val
 }
 
+// Clears current storage.
+func (s *MockStorage) ClearData() {
+	s.m.Lock()
+	clear(s.s)
+	s.m.Unlock()
+}
+
 // what was sent to a user
 type HandlerResponse struct {
 
