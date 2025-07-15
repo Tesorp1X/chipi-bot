@@ -169,6 +169,11 @@ func (c *MockContext) IsResponseTypeEqualsTo(responseType int) bool {
 	return responseType == c.response.Type
 }
 
+func (c *MockContext) IsResponseTextEqualsTo(text string) bool {
+	return text == c.response.Text
+}
+
+
 // Methods bellow the line are to satisfy the tele.Context interface
 // --------------------------------------------------------------------
 
