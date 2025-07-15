@@ -165,7 +165,7 @@ func NewMockContext(bot tele.API, update tele.Update, storage *MockStorage) *Moc
 // Methods bellow the line are for testing
 // --------------------------------------------------------------------
 
-func (c *MockContext) IsResponseType(responseType int) bool {
+func (c *MockContext) IsResponseTypeEqualsTo(responseType int) bool {
 	return responseType == c.response.Type
 }
 
