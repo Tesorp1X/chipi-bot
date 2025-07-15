@@ -16,6 +16,14 @@ type MockStorage struct {
 	m *sync.Mutex
 }
 
+func NewMockStorage() *MockStorage {
+	ms := new(MockStorage)
+	ms.s = make(map[string]any)
+	ms.m = new(sync.Mutex)
+
+	return ms
+}
+
 func (s *MockStorage) Set(key string, val any) {
 	s.m.Lock()
 	s.s[key] = val
