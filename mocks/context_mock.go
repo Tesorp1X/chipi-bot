@@ -173,6 +173,25 @@ func (c *MockContext) IsResponseTextEqualsTo(text string) bool {
 	return text == c.response.Text
 }
 
+// Returns true if [ReplyMarkup] stored in context.response is the same to given kb.
+func (c *MockContext) IsResponseReplyMarkUpEqualsTo(kb *tele.ReplyMarkup) (bool, error) {
+
+	ogKbJson, err := json.Marshal(c.response.SendOptions.ReplyMarkup)
+	if err != nil {
+		return false, fmt.Errorf("IsResponseReplyMarkUpEqualsTo: couldn't marshal original ReplyMarkup: %w", err)
+	}
+
+	givenKbJson, err := json.Marshal(kb)
+	if err != nil {
+		return false, fmt.Errorf("IsResponseReplyMarkUpEqualsTo: couldn't marshal given ReplyMarkup: %w", err)
+	}
+
+	if !bytes.Equal(ogKbJson, givenKbJson) {
+		return false, nil
+	}
+
+	return true, nil
+}
 
 // Methods bellow the line are to satisfy the tele.Context interface
 // --------------------------------------------------------------------
