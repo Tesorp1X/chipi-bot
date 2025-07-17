@@ -74,13 +74,13 @@ func (r *HandlerResponse) IsResponseReplyMarkUpEqualsTo(kb *tele.ReplyMarkup) (b
 
 type MockStorage struct {
 	s map[string]any
-	m *sync.Mutex
+	m *sync.RWMutex
 }
 
 func NewMockStorage() *MockStorage {
 	ms := new(MockStorage)
 	ms.s = make(map[string]any)
-	ms.m = new(sync.Mutex)
+	ms.m = new(sync.RWMutex)
 
 	return ms
 }
@@ -92,7 +92,9 @@ func (s *MockStorage) Set(key string, val any) {
 }
 
 func (s *MockStorage) Get(key string) any {
+	s.m.RLock()
 	val, ok := s.s[key]
+	s.m.RUnlock()
 	if !ok {
 		return nil
 	}
