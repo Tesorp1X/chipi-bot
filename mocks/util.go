@@ -85,6 +85,8 @@ func NewMockStorage() *MockStorage {
 	return ms
 }
 
+// Sets storage with (key, val). If val is nil and map already has a value with given key, then key is deleated.
+// In case if val is nil and no value with that key, than it's ignored.
 func (s *MockStorage) Set(key string, val any) {
 	if val == nil {
 		s.m.RLock()
@@ -103,6 +105,7 @@ func (s *MockStorage) Set(key string, val any) {
 	s.m.Unlock()
 }
 
+// Returns a value for given key. If there is no value for that key, then nil is returned.
 func (s *MockStorage) Get(key string) any {
 	s.m.RLock()
 	val, ok := s.s[key]
