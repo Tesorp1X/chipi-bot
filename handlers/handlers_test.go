@@ -165,3 +165,52 @@ func TestNewCheckHandler(t *testing.T) {
 		assertStorage(t, &expectedStorage, fsmStorage)
 	})
 }
+
+func TestCheckNameResponseHandler(t *testing.T) {
+	t.Run("no err", func(t *testing.T) {
+		response := mocks.HandlerResponse{}
+		bot := mocks.NewMockBot(&response)
+		botStorage := mocks.NewMockStorage()
+		fsmStorage := mocks.NewMockStorage()
+		var sessionId int64 = 1
+		fsmStorage.Set(models.SESSION_ID, sessionId)
+
+		var checkName = "Test name"
+		update := makeUpdateWithMessageText(checkName)
+
+		teleCtx := mocks.NewMockContext(bot, update, botStorage, &response)
+		stateCtx := mocks.NewMockFsmContext(fsmStorage, models.StateDefault)
+
+		expectedResponse := &mocks.HandlerResponse{
+			Text: "Хорошо. Кто заплатил?🤑",
+			Type: mocks.ResponseTypeSend,
+			SendOptions: &tele.SendOptions{
+				ReplyMarkup: models.CreateSelectorInlineKb(
+					2,
+					models.Button{
+						BtnTxt: "Лиз :3",
+						Unique: models.CallbackActionCheckOwner.String(),
+						Data:   models.OWNER_LIZ,
+					},
+					models.Button{
+						BtnTxt: "Пау <3",
+						Unique: models.CallbackActionCheckOwner.String(),
+						Data:   models.OWNER_PAU,
+					},
+				),
+			},
+		}
+
+		expectedStorage := map[string]any{
+			models.SESSION_ID: sessionId,
+			models.CHECK_NAME: checkName,
+		}
+
+		handlerErr := CheckNameResponseHandler(teleCtx, stateCtx)
+
+		assertHandlerError(t, false, errEmpty, handlerErr)
+		assertHandlerResponse(t, expectedResponse, &response)
+		assertState(t, models.StateWaitForCheckOwner, stateCtx)
+		assertStorage(t, &expectedStorage, fsmStorage)
+	})
+}
