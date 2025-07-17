@@ -86,6 +86,18 @@ func NewMockStorage() *MockStorage {
 }
 
 func (s *MockStorage) Set(key string, val any) {
+	if val == nil {
+		s.m.RLock()
+		_, ok := s.s[key]
+		s.m.RUnlock()
+		if ok {
+			s.m.Lock()
+			delete(s.s, key)
+			s.m.Unlock()
+		}
+		return
+	}
+
 	s.m.Lock()
 	s.s[key] = val
 	s.m.Unlock()
