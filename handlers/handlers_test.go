@@ -3,6 +3,7 @@ package handlers
 import (
 	"context"
 	"errors"
+	"reflect"
 	"testing"
 
 	"github.com/Tesorp1X/chipi-bot/mocks"
@@ -63,6 +64,29 @@ func assertState(t testing.TB, expected fsm.State, fsmCtx *mocks.MockFsmContext)
 
 	if expected != gotState {
 		t.Fatalf("expected state: %s, but got insted: %s", expected, gotState)
+	}
+}
+
+// Fails a test if storage is missing any (key, value) tuple from expected,
+// or if expected and got values are not deeply equal (must have the same type).
+func assertStorage(t testing.TB, expected *map[string]any, storage *mocks.MockStorage) {
+	t.Helper()
+	for k, v := range *expected {
+		storageVal := storage.Get(k)
+		if storageVal == nil {
+			t.Fatalf("in storage expected (key, value): (%s, %v), but instead got nil", k, v)
+		}
+
+		expectedReflectValue := reflect.ValueOf(v)
+		gotReflectValue := reflect.ValueOf(storageVal)
+
+		if expectedReflectValue.Type() != gotReflectValue.Type() {
+			t.Fatalf("in storage for key %s expected value type of %v, but insted got %v", k, expectedReflectValue.Type(), gotReflectValue.Type())
+		}
+
+		if !reflect.DeepEqual(expectedReflectValue, gotReflectValue) {
+			t.Fatalf("in storage for for key %s expected value %v, but instaed got %v", k, expectedReflectValue, gotReflectValue)
+		}
 	}
 }
 
