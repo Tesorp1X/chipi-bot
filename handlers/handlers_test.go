@@ -109,3 +109,30 @@ func TestHelloHandler(t *testing.T) {
 	assertHandlerError(t, false, errEmpty, handlerErr)
 	assertHandlerResponse(t, &expextedResponse, &response)
 }
+
+func TestNewCheckHandler(t *testing.T) {
+	t.Run("command-call from default state (no err)", func(t *testing.T) {
+		response := mocks.HandlerResponse{}
+		bot := mocks.NewMockBot(&response)
+		botStorage := mocks.NewMockStorage()
+		var sessionId int64 = 1
+		botStorage.Set(models.SESSION_ID, sessionId)
+		fsmStorage := mocks.NewMockStorage()
+
+		update := makeUpdateWithMessageText("/newcheck")
+
+		teleCtx := mocks.NewMockContext(bot, update, botStorage, &response)
+		stateCtx := mocks.NewMockFsmContext(fsmStorage, models.StateDefault)
+
+		expectedResponse := &mocks.HandlerResponse{
+			Text: "Хорошо, как назовем новый чек?👀",
+			Type: mocks.ResponseTypeSend,
+		}
+
+		handlerErr := NewCheckHandler(teleCtx, stateCtx)
+
+		assertHandlerError(t, false, errEmpty, handlerErr)
+		assertHandlerResponse(t, expectedResponse, &response)
+		assertState(t, models.StateWaitForCheckName, stateCtx)
+	})
+}
