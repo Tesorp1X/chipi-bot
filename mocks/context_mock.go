@@ -85,7 +85,7 @@ func (c *MockContext) Poll() *tele.Poll {
 }
 
 // // PollAnswer returns stored poll answer if such presented.
-func PollAnswer() *tele.PollAnswer {
+func (c *MockContext) PollAnswer() *tele.PollAnswer {
 	return &tele.PollAnswer{}
 }
 
