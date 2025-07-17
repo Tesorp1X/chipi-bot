@@ -153,10 +153,15 @@ func TestNewCheckHandler(t *testing.T) {
 			Type: mocks.ResponseTypeSend,
 		}
 
+		expectedStorage := map[string]any{
+			models.SESSION_ID: sessionId,
+		}
+
 		handlerErr := NewCheckHandler(teleCtx, stateCtx)
 
 		assertHandlerError(t, false, errEmpty, handlerErr)
 		assertHandlerResponse(t, expectedResponse, &response)
 		assertState(t, models.StateWaitForCheckName, stateCtx)
+		assertStorage(t, &expectedStorage, fsmStorage)
 	})
 }
