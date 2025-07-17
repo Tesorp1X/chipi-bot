@@ -41,6 +41,11 @@ func NewMockFsmContext(s *MockStorage, defaultState fsm.State) *MockFsmContext {
 // Methods bellow the line are for testing
 // --------------------------------------------------------------------
 
+// Returns true, if state is the as what's stored in MockFsmContext now.
+func (f *MockFsmContext) IsStateEqualsTo(state fsm.State) bool {
+	return f.state == state
+}
+
 // Methods bellow the line are to satisfy the [fsm.Context] interface
 // --------------------------------------------------------------------
 
