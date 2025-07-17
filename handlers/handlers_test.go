@@ -7,6 +7,7 @@ import (
 
 	"github.com/Tesorp1X/chipi-bot/mocks"
 	"github.com/Tesorp1X/chipi-bot/models"
+	"github.com/vitaliy-ukiru/fsm-telebot/v2"
 	tele "gopkg.in/telebot.v4"
 )
 
@@ -52,6 +53,19 @@ func assertHandlerResponse(t testing.TB, expected, got *mocks.HandlerResponse) {
 
 }
 
+// Fails a test if fsmCtx's state doesn't equal to expected.
+func assertState(t testing.TB, expected fsm.State, fsmCtx *mocks.MockFsmContext) {
+	t.Helper()
+	gotState, err := fsmCtx.State(context.Background())
+	if err != nil {
+		t.Fatalf("assertState error: %v", err)
+	}
+
+	if expected != gotState {
+		t.Fatalf("expected state: %s, but got insted: %s", expected, gotState)
+	}
+}
+
 // Returns an update with non-nil Message field. User has ID 1, Name: Test Test and username: @test123.
 func makeUpdateWithMessageText(text string) tele.Update {
 	return tele.Update{
@@ -73,12 +87,13 @@ func makeUpdateWithMessageText(text string) tele.Update {
 func TestHelloHandler(t *testing.T) {
 	response := mocks.HandlerResponse{}
 	bot := mocks.NewMockBot(&response)
-	storage := mocks.NewMockStorage()
+	botStorage := mocks.NewMockStorage()
+	fsmStorage := mocks.NewMockStorage()
 
 	update := makeUpdateWithMessageText("hello")
 
-	teleCtx := mocks.NewMockContext(bot, update, storage, &response)
-	stateCtx := mocks.NewMockFsmContext(storage, models.StateDefault)
+	teleCtx := mocks.NewMockContext(bot, update, botStorage, &response)
+	stateCtx := mocks.NewMockFsmContext(fsmStorage, models.StateDefault)
 
 	expextedResponse := mocks.HandlerResponse{
 		Text: "Hello, 1",
