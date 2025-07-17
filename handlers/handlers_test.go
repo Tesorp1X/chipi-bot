@@ -84,7 +84,7 @@ func assertStorage(t testing.TB, expected *map[string]any, storage *mocks.MockSt
 			t.Fatalf("in storage for key %s expected value type of %v, but insted got %v", k, expectedReflectValue.Type(), gotReflectValue.Type())
 		}
 
-		if !reflect.DeepEqual(expectedReflectValue, gotReflectValue) {
+		if !reflect.DeepEqual(v, storageVal) {
 			t.Fatalf("in storage for for key %s expected value %v, but instaed got %v", k, expectedReflectValue, gotReflectValue)
 		}
 	}
