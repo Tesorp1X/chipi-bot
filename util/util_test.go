@@ -328,7 +328,7 @@ func TestCalculateSessionTotal(t *testing.T) {
 				SessionId: 1,
 				Total:     1618,
 				TotalLiz:  487,
-				TotalPau:  1331,
+				TotalPau:  1131,
 				Recipient: models.OWNER_LIZ,
 				Amount:    765,
 			},
@@ -385,7 +385,7 @@ func TestCalculateSessionTotal(t *testing.T) {
 			return false
 		}
 
-		// if fuunction haven't returned yet, means  a.Amount and b.Amount are equal
+		// if function haven't returned yet, means a.Amount and b.Amount are equal
 		if a.Recipient != b.Recipient && a.Amount != 0 {
 			return false
 		}
