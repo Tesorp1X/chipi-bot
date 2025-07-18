@@ -111,8 +111,8 @@ func CalculateSessionTotal(sessionId int64, checks []*models.CheckWithItems) *mo
 	st := &models.SessionTotal{
 		SessionId: sessionId,
 		Total:     lizTotal.All + pauTotal.All,
-		TotalLiz:  lizTotal.All,
-		TotalPau:  pauTotal.All,
+		TotalLiz:  lizTotal.Owner + pauTotal.Debtor,
+		TotalPau:  pauTotal.Owner + lizTotal.Debtor,
 	}
 
 	if lizTotal.Debtor > pauTotal.Debtor {
