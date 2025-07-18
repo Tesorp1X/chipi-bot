@@ -126,7 +126,7 @@ func CalculateSessionTotal(sessionId int64, checks []*models.CheckWithItems) *mo
 	return st
 }
 
-// Returns a responce based on [models.SessionTotal].
+// Returns a response based on [models.SessionTotal].
 // Make [isPreliminary] true, if you wish to get preliminary results message.
 func GetTotalResponse(sessionTotal *models.SessionTotal, isPreliminary bool) string {
 	var msg string
@@ -244,7 +244,7 @@ func GetCheckWithItemsResponse(check models.CheckWithItems) string {
 	return msg
 }
 
-// Responce for '/show totals' command. Show one at a time.
+// Response for '/show totals' command. Show one at a time.
 func GetShowTotalsResponse(sessionTotal *models.SessionTotal) string {
 	msg := "<b>Результат сессии №" + strconv.FormatInt(sessionTotal.GetSessionId(), 10) + ":</b>\n\n"
 
