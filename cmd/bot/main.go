@@ -1,9 +1,12 @@
 package main
 
 import (
+	"context"
 	"flag"
 	"log"
 	"os"
+	"os/signal"
+	"syscall"
 	"time"
 
 	"github.com/Tesorp1X/chipi-bot/handlers"
@@ -138,5 +141,18 @@ func main() {
 		fsmopt.Do(handlers.ItemPriceResponseHandler),
 	)
 
-	bot.Start()
+	ctx, cancel := signal.NotifyContext(context.Background(), syscall.SIGTERM, syscall.SIGINT)
+	defer cancel()
+
+	go func() {
+		bot.Start()
+	}()
+
+	log.Println("bot is operational")
+
+	<-ctx.Done()
+
+	log.Println("bot is shutting down")
+	bot.Stop()
+
 }
