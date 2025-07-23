@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"reflect"
+	"strconv"
 	"testing"
 
 	"github.com/Tesorp1X/chipi-bot/mocks"
@@ -211,6 +212,58 @@ func TestCheckNameResponseHandler(t *testing.T) {
 		assertHandlerError(t, false, errEmpty, handlerErr)
 		assertHandlerResponse(t, expectedResponse, &response)
 		assertState(t, models.StateWaitForCheckOwner, stateCtx)
+		assertStorage(t, &expectedStorage, fsmStorage)
+	})
+}
+
+func TestItemPriceResponseHandler(t *testing.T) {
+	t.Run("price with dot | no err", func(t *testing.T) {
+		response := mocks.HandlerResponse{}
+		bot := mocks.NewMockBot(&response)
+		botStorage := mocks.NewMockStorage()
+		fsmStorage := mocks.NewMockStorage()
+
+		var itemPriceStr = "55.6"
+		update := makeUpdateWithMessageText(itemPriceStr)
+
+		teleCtx := mocks.NewMockContext(bot, update, botStorage, &response)
+		stateCtx := mocks.NewMockFsmContext(fsmStorage, models.StateDefault)
+
+		expectedResponse := &mocks.HandlerResponse{
+			Text: "Хорошо. Чей это товар?😺",
+			Type: mocks.ResponseTypeSend,
+			SendOptions: &tele.SendOptions{
+				ReplyMarkup: models.CreateSelectorInlineKb(
+					2,
+					models.Button{
+						BtnTxt: "Лиз :3",
+						Unique: models.CallbackActionItemOwner.String(),
+						Data:   models.OWNER_LIZ,
+					},
+					models.Button{
+						BtnTxt: "Пау <3",
+						Unique: models.CallbackActionItemOwner.String(),
+						Data:   models.OWNER_PAU,
+					},
+					models.Button{
+						BtnTxt: "Общий",
+						Unique: models.CallbackActionItemOwner.String(),
+						Data:   models.OWNER_BOTH,
+					},
+				),
+			},
+		}
+
+		itemPrice, _ := strconv.ParseFloat(itemPriceStr, 64)
+		expectedStorage := map[string]any{
+			models.ITEM_PRICE: itemPrice,
+		}
+
+		handlerErr := ItemPriceResponseHandler(teleCtx, stateCtx)
+
+		assertHandlerError(t, false, errEmpty, handlerErr)
+		assertHandlerResponse(t, expectedResponse, &response)
+		assertState(t, models.StateWaitForItemOwner, stateCtx)
 		assertStorage(t, &expectedStorage, fsmStorage)
 	})
 }
