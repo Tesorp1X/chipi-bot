@@ -144,6 +144,7 @@ func ItemPriceResponseHandler(c tele.Context, state fsm.Context) error {
 	)
 
 	msgText = strings.ReplaceAll(msgText, " ", "")
+	msgText = strings.ReplaceAll(msgText, ",", ".")
 	if strings.Contains(msgText, "*") {
 		tokens := strings.Split(msgText, "*")
 		if len(tokens) != 2 {
