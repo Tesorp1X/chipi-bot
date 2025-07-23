@@ -176,10 +176,23 @@ func ItemPriceResponseHandler(c tele.Context, state fsm.Context) error {
 		return c.Send(models.ErrorSometingWentWrong)
 	}
 
-	kb := models.ItemOwnershipSelectorInlineKb(
-		"Liz :3", models.CallbackActionItemOwner.String(), models.OWNER_LIZ,
-		"Пау <3", models.CallbackActionItemOwner.String(), models.OWNER_PAU,
-		"Общий", models.CallbackActionItemOwner.String(), models.OWNER_BOTH,
+	kb := models.CreateSelectorInlineKb(
+		2,
+		models.Button{
+			BtnTxt: "Лиз :3",
+			Unique: models.CallbackActionItemOwner.String(),
+			Data:   models.OWNER_LIZ,
+		},
+		models.Button{
+			BtnTxt: "Пау <3",
+			Unique: models.CallbackActionItemOwner.String(),
+			Data:   models.OWNER_PAU,
+		},
+		models.Button{
+			BtnTxt: "Общий",
+			Unique: models.CallbackActionItemOwner.String(),
+			Data:   models.OWNER_BOTH,
+		},
 	)
 	return c.Send("Хорошо. Чей это товар?😺", kb)
 }
