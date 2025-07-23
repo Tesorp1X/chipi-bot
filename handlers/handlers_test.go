@@ -4,7 +4,6 @@ import (
 	"context"
 	"errors"
 	"reflect"
-	"strconv"
 	"testing"
 
 	"github.com/Tesorp1X/chipi-bot/mocks"
@@ -217,53 +216,133 @@ func TestCheckNameResponseHandler(t *testing.T) {
 }
 
 func TestItemPriceResponseHandler(t *testing.T) {
-	t.Run("price with dot | no err", func(t *testing.T) {
-		response := mocks.HandlerResponse{}
-		bot := mocks.NewMockBot(&response)
-		botStorage := mocks.NewMockStorage()
-		fsmStorage := mocks.NewMockStorage()
+	itemOwnerReplyMarkup := models.CreateSelectorInlineKb(
+		2,
+		models.Button{
+			BtnTxt: "Лиз :3",
+			Unique: models.CallbackActionItemOwner.String(),
+			Data:   models.OWNER_LIZ,
+		},
+		models.Button{
+			BtnTxt: "Пау <3",
+			Unique: models.CallbackActionItemOwner.String(),
+			Data:   models.OWNER_PAU,
+		},
+		models.Button{
+			BtnTxt: "Общий",
+			Unique: models.CallbackActionItemOwner.String(),
+			Data:   models.OWNER_BOTH,
+		},
+	)
+	type args struct {
+		ItemPriceStr string
+		ItemPrice    float64
 
-		var itemPriceStr = "55.6"
-		update := makeUpdateWithMessageText(itemPriceStr)
+		IsErrorCase bool
 
-		teleCtx := mocks.NewMockContext(bot, update, botStorage, &response)
-		stateCtx := mocks.NewMockFsmContext(fsmStorage, models.StateDefault)
-
-		expectedResponse := &mocks.HandlerResponse{
-			Text: "Хорошо. Чей это товар?😺",
-			Type: mocks.ResponseTypeSend,
-			SendOptions: &tele.SendOptions{
-				ReplyMarkup: models.CreateSelectorInlineKb(
-					2,
-					models.Button{
-						BtnTxt: "Лиз :3",
-						Unique: models.CallbackActionItemOwner.String(),
-						Data:   models.OWNER_LIZ,
-					},
-					models.Button{
-						BtnTxt: "Пау <3",
-						Unique: models.CallbackActionItemOwner.String(),
-						Data:   models.OWNER_PAU,
-					},
-					models.Button{
-						BtnTxt: "Общий",
-						Unique: models.CallbackActionItemOwner.String(),
-						Data:   models.OWNER_BOTH,
-					},
-				),
+		WantedResponseText string
+		WantedReplyMarkup  *tele.ReplyMarkup
+		WantedState        fsm.State
+	}
+	testCases := []struct {
+		Name string
+		Args args
+	}{
+		{
+			Name: "price with dot | no err",
+			Args: args{
+				ItemPriceStr:       "56.5",
+				ItemPrice:          56.5,
+				WantedResponseText: "Хорошо. Чей это товар?😺",
+				WantedReplyMarkup:  itemOwnerReplyMarkup,
+				WantedState:        models.StateWaitForItemOwner,
 			},
-		}
+		},
+		{
+			Name: "price with coma | no err",
+			Args: args{
+				ItemPriceStr:       "56,5",
+				ItemPrice:          56.5,
+				WantedResponseText: "Хорошо. Чей это товар?😺",
+				WantedReplyMarkup:  itemOwnerReplyMarkup,
+				WantedState:        models.StateWaitForItemOwner,
+			},
+		},
+		{
+			Name: "amount * price | no err",
+			Args: args{
+				ItemPriceStr:       "3 * 56.5",
+				ItemPrice:          169.5,
+				WantedResponseText: "Хорошо. Чей это товар?😺",
+				WantedReplyMarkup:  itemOwnerReplyMarkup,
+				WantedState:        models.StateWaitForItemOwner,
+			},
+		},
+		{
+			Name: "amount*price | no err",
+			Args: args{
+				ItemPriceStr:       "3*56.5",
+				ItemPrice:          169.5,
+				WantedResponseText: "Хорошо. Чей это товар?😺",
+				WantedReplyMarkup:  itemOwnerReplyMarkup,
+				WantedState:        models.StateWaitForItemOwner,
+			},
+		},
+		{
+			Name: "not a number| with err",
+			Args: args{
+				ItemPriceStr:       "hi <3",
+				IsErrorCase:        true,
+				WantedResponseText: models.ErrorItemPriceMustBeANumberMsg,
+				WantedState:        models.StateWaitForItemPrice,
+			},
+		},
+		{
+			Name: "two numbers| with err",
+			Args: args{
+				ItemPriceStr:       "55 56",
+				IsErrorCase:        true,
+				WantedResponseText: models.ErrorItemPriceMustBeANumberMsg,
+				WantedState:        models.StateWaitForItemPrice,
+			},
+		},
+	}
 
-		itemPrice, _ := strconv.ParseFloat(itemPriceStr, 64)
-		expectedStorage := map[string]any{
-			models.ITEM_PRICE: itemPrice,
-		}
+	for _, tt := range testCases {
+		t.Run(tt.Name, func(t *testing.T) {
+			response := mocks.HandlerResponse{}
+			bot := mocks.NewMockBot(&response)
+			botStorage := mocks.NewMockStorage()
+			fsmStorage := mocks.NewMockStorage()
 
-		handlerErr := ItemPriceResponseHandler(teleCtx, stateCtx)
+			update := makeUpdateWithMessageText(tt.Args.ItemPriceStr)
 
-		assertHandlerError(t, false, errEmpty, handlerErr)
-		assertHandlerResponse(t, expectedResponse, &response)
-		assertState(t, models.StateWaitForItemOwner, stateCtx)
-		assertStorage(t, &expectedStorage, fsmStorage)
-	})
+			teleCtx := mocks.NewMockContext(bot, update, botStorage, &response)
+			stateCtx := mocks.NewMockFsmContext(fsmStorage, models.StateDefault)
+			stateCtx.SetState(context.Background(), models.StateWaitForItemPrice)
+
+			expectedResponse := &mocks.HandlerResponse{
+				Text: tt.Args.WantedResponseText,
+				Type: mocks.ResponseTypeSend,
+				SendOptions: &tele.SendOptions{
+					ReplyMarkup: tt.Args.WantedReplyMarkup,
+				},
+			}
+
+			expectedStorage := map[string]any{
+				models.ITEM_PRICE: tt.Args.ItemPrice,
+			}
+
+			handlerErr := ItemPriceResponseHandler(teleCtx, stateCtx)
+
+			assertHandlerError(t, false, errEmpty, handlerErr)
+			assertHandlerResponse(t, expectedResponse, &response)
+			assertState(t, tt.Args.WantedState, stateCtx)
+			if !tt.Args.IsErrorCase {
+				assertStorage(t, &expectedStorage, fsmStorage)
+			}
+
+		})
+	}
+
 }
