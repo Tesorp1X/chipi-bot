@@ -25,11 +25,11 @@ func HelloHandler(c tele.Context, state fsm.Context) error {
 
 func NewCheckHandler(c tele.Context, state fsm.Context) error {
 	if err := state.SetState(context.TODO(), models.StateWaitForCheckName); err != nil {
-		return c.Send(models.ErrorSometingWentWrong)
+		return c.Send(models.ErrorSomethingWentWrong)
 	}
 	val, ok := c.Get(models.SESSION_ID).(int64)
 	if !ok {
-		return c.Send(models.ErrorSometingWentWrong)
+		return c.Send(models.ErrorSomethingWentWrong)
 	}
 	if err := state.Update(context.Background(), models.SESSION_ID, val); err != nil {
 		return c.Send(models.ErrorStateDataUpdate)
@@ -98,7 +98,7 @@ func CheckNameResponseHandler(c tele.Context, state fsm.Context) error {
 	}
 
 	if err := state.SetState(context.TODO(), models.StateWaitForCheckOwner); err != nil {
-		return c.Send(models.ErrorSometingWentWrong)
+		return c.Send(models.ErrorSomethingWentWrong)
 	}
 
 	kb := models.CreateSelectorInlineKb(
@@ -129,7 +129,7 @@ func ItemNameResponseHandler(c tele.Context, state fsm.Context) error {
 	}
 
 	if err := state.SetState(context.TODO(), models.StateWaitForItemPrice); err != nil {
-		return c.Send(models.ErrorSometingWentWrong)
+		return c.Send(models.ErrorSomethingWentWrong)
 	}
 
 	return c.Send("Сколько это столо?\n<i>Можно указать кол-во товаров вот так: 2*68 (2 товара по 68 руб)</i>")
@@ -174,7 +174,7 @@ func ItemPriceResponseHandler(c tele.Context, state fsm.Context) error {
 
 	if err := state.SetState(context.TODO(), models.StateWaitForItemOwner); err != nil {
 		state.Finish(context.Background(), true)
-		return c.Send(models.ErrorSometingWentWrong)
+		return c.Send(models.ErrorSomethingWentWrong)
 	}
 
 	kb := models.CreateSelectorInlineKb(
@@ -317,7 +317,7 @@ func showChecks(c tele.Context, state fsm.Context) error {
 		state.Finish(context.TODO(), true)
 		return c.Send(models.ErrorStateDataUpdate)
 	}
-	// set state ShowinChecks
+
 	if err := state.SetState(context.TODO(), models.StateShowingChecks); err != nil {
 		state.Finish(context.TODO(), true)
 		return c.Send(models.ErrorSetState)
@@ -332,7 +332,7 @@ func showTotals(c tele.Context, state fsm.Context) error {
 
 	totals, err := db.GetAllSessionTotals()
 	if err != nil {
-		return c.Send(models.ErrorSometingWentWrong)
+		return c.Send(models.ErrorSomethingWentWrong)
 	}
 
 	// Context should be short-lived (few mins).
@@ -390,7 +390,7 @@ func getChecksForCurrentSession(c tele.Context) (*checksForSession, error) {
 		var err error
 		sessionId, err = db.GetSessionId()
 		if err != nil {
-			return nil, c.Send(models.ErrorSometingWentWrong)
+			return nil, c.Send(models.ErrorSomethingWentWrong)
 		}
 	}
 

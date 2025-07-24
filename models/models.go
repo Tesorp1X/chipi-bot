@@ -21,7 +21,7 @@ type Item struct {
 }
 
 type CheckWithItems struct {
-	// TODO defer to use check.Id istead of Id
+	// TODO defer to use check.Id instead of Id
 	Id    int64
 	check Check
 	items []Item
@@ -35,7 +35,7 @@ func (c *CheckWithItems) GetCheckOwner() string {
 	return c.check.Owner
 }
 
-// Returns a copy of check stroed in c.
+// Returns a copy of check stored in c.
 func (c *CheckWithItems) GetCheck() Check {
 	return c.check
 }
@@ -86,6 +86,7 @@ type SessionTotal struct {
 	session *Session
 }
 
+// TODO nil check and error return
 func (st *SessionTotal) GetSessionId() int64 {
 	return st.session.Id
 }

@@ -71,7 +71,7 @@ func ShowChecksScrollButtonCallback(c tele.Context, state fsm.Context) error {
 	if err := state.Data(context.TODO(), models.CHECKS, &session); err != nil {
 		session, err = getChecksForCurrentSession(c)
 		if err != nil {
-			return c.Send(models.ErrorSometingWentWrong)
+			return c.Send(models.ErrorSomethingWentWrong)
 		}
 		// length is still zero, then there must be no checks for this session yet.
 		if len(session.Checks) == 0 {
@@ -84,7 +84,7 @@ func ShowChecksScrollButtonCallback(c tele.Context, state fsm.Context) error {
 	// If currentIndex is not stored in context, then it will be just zero.
 	if err := state.Data(context.TODO(), models.CURRENT_INDEX_CHECKS, &currentIndex); err != nil {
 		return c.Respond(&tele.CallbackResponse{
-			Text: models.ErrorSometingWentWrong + " Попробуйте еще раз.",
+			Text: models.ErrorSomethingWentWrong + " Попробуйте еще раз.",
 		})
 	}
 	if currentIndex < 0 || currentIndex >= len(session.Checks) {
@@ -188,7 +188,7 @@ func EditChecksButtonCallback(c tele.Context, state fsm.Context) error {
 	if err := state.Data(context.TODO(), models.CHECKS, &session); err != nil {
 		session, err = getChecksForCurrentSession(c)
 		if err != nil {
-			return c.Send(models.ErrorSometingWentWrong)
+			return c.Send(models.ErrorSomethingWentWrong)
 		}
 		// length is still zero, then there must be no checks for this session yet.
 		if len(session.Checks) == 0 {
@@ -286,7 +286,7 @@ func NewCheckOwnerCallback(c tele.Context, state fsm.Context) error {
 	session, err := getChecksForCurrentSession(c)
 	if err != nil {
 		state.Finish(context.Background(), true)
-		return c.Respond(&tele.CallbackResponse{Text: models.ErrorSometingWentWrong})
+		return c.Respond(&tele.CallbackResponse{Text: models.ErrorSomethingWentWrong})
 	}
 
 	if err := state.Update(context.Background(), models.CHECKS, session); err != nil {
@@ -328,11 +328,11 @@ func CheckOwnerCallback(c tele.Context, state fsm.Context) error {
 	// save check to db here
 	var checkName string
 	if err := state.Data(context.Background(), models.CHECK_NAME, &checkName); err != nil {
-		return c.Send(models.ErrorSometingWentWrong)
+		return c.Send(models.ErrorSomethingWentWrong)
 	}
 	var sessionId int64
 	if err := state.Data(context.Background(), models.SESSION_ID, &sessionId); err != nil {
-		return c.Send(models.ErrorSometingWentWrong)
+		return c.Send(models.ErrorSomethingWentWrong)
 	}
 	checkId, errDb := db.AddCheck(&models.Check{Name: checkName, Owner: checkOwner}, sessionId)
 	if errDb != nil {
@@ -372,7 +372,7 @@ func ItemOwnerCallback(c tele.Context, state fsm.Context) error {
 	errB := state.Data(context.Background(), models.ITEM_PRICE, &itemPrice)
 
 	if errA != nil || errB != nil {
-		return c.Send(models.ErrorSometingWentWrong)
+		return c.Send(models.ErrorSomethingWentWrong)
 	}
 
 	var checkId int64
@@ -421,7 +421,6 @@ func NewItemCallback(c tele.Context, state fsm.Context) error {
 		msg += "Название товара?👀"
 		newState = models.StateWaitForItemName
 	case models.HAS_MORE_ITEMS_FALSE:
-		// todo add list of items
 		msg += "Получился вот такой чек:\n"
 		itemsList := []models.Item{}
 		if err := state.Data(context.Background(), models.ITEMS_LIST, &itemsList); err == fsm.ErrNotFound {
@@ -444,7 +443,7 @@ func NewItemCallback(c tele.Context, state fsm.Context) error {
 	return c.Send(msg)
 }
 
-// Handles buton-presses('<<' and '>>'), while scrolling through checks in '/show totals'.
+// Handles button-presses('<<' and '>>'), while scrolling through checks in '/show totals'.
 func ShowTotalsMenuButtonCallback(c tele.Context, state fsm.Context) error {
 	// retrieve totals from context or db
 	var totals []*models.SessionTotal
@@ -452,7 +451,7 @@ func ShowTotalsMenuButtonCallback(c tele.Context, state fsm.Context) error {
 		totals, err = db.GetAllSessionTotals()
 		if err != nil {
 			return c.Respond(&tele.CallbackResponse{
-				Text: models.ErrorSometingWentWrong + " Попробуйте еще раз.",
+				Text: models.ErrorSomethingWentWrong + " Попробуйте еще раз.",
 			})
 		}
 	}
@@ -460,7 +459,7 @@ func ShowTotalsMenuButtonCallback(c tele.Context, state fsm.Context) error {
 	var currentIndex int = 0
 	if err := state.Data(context.TODO(), models.CURRENT_INDEX_TOTALS, &currentIndex); err != nil {
 		return c.Respond(&tele.CallbackResponse{
-			Text: models.ErrorSometingWentWrong + " Попробуйте еще раз.",
+			Text: models.ErrorSomethingWentWrong + " Попробуйте еще раз.",
 		})
 	}
 	if currentIndex < 0 || currentIndex >= len(totals) {
