@@ -132,7 +132,7 @@ func ItemNameResponseHandler(c tele.Context, state fsm.Context) error {
 		return c.Send(models.ErrorSomethingWentWrong)
 	}
 
-	return c.Send("Сколько это столо?\n<i>Можно указать кол-во товаров вот так: 2*68 (2 товара по 68 руб)</i>")
+	return c.Send("Сколько это стоило?\n<i>Можно указать кол-во товаров вот так: 2*68 (2 товара по 68 руб)</i>")
 }
 
 func ItemPriceResponseHandler(c tele.Context, state fsm.Context) error {
@@ -383,7 +383,7 @@ type checksForSession struct {
 }
 
 // Helper function. that gets current sessionId and pulls all checks for it from db.
-// Can return errors only occured during [Bot.Send()]
+// Can return errors only occurred during [Bot.Send()]
 func getChecksForCurrentSession(c tele.Context) (*checksForSession, error) {
 	sessionId, ok := c.Get(models.SESSION_ID).(int64)
 	if !ok {
@@ -394,7 +394,7 @@ func getChecksForCurrentSession(c tele.Context) (*checksForSession, error) {
 		}
 	}
 
-	checks, err := db.GetAllChecksWithItemsForSesssionId(sessionId)
+	checks, err := db.GetAllChecksWithItemsForSessionId(sessionId)
 	if err != nil {
 		return nil, c.Send(err)
 	}

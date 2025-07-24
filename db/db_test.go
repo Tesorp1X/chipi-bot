@@ -15,7 +15,7 @@ func TestMakeSqlStmt(t *testing.T) {
 			{
 				Name:         "id",
 				Type:         "INTEGER",
-				IsPrimeryKey: true,
+				IsPrimaryKey: true,
 			},
 			{
 				Name:       "Name",
@@ -45,7 +45,7 @@ func TestMakeSqlStmt(t *testing.T) {
 			{
 				Name:         "id",
 				Type:         "INTEGER",
-				IsPrimeryKey: true,
+				IsPrimaryKey: true,
 			},
 			{
 				Name:         "check_id",
@@ -96,7 +96,7 @@ func makeInMemoryDB(t *testing.T) *sql.DB {
 		{
 			Name:         "id",
 			Type:         "INTEGER",
-			IsPrimeryKey: true,
+			IsPrimaryKey: true,
 		},
 		{
 			Name: "opened_at",
@@ -121,7 +121,7 @@ func makeInMemoryDB(t *testing.T) *sql.DB {
 		{
 			Name:         "id",
 			Type:         "INTEGER",
-			IsPrimeryKey: true,
+			IsPrimaryKey: true,
 		},
 		{
 			Name:       "Name",
@@ -142,7 +142,7 @@ func makeInMemoryDB(t *testing.T) *sql.DB {
 		{
 			Name:         "id",
 			Type:         "INTEGER",
-			IsPrimeryKey: true,
+			IsPrimaryKey: true,
 		},
 		{
 			Name: "check_id",
@@ -174,7 +174,7 @@ func makeInMemoryDB(t *testing.T) *sql.DB {
 		{
 			Name:         "id",
 			Type:         "INTEGER",
-			IsPrimeryKey: true,
+			IsPrimaryKey: true,
 		},
 		{
 			Name: "session_id",
@@ -206,7 +206,7 @@ func makeInMemoryDB(t *testing.T) *sql.DB {
 		{
 			Name:         "id",
 			Type:         "INTEGER",
-			IsPrimeryKey: true,
+			IsPrimaryKey: true,
 		},
 		{
 			Name: "session_id",

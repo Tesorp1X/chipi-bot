@@ -298,9 +298,18 @@ func TestItemPriceResponseHandler(t *testing.T) {
 			},
 		},
 		{
-			Name: "two numbers| with err",
+			Name: "two int separated by space| with err",
 			Args: args{
 				ItemPriceStr:       "55 56",
+				IsErrorCase:        true,
+				WantedResponseText: models.ErrorItemPriceMustBeANumberMsg,
+				WantedState:        models.StateWaitForItemPrice,
+			},
+		},
+		{
+			Name: "two floats separated by space| with err",
+			Args: args{
+				ItemPriceStr:       "55.6 56.5",
 				IsErrorCase:        true,
 				WantedResponseText: models.ErrorItemPriceMustBeANumberMsg,
 				WantedState:        models.StateWaitForItemPrice,

@@ -63,7 +63,7 @@ func (c *CheckWithItems) SetItems(items []Item) {
 
 // Represents a row in 'sessions' table
 type Session struct {
-	// seesion_id
+	// session_id
 	Id int64
 	// opened_at (format [time.DateTime])
 	OpenedAt *time.Time
