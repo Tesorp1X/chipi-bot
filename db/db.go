@@ -16,7 +16,7 @@ import (
 type Field struct {
 	Name         string
 	Type         string
-	IsPrimeryKey bool
+	IsPrimaryKey bool
 	IsNullable   bool
 	IsForeignKey bool
 	RefTableName string
@@ -28,8 +28,8 @@ func makeSqlStmtCreateTable(name string, fields ...Field) (string, error) {
 	sqlStmt := "CREATE TABLE IF NOT EXISTS " + name + " ("
 	for i, f := range fields {
 		if i == 0 {
-			if !f.IsPrimeryKey {
-				return "", errors.New("first field must be a primery key")
+			if !f.IsPrimaryKey {
+				return "", errors.New("first field must be a primary key")
 			}
 			sqlStmt += f.Name + " " + f.Type + " PRIMARY KEY" + ", "
 		} else {
@@ -95,16 +95,16 @@ func InitDB() (*sql.DB, error) {
 		{
 			Name:         "id",
 			Type:         "INTEGER",
-			IsPrimeryKey: true,
+			IsPrimaryKey: true,
 		},
 		{
 			Name: "opened_at",
-			Type: "TEXT", // time as text formated as 2006-01-02 15:04:05
+			Type: "TEXT", // time as text formatted as 2006-01-02 15:04:05
 
 		},
 		{
 			Name:       "closed_at",
-			Type:       "TEXT", // time as text formated as 2006-01-02 15:04:05
+			Type:       "TEXT", // time as text formatted as 2006-01-02 15:04:05
 			IsNullable: true,
 		},
 		{
@@ -117,11 +117,11 @@ func InitDB() (*sql.DB, error) {
 		return nil, err
 	}
 
-	checkFeilds := []Field{
+	checkFields := []Field{
 		{
 			Name:         "id",
 			Type:         "INTEGER",
-			IsPrimeryKey: true,
+			IsPrimaryKey: true,
 		},
 		{
 			Name:       "Name",
@@ -134,16 +134,16 @@ func InitDB() (*sql.DB, error) {
 			IsNullable: false,
 		},
 	}
-	if err = createTable(db, "checks", checkFeilds...); err != nil {
+	if err = createTable(db, "checks", checkFields...); err != nil {
 		log.Printf("error couldn't create a db: %v", err)
 		return nil, err
 	}
 
-	itemsFeilds := []Field{
+	itemsFields := []Field{
 		{
 			Name:         "id",
 			Type:         "INTEGER",
-			IsPrimeryKey: true,
+			IsPrimaryKey: true,
 		},
 		{
 			Name: "check_id",
@@ -166,7 +166,7 @@ func InitDB() (*sql.DB, error) {
 			Type: "REAL",
 		},
 	}
-	if err = createTable(db, "items", itemsFeilds...); err != nil {
+	if err = createTable(db, "items", itemsFields...); err != nil {
 		log.Printf("error couldn't create a db: %v", err)
 		return nil, err
 	}
@@ -175,14 +175,14 @@ func InitDB() (*sql.DB, error) {
 		{
 			Name:         "id",
 			Type:         "INTEGER",
-			IsPrimeryKey: true,
+			IsPrimaryKey: true,
 		},
 		{
 			Name: "session_id",
 			Type: "INTEGER",
 
 			IsForeignKey: true,
-			RefTableName: "seesions",
+			RefTableName: "sessions",
 			RefFieldName: "id",
 		},
 		{
@@ -207,14 +207,14 @@ func InitDB() (*sql.DB, error) {
 		{
 			Name:         "id",
 			Type:         "INTEGER",
-			IsPrimeryKey: true,
+			IsPrimaryKey: true,
 		},
 		{
 			Name: "session_id",
 			Type: "INTEGER",
 
 			IsForeignKey: true,
-			RefTableName: "seesions",
+			RefTableName: "sessions",
 			RefFieldName: "id",
 		},
 		{
@@ -250,7 +250,7 @@ func bindSessionAndCheck(db *sql.DB, sessionId, checkId int64) error {
 	return nil
 }
 
-// adds a check in db and returns id of that chec if no error occured.
+// adds a check in db and returns id of that check if no error occurred.
 func AddCheck(c *models.Check, sessionId int64) (int64, error) {
 	db, err := InitDB()
 	if err != nil {
@@ -458,7 +458,7 @@ func GetCheckWithItemsForId(checkId int64) (*models.CheckWithItems, error) {
 	return res, nil
 }
 
-func GetAllChecksWithItemsForSesssionId(sessionId int64) ([]*models.CheckWithItems, error) {
+func GetAllChecksWithItemsForSessionId(sessionId int64) ([]*models.CheckWithItems, error) {
 	db, err := InitDB()
 	if err != nil {
 		return nil, err

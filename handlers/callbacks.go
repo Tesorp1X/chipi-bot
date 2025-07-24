@@ -11,11 +11,11 @@ import (
 	tele "gopkg.in/telebot.v4"
 )
 
-// Any callbacks handler. Dispatches callbacks to specifick handlers.
+// Any callbacks handler. Dispatches callbacks to specific handlers.
 func HandleCallbackAction(c tele.Context, state fsm.Context) error {
 	currentState, err := state.State(context.Background())
 	if err != nil {
-		log.Fatalf("couldn't recieve users(%d) current state: %v", c.Sender().ID, err)
+		log.Fatalf("couldn't receive users(%d) current state: %v", c.Sender().ID, err)
 		return err
 	}
 	switch {
@@ -75,7 +75,7 @@ func ShowChecksScrollButtonCallback(c tele.Context, state fsm.Context) error {
 		}
 		// length is still zero, then there must be no checks for this session yet.
 		if len(session.Checks) == 0 {
-			return c.EditOrReply("В текущей сессии покаа что нет чеков.", &tele.ReplyMarkup{})
+			return c.EditOrReply("В текущей сессии пока что нет чеков.", &tele.ReplyMarkup{})
 		}
 		state.Update(context.TODO(), models.CHECKS, session)
 	}
@@ -129,7 +129,7 @@ func ShowChecksScrollButtonCallback(c tele.Context, state fsm.Context) error {
 	state.Update(context.TODO(), models.CURRENT_INDEX_CHECKS, currentIndex)
 
 	kb := models.GetScrollKb()
-	// set state ShowinChecks
+	// set state ShowingChecks
 	if err := state.SetState(context.TODO(), models.StateShowingChecks); err != nil {
 		state.Finish(context.TODO(), true)
 		return c.Send(models.ErrorSetState)
@@ -247,9 +247,9 @@ func EditChecksButtonCallback(c tele.Context, state fsm.Context) error {
 		return c.EditOrReply(msg, &tele.ReplyMarkup{})
 
 	case models.ITEMS_LIST:
-		return c.Respond(&tele.CallbackResponse{Text: "Фича еще в разрабоотке."})
+		return c.Respond(&tele.CallbackResponse{Text: "Фича еще в разработке."})
 	case models.BTN_BACK:
-		return c.Respond(&tele.CallbackResponse{Text: "Фича еще в разрабоотке."})
+		return c.Respond(&tele.CallbackResponse{Text: "Фича еще в разработке."})
 	default:
 		return c.Respond(&tele.CallbackResponse{
 			Text: models.ErrorInvalidRequest,
@@ -362,7 +362,7 @@ func ItemOwnerCallback(c tele.Context, state fsm.Context) error {
 	}
 	//Remove keyboard from callback-message
 	c.Bot().EditReplyMarkup(c.Message(), &tele.ReplyMarkup{})
-	// state: [StateWaitForItemOwner]; saving item to [state.dataStorage] and asking if ther is one more item
+	// state: [StateWaitForItemOwner]; saving item to [state.dataStorage] and asking if there is one more item
 	itemOwner := util.ExtractDataFromCallback(c.Callback().Data, models.CallbackActionItemOwner)
 	var (
 		itemName  string
