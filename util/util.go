@@ -9,6 +9,7 @@ package util
 */
 import (
 	"fmt"
+	"regexp"
 	"strconv"
 	"strings"
 	"time"
@@ -263,6 +264,24 @@ func GetShowTotalsResponse(sessionTotal *models.SessionTotal) string {
 
 	return msg
 }
+
+// Price must be a single number of type int or float, separated by a dot or a coma.
+// May have trailing and leading spaces.
+func verifyPrice(price string) bool {
+	pattern := "^\\s*[0-9]+([.,][0-9]+)?\\s*$"
+	r := regexp.MustCompile(pattern)
+
+	return r.Match([]byte(price))
+}
+
+// Price multiplier must be a single integer. May have trailing and leading spaces.
+func verifyPriceMultiplier(priceMultiplier string) bool {
+	pattern := "^\\s*[0-9]+\\s*$"
+	r := regexp.MustCompile(pattern)
+
+	return r.Match([]byte(priceMultiplier))
+}
+
 /*
 [ParsePrice] looks for valid item price response patterns
 and returns converted value and an error. If a valid pattern was found,
