@@ -42,8 +42,8 @@ const (
 	ErrorSetState           = "Произошла ошибка при смене состояния."
 	ErrorNameMustBeTxtMsg   = "Название обязательно должно быть текстовым сообщением."
 
-	ErrorItemPriceMustBeANumberMsg     = "Цена должна быть числом без пробелов."
-	ErrorAmountOfItemsMustBeANumberMsg = "Количество должно быть числом без пробелов."
+	ErrorItemPriceMustBeANumberMsg     = "Цена должна быть целым числом без пробелов."
+	ErrorAmountOfItemsMustBeANumberMsg = "Количество должно быть целым числом без пробелов."
 
 	ErrorItemsListNotFound = "Ошибка, лист с покупками не найден."
 	ErrorSavingInDB        = "Произошла ошибка при сохранении данных в базу данных."
