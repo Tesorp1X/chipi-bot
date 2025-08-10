@@ -290,11 +290,27 @@ func ParsePrice(itemPriceStr string) (float64, error) {
 		if !verifyPriceMultiplier(tokens[0]) {
 			return convertedPrice, models.ErrItemPriceMultiplierNotSingleInt
 		}
-		// todo: clear trailing spaces
+
+		for i := range tokens {
+			tokens[i] = strings.ReplaceAll(tokens[i], " ", "")
+			tokens[i] = strings.ReplaceAll(tokens[i], ",", ".")
+		}
+
 		multiplier, _ := strconv.Atoi(tokens[0])
 		price, _ := strconv.ParseFloat(tokens[1], 64)
 
 		convertedPrice = float64(multiplier) * price
+
+	} else {
+
+		if !verifyPrice(itemPriceStr) {
+			return convertedPrice, models.ErrItemPriceNotSingleIntOrFloat
+		}
+		itemPriceStr = strings.ReplaceAll(itemPriceStr, " ", "")
+		itemPriceStr = strings.ReplaceAll(itemPriceStr, ",", ".")
+
+		convertedPrice, _ = strconv.ParseFloat(itemPriceStr, 64)
 	}
+
 	return convertedPrice, nil
 }
