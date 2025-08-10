@@ -4,7 +4,6 @@ import (
 	"context"
 	"os"
 	"strconv"
-	"strings"
 
 	"github.com/Tesorp1X/chipi-bot/db"
 	"github.com/Tesorp1X/chipi-bot/models"
@@ -137,33 +136,17 @@ func ItemNameResponseHandler(c tele.Context, state fsm.Context) error {
 
 func ItemPriceResponseHandler(c tele.Context, state fsm.Context) error {
 	msgText := c.Text()
-	var (
-		price  float64
-		amount int
-		err    error
-	)
 
-	msgText = strings.ReplaceAll(msgText, " ", "")
-	msgText = strings.ReplaceAll(msgText, ",", ".")
-	if strings.Contains(msgText, "*") {
-		tokens := strings.Split(msgText, "*")
-		if len(tokens) != 2 {
-			return c.Send(models.AmountOfItemsHelpMsg)
-		}
+	price, err := util.ParsePrice(msgText)
 
-		if amount, err = strconv.Atoi(tokens[0]); err != nil {
+	if err != nil {
+		switch err {
+		case models.ErrItemPriceMultiplierNotSingleInt:
 			return c.Send(models.ErrorAmountOfItemsMustBeANumberMsg)
-		}
-
-		if price, err = strconv.ParseFloat(tokens[1], 64); err != nil {
+		case models.ErrItemPriceNotSingleIntOrFloat:
 			return c.Send(models.ErrorItemPriceMustBeANumberMsg)
-		}
-
-		price *= float64(amount)
-
-	} else {
-		if price, err = strconv.ParseFloat(msgText, 64); err != nil {
-			return c.Send(models.ErrorItemPriceMustBeANumberMsg)
+		case models.ErrItemPriceWrongFormat:
+			return c.Send(models.AmountOfItemsHelpMsg)
 		}
 	}
 
