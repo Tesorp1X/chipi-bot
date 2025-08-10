@@ -289,7 +289,7 @@ func TestItemPriceResponseHandler(t *testing.T) {
 			},
 		},
 		{
-			Name: "not a number| with err",
+			Name: "not a number | with err",
 			Args: args{
 				ItemPriceStr:       "hi <3",
 				IsErrorCase:        true,
@@ -298,7 +298,7 @@ func TestItemPriceResponseHandler(t *testing.T) {
 			},
 		},
 		{
-			Name: "two int separated by space| with err",
+			Name: "two int separated by space | with err",
 			Args: args{
 				ItemPriceStr:       "55 56",
 				IsErrorCase:        true,
@@ -307,11 +307,20 @@ func TestItemPriceResponseHandler(t *testing.T) {
 			},
 		},
 		{
-			Name: "two floats separated by space| with err",
+			Name: "two floats separated by space | with err",
 			Args: args{
 				ItemPriceStr:       "55.6 56.5",
 				IsErrorCase:        true,
 				WantedResponseText: models.ErrorItemPriceMustBeANumberMsg,
+				WantedState:        models.StateWaitForItemPrice,
+			},
+		},
+		{
+			Name: "multiplier is not alone | with err",
+			Args: args{
+				ItemPriceStr:       "55 * 56.5 *",
+				IsErrorCase:        true,
+				WantedResponseText: models.AmountOfItemsHelpMsg,
 				WantedState:        models.StateWaitForItemPrice,
 			},
 		},
