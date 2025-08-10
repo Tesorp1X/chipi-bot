@@ -14,7 +14,7 @@ import (
 
 var errEmpty = errors.New("")
 
-func assertHandlerError(t testing.TB, wantErr bool, expexted, got error) {
+func assertHandlerError(t testing.TB, wantErr bool, expected, got error) {
 	t.Helper()
 	if !wantErr && got == nil {
 		return
@@ -25,11 +25,11 @@ func assertHandlerError(t testing.TB, wantErr bool, expexted, got error) {
 	}
 
 	if wantErr && got == nil {
-		t.Fatalf("expected an error: '%v' but got none", expexted)
+		t.Fatalf("expected an error: '%v' but got none", expected)
 	}
 
-	if expexted != got {
-		t.Fatalf("expected an error: '%v'', but instead got: '%v'", expexted, got)
+	if expected != got {
+		t.Fatalf("expected an error: '%v'', but instead got: '%v'", expected, got)
 	}
 }
 
@@ -63,7 +63,7 @@ func assertState(t testing.TB, expected fsm.State, fsmCtx *mocks.MockFsmContext)
 	}
 
 	if expected != gotState {
-		t.Fatalf("expected state: %s, but got insted: %s", expected, gotState)
+		t.Fatalf("expected state: %s, but got instead: %s", expected, gotState)
 	}
 }
 
@@ -81,11 +81,11 @@ func assertStorage(t testing.TB, expected *map[string]any, storage *mocks.MockSt
 		gotReflectValue := reflect.ValueOf(storageVal)
 
 		if expectedReflectValue.Type() != gotReflectValue.Type() {
-			t.Fatalf("in storage for key %s expected value type of %v, but insted got %v", k, expectedReflectValue.Type(), gotReflectValue.Type())
+			t.Fatalf("in storage for key %s expected value type of %v, but instead got %v", k, expectedReflectValue.Type(), gotReflectValue.Type())
 		}
 
 		if !reflect.DeepEqual(v, storageVal) {
-			t.Fatalf("in storage for for key %s expected value %v, but instaed got %v", k, expectedReflectValue, gotReflectValue)
+			t.Fatalf("in storage for for key %s expected value %v, but instead got %v", k, expectedReflectValue, gotReflectValue)
 		}
 	}
 }
@@ -119,7 +119,7 @@ func TestHelloHandler(t *testing.T) {
 	teleCtx := mocks.NewMockContext(bot, update, botStorage, &response)
 	stateCtx := mocks.NewMockFsmContext(fsmStorage, models.StateDefault)
 
-	expextedResponse := mocks.HandlerResponse{
+	expectedResponse := mocks.HandlerResponse{
 		Text: "Hello, 1",
 		Type: mocks.ResponseTypeSend,
 	}
@@ -131,7 +131,7 @@ func TestHelloHandler(t *testing.T) {
 	handlerErr := HelloHandler(teleCtx, stateCtx)
 
 	assertHandlerError(t, false, errEmpty, handlerErr)
-	assertHandlerResponse(t, &expextedResponse, &response)
+	assertHandlerResponse(t, &expectedResponse, &response)
 }
 
 func TestNewCheckHandler(t *testing.T) {
