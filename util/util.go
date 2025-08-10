@@ -263,3 +263,38 @@ func GetShowTotalsResponse(sessionTotal *models.SessionTotal) string {
 
 	return msg
 }
+/*
+[ParsePrice] looks for valid item price response patterns
+and returns converted value and an error. If a valid pattern was found,
+then it will be converted according to context (see examples).
+If there were no matches, 0.0 with an error will be returned.
+Valid patterns are:
+- Single value (45 or 45.05 or 45,05);
+- Price with multiplier (2*45 or 2*45.05 or 2*45,05 or 2 * 45 or 2 * 45.05 or 2 * 45,05).
+In second case price is on the right and will be multiplied by quantity on left and returned afterwards.
+All other cases will result an error.
+*/
+func ParsePrice(itemPriceStr string) (float64, error) {
+	convertedPrice := 0.0
+	if strings.Contains(itemPriceStr, "*") {
+		// price with multiplier case
+		tokens := strings.Split(itemPriceStr, "*")
+		if len(tokens) != 2 {
+			return convertedPrice, models.ErrItemPriceWrongFormat
+		}
+
+		if !verifyPrice(tokens[1]) {
+			return convertedPrice, models.ErrItemPriceNotSingleIntOrFloat
+		}
+
+		if !verifyPriceMultiplier(tokens[0]) {
+			return convertedPrice, models.ErrItemPriceMultiplierNotSingleInt
+		}
+		// todo: clear trailing spaces
+		multiplier, _ := strconv.Atoi(tokens[0])
+		price, _ := strconv.ParseFloat(tokens[1], 64)
+
+		convertedPrice = float64(multiplier) * price
+	}
+	return convertedPrice, nil
+}
