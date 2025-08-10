@@ -440,3 +440,257 @@ func TestGetShowTotalsResponse(t *testing.T) {
 
 	})
 }
+
+func TestParsePrice(t *testing.T) {
+
+	type Args struct {
+		itemPriceResp string
+		convPrice     float64
+		wantError     bool
+		ErrExpected   error
+	}
+
+	testCases := []struct {
+		name string
+		args Args
+	}{
+		{
+			name: "single int",
+			args: Args{
+				itemPriceResp: "36",
+				convPrice:     36.0,
+				wantError:     false,
+			},
+		},
+		{
+			name: "single float with dot",
+			args: Args{
+				itemPriceResp: "36.5",
+				convPrice:     36.5,
+				wantError:     false,
+			},
+		},
+		{
+			name: "single float with coma",
+			args: Args{
+				itemPriceResp: "36,5",
+				convPrice:     36.5,
+				wantError:     false,
+			},
+		},
+		{
+			name: "single int with spaces",
+			args: Args{
+				itemPriceResp: "         36",
+				convPrice:     36.0,
+				wantError:     false,
+			},
+		},
+		{
+			name: "single int with spaces",
+			args: Args{
+				itemPriceResp: "36              ",
+				convPrice:     36.0,
+				wantError:     false,
+			},
+		},
+		{
+			name: "single int with spaces",
+			args: Args{
+				itemPriceResp: "         36      ",
+				convPrice:     36.0,
+				wantError:     false,
+			},
+		},
+		{
+			name: "not a number | with error",
+			args: Args{
+				itemPriceResp: "hi.hello",
+				wantError:     true,
+				ErrExpected:   models.ErrItemPriceNotSingleIntOrFloat,
+			},
+		},
+		{
+			name: "two numbers separated by space | with error",
+			args: Args{
+				itemPriceResp: "36 5",
+				wantError:     true,
+				ErrExpected:   models.ErrItemPriceNotSingleIntOrFloat,
+			},
+		},
+		{
+			name: "two numbers separated by ; | with error",
+			args: Args{
+				itemPriceResp: "36;5",
+				wantError:     true,
+				ErrExpected:   models.ErrItemPriceNotSingleIntOrFloat,
+			},
+		},
+		{
+			name: "three numbers separated by space | with error",
+			args: Args{
+				itemPriceResp: "36 5 13",
+				wantError:     true,
+				ErrExpected:   models.ErrItemPriceNotSingleIntOrFloat,
+			},
+		},
+		{
+			name: "digits mixed with letters | with error",
+			args: Args{
+				itemPriceResp: "3.dsg3",
+				wantError:     true,
+				ErrExpected:   models.ErrItemPriceNotSingleIntOrFloat,
+			},
+		},
+		{
+			name: "digits mixed with letters | with error",
+			args: Args{
+				itemPriceResp: "36.dfs",
+				wantError:     true,
+				ErrExpected:   models.ErrItemPriceNotSingleIntOrFloat,
+			},
+		},
+		{
+			name: "multiplier and int price",
+			args: Args{
+				itemPriceResp: "2*36",
+				convPrice:     72.0,
+				wantError:     false,
+			},
+		},
+		{
+			name: "multiplier and float price with coma",
+			args: Args{
+				itemPriceResp: "2*36,5",
+				convPrice:     73.0,
+				wantError:     false,
+			},
+		},
+		{
+			name: "multiplier and float price with dot",
+			args: Args{
+				itemPriceResp: "2*36.5",
+				convPrice:     73.0,
+				wantError:     false,
+			},
+		},
+		{
+			name: "multiplier and int price with spaces",
+			args: Args{
+				itemPriceResp: "2 *36",
+				convPrice:     72.0,
+				wantError:     false,
+			},
+		},
+		{
+			name: "multiplier and int price with spaces",
+			args: Args{
+				itemPriceResp: "2* 36",
+				convPrice:     72.0,
+				wantError:     false,
+			},
+		},
+		{
+			name: "multiplier and int price with spaces",
+			args: Args{
+				itemPriceResp: "2 * 36",
+				convPrice:     72.0,
+				wantError:     false,
+			},
+		},
+		{
+			name: "multiplier and int price with spaces",
+			args: Args{
+				itemPriceResp: "2           *  36",
+				convPrice:     72.0,
+				wantError:     false,
+			},
+		},
+		{
+			name: "multiplier and int price with spaces",
+			args: Args{
+				itemPriceResp: "2*          36",
+				convPrice:     72.0,
+				wantError:     false,
+			},
+		},
+		{
+			name: "multiplier and int price with spaces",
+			args: Args{
+				itemPriceResp: "2          *                  36",
+				convPrice:     72.0,
+				wantError:     false,
+			},
+		},
+		{
+			name: "multiplier and int price with spaces",
+			args: Args{
+				itemPriceResp: "                    2*36",
+				convPrice:     72.0,
+				wantError:     false,
+			},
+		},
+		{
+			name: "multiplier and int price with spaces",
+			args: Args{
+				itemPriceResp: "2*36                  ",
+				convPrice:     72.0,
+				wantError:     false,
+			},
+		},
+		{
+			name: "multiplier is not int | with error",
+			args: Args{
+				itemPriceResp: "3.3*34",
+				wantError:     true,
+				ErrExpected:   models.ErrItemPriceMultiplierNotSingleInt,
+			},
+		},
+		{
+			name: "multiplier is a string | with error",
+			args: Args{
+				itemPriceResp: "hi*34",
+				wantError:     true,
+				ErrExpected:   models.ErrItemPriceMultiplierNotSingleInt,
+			},
+		},
+		{
+			name: "price is a string | with error",
+			args: Args{
+				itemPriceResp: "3*hi",
+				wantError:     true,
+				ErrExpected:   models.ErrItemPriceNotSingleIntOrFloat,
+			},
+		},
+		{
+			name: "multiplier is not alone | with error",
+			args: Args{
+				itemPriceResp: "3*34*421",
+				wantError:     true,
+				ErrExpected:   models.ErrItemPriceWrongFormat,
+			},
+		},
+	}
+
+	for _, tt := range testCases {
+		t.Run(tt.name, func(t *testing.T) {
+			gotPrice, gotErr := util.ParsePrice(tt.args.itemPriceResp)
+
+			if !tt.args.wantError && gotErr != nil {
+				t.Fatalf("didn't expect an error, but got: %v", gotErr)
+			}
+
+			if tt.args.wantError && gotErr == nil {
+				t.Fatalf("expected an error {%v}, but got nothing", tt.args.ErrExpected)
+			}
+
+			if tt.args.wantError && gotErr != tt.args.ErrExpected {
+				t.Fatalf("expected an error {%v}, but got instead {%v}", tt.args.ErrExpected, gotErr)
+			}
+
+			if !tt.args.wantError && gotPrice != tt.args.convPrice {
+				t.Fatalf("wrong answer: expected %.2f, but got %.2f", tt.args.convPrice, gotPrice)
+			}
+		})
+	}
+}
