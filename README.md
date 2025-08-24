@@ -250,5 +250,80 @@ To conclude... I've managed to come up with tests for all key components, but I 
 
 ---
 
+### How I improved item price validation and fixed some bugs I didn't know existed
+
+It all started with a proposal from my partner to add ability to write down floats not with a dot, but with a coma (`45,5` instead of `45.5`). Why? In russian math tradition floats are written down with a coma. So, it's just for the sake of convenience. I said yeah, why not. Should be easy: just swap coma with a dot and it's a done deal. So I did exactly so, and decided to test the thing. And that's where I discovered some unwanted behaviors.
+
+
+First things first, how it should work:
+- Bot sends a message asking for price of an item
+- The answer can be an int, a float or \<multiplier>*\<`int` or `float`>
+
+How it was implemented:
+```Go
+msgText := c.Text()
+msgText = strings.ReplaceAll(msgText, " ", "")
+msgText = strings.ReplaceAll(msgText, ",", ".")
+```
+And the validation and conversion was implemented that way:
+```Go
+var (
+	price  float64
+	amount int
+	err    error
+)
+if strings.Contains(msgText, "*") {
+	tokens := strings.Split(msgText, "*")
+	if len(tokens) != 2 {
+		return c.Send(models.AmountOfItemsHelpMsg)
+	}
+	if amount, err = strconv.Atoi(tokens[0]); err != nil {
+		return c.Send(models.ErrorAmountOfItemsMustBeANumberMsg)
+	}
+	if price, err = strconv.ParseFloat(tokens[1], 64); err != nil {
+		return c.Send(models.ErrorItemPriceMustBeANumberMsg)
+	}
+	price *= float64(amount)
+} else {
+	if price, err = strconv.ParseFloat(msgText, 64); err != nil {
+		return c.Send(models.ErrorItemPriceMustBeANumberMsg)
+	}
+}
+```
+
+With this in mind I made `TestItemPriceResponseHandler` in `handlers_test.go` file. And "good" scenarios there was no problem. By good I mean:
+- 56.5
+- 56,5
+- 3*56.5
+- 3 * 56.5
+
+But what's the point to test only good cases, right? Here are some more test, that should trigger an error:
+- hi <3
+- 55 56
+- 55.6 56.5
+- 55 * 56.5 *
+
+Test with line `55 56` must fail but it doesn't, instead its being transformed into number `5556` and it becomes a price. That moment I came up with a solution &mdash; regexp :). And I decided to move all line parsing and verification into a different function. It should simplify the handler function itself and improve readability. So, I made three functions: 
+- `ParsePrice` &mdash; to parse and verify the price-containing string. It returns a float value &mdash; a price multiplied by multiplier (if provided) and an error (if verification failed);
+- `verifyPrice` &mdash; to verify price token. Returns true if price matches `^\s*[0-9]+([.,][0-9]+)?\s*$` pattern;
+- `verifyPriceMultiplier` &mdash; to verify multiplier token. Returns true if multiplier matches `^\s*[0-9]+\s*$` pattern.
+
+Now, part of the handler function code, dedicated to price is much simpler:
+```Go
+msgText := c.Text()
+price, err := util.ParsePrice(msgText)
+if err != nil {
+	switch err {
+	case models.ErrItemPriceMultiplierNotSingleInt:
+		return c.Send(models.ErrorAmountOfItemsMustBeANumberMsg)
+	case models.ErrItemPriceNotSingleIntOrFloat:
+		return c.Send(models.ErrorItemPriceMustBeANumberMsg)
+	case models.ErrItemPriceWrongFormat:
+		return c.Send(models.AmountOfItemsHelpMsg)
+	}
+}
+``` 
+It also simplified the testing it seems, if it would be made that way from the start. First is the verification of user's response, make sure it works it was intended to work, than I could focus on making a handler behave the right way. Well, lesson learned (I hope so)😅.
+
 ---
 To be continued...
