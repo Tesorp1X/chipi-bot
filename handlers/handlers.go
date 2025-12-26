@@ -80,7 +80,7 @@ func NewCheckNameResponseHandler(c tele.Context, state fsm.Context) error {
 		return c.Send(models.ErrorSetState)
 	}
 
-	msg := "Название изменено!\n\n" + util.GetCheckWithItemsResponse(*session.Checks[currentIndex])
+	msg := "Название изменено!\n\n" + util.GetCheckWithItemsResponse(*session.Checks[currentIndex], currentIndex)
 	kb := models.GetScrollKb()
 
 	return c.EditOrReply(msg, kb)
@@ -295,7 +295,7 @@ func showChecks(c tele.Context, state fsm.Context) error {
 		return c.Send(models.ErrorStateDataUpdate)
 	}
 
-	var currentIndex int = 0
+	var currentIndex int = len(session.Checks) - 1 // Starting from the last one
 	if err := state.Update(context.TODO(), models.CURRENT_INDEX_CHECKS, currentIndex); err != nil {
 		state.Finish(context.TODO(), true)
 		return c.Send(models.ErrorStateDataUpdate)
@@ -308,7 +308,7 @@ func showChecks(c tele.Context, state fsm.Context) error {
 
 	kb := models.GetScrollKb()
 
-	return c.Send(util.GetCheckWithItemsResponse(*session.Checks[currentIndex]), kb)
+	return c.Send(util.GetCheckWithItemsResponse(*session.Checks[currentIndex], currentIndex), kb)
 }
 
 func showTotals(c tele.Context, state fsm.Context) error {
@@ -316,6 +316,16 @@ func showTotals(c tele.Context, state fsm.Context) error {
 	totals, err := db.GetAllSessionTotals()
 	if err != nil {
 		return c.Send(models.ErrorSomethingWentWrong)
+	}
+
+	var response string
+	var kb *tele.ReplyMarkup
+
+	if len(totals) == 0 {
+		// TODO work on that
+		response = "No totals"
+		state.Finish(context.TODO(), true)
+		return c.Send(response, kb)
 	}
 
 	// Context should be short-lived (few mins).
@@ -331,14 +341,23 @@ func showTotals(c tele.Context, state fsm.Context) error {
 		return c.Send(models.ErrorStateDataUpdate)
 	}
 
+	if len(totals) <= currentIndex {
+		// setting to the last element
+		currentIndex = len(totals) - 1
+	}
+
+	if currentIndex < 0 {
+		// wtf, but resetting index
+		currentIndex = 0
+	}
+
 	if err := state.SetState(context.TODO(), models.StateShowingTotals); err != nil {
 		state.Finish(context.TODO(), true)
 		return c.Send(models.ErrorSetState)
 	}
+	response = util.GetShowTotalsResponse(totals[currentIndex])
 
-	response := util.GetShowTotalsResponse(totals[currentIndex])
-
-	kb := models.CreateSelectorInlineKb(
+	kb = models.CreateSelectorInlineKb(
 		3,
 		models.Button{
 			BtnTxt: "<<",

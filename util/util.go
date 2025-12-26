@@ -176,8 +176,9 @@ func GetItemAdded(itemOwner string, itemPrice float64) string {
 	return msg
 }
 
-func GetCheckWithItemsResponse(check models.CheckWithItems) string {
-	msg := "<b>Чек:</b> <i>" + check.GetCheckName() + "</i>\n"
+func GetCheckWithItemsResponse(check models.CheckWithItems, currentIndex int) string {
+	currentIndex++
+	msg := "<b>Чек №" + strconv.Itoa(currentIndex) + ":</b> <i>" + check.GetCheckName() + "</i>\n"
 
 	switch check.GetCheckOwner() {
 	case models.OWNER_LIZ:
