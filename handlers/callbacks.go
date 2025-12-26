@@ -96,26 +96,26 @@ func ShowChecksScrollButtonCallback(c tele.Context, state fsm.Context) error {
 	case models.BTN_FORWARD:
 		currentIndex++
 		if currentIndex == len(session.Checks) {
-			// to eliminate OutOfBounds Error
+			// moving from the last to the first element
 			if err := c.Respond(&tele.CallbackResponse{
-				Text: "Это последний чек!",
+				Text: "Это был последний чек. Перехожу к первому.",
 			}); err != nil {
 				log.Fatalf("couldn't respond to callback %v: %v", c.Callback(), err)
+				return err
 			}
-			return nil
+			currentIndex = 0
 		}
 	case models.BTN_BACK:
 		currentIndex--
 		if currentIndex < 0 {
-			// to eliminate OutOfBounds Error
-
+			// moving from the first to the last element
 			if err := c.Respond(&tele.CallbackResponse{
-				Text: "Это первый чек!",
+				Text: "Это первый чек. Перехожу к последнему.",
 			}); err != nil {
-
 				log.Fatalf("couldn't respond to callback %v: %v", c.Callback(), err)
+				return err
 			}
-			return nil
+			currentIndex = len(session.Checks) - 1
 		}
 	default:
 		return c.Respond(&tele.CallbackResponse{
@@ -135,7 +135,7 @@ func ShowChecksScrollButtonCallback(c tele.Context, state fsm.Context) error {
 		return c.Send(models.ErrorSetState)
 	}
 
-	return c.EditOrReply(util.GetCheckWithItemsResponse(*session.Checks[currentIndex]), kb)
+	return c.EditOrReply(util.GetCheckWithItemsResponse(*session.Checks[currentIndex], currentIndex), kb)
 }
 
 // Handles button-presses('edit'), while scrolling through checks in '/show checks'.
@@ -308,7 +308,7 @@ func NewCheckOwnerCallback(c tele.Context, state fsm.Context) error {
 		return c.Send(models.ErrorSetState)
 	}
 
-	msg := "Готово!\n\n" + util.GetCheckWithItemsResponse(*session.Checks[currentIndex])
+	msg := "Готово!\n\n" + util.GetCheckWithItemsResponse(*session.Checks[currentIndex], currentIndex)
 	return c.EditOrReply(msg, kb)
 }
 
