@@ -54,11 +54,21 @@ func InitConfig(verboseDebug bool) (*Config, error) {
 		)
 	}
 
+	downloadPath, err := extractDownloadPath()
+	if err != nil {
+		return nil, fmt.Errorf(
+			"error in InitConfig(): couldn't extract download path: %v",
+			err,
+		)
+	}
+
+
 	return &Config{
 		ApiKey:       apiKey,
 		Admins:       admins,
 		VerboseDebug: verboseDebug,
 		DbPath:       dbPath,
+		DownloadPath: downloadPath,
 	}, nil
 }
 
@@ -108,4 +118,16 @@ func extractDbPath() (string, error) {
 	return dbPath, nil
 }
 
+func extractDownloadPath() (string, error) {
+	dbPath := os.Getenv("DOWNLOAD_PATH")
+	// TODO: also check that path is a dir and not a file
+	if !fs.ValidPath(dbPath) {
+		return "", fmt.Errorf(
+			"error in extractDownloadPath(): download path '%s' is invalid",
+			dbPath,
+		)
+	}
+
+	return dbPath, nil
+}
 	}
