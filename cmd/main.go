@@ -2,11 +2,15 @@ package main
 
 import (
 	"flag"
-	"fmt"
+
+	"github.com/Tesorp1X/chipi-bot/config"
 )
 
 var debug = flag.Bool("debug", false, "log debug info")
 
 func main() {
-	fmt.Println("hello world")
+	cfg, err := config.InitConfig(*debug)
+	if err != nil {
+		panic(err)
+	}
 }
