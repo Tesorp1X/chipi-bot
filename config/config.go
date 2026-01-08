@@ -66,6 +66,13 @@ func InitConfig(verboseDebug bool) (*Config, error) {
 		)
 	}
 
+	logPath, err := extractLogPath()
+	if err != nil {
+		return nil, fmt.Errorf(
+			"error in InitConfig(): couldn't extract log path: %v",
+			err,
+		)
+	}
 
 	return &Config{
 		ApiKey:       apiKey,
@@ -73,6 +80,7 @@ func InitConfig(verboseDebug bool) (*Config, error) {
 		VerboseDebug: verboseDebug,
 		DbPath:       dbPath,
 		DownloadPath: downloadPath,
+		LogPath:      logPath,
 	}, nil
 }
 
@@ -134,4 +142,16 @@ func extractDownloadPath() (string, error) {
 
 	return dbPath, nil
 }
+
+func extractLogPath() (string, error) {
+	dbPath := os.Getenv("LOG_PATH")
+	// TODO: also check that path is a dir and not a file
+	if !fs.ValidPath(dbPath) {
+		return "", fmt.Errorf(
+			"error in extractLogPath(): log path '%s' is invalid",
+			dbPath,
+		)
+	}
+
+	return dbPath, nil
 	}
