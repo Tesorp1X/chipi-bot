@@ -154,4 +154,4 @@ func extractLogPath() (string, error) {
 	}
 
 	return dbPath, nil
-	}
+}
