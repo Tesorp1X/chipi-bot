@@ -2,6 +2,7 @@ package config
 
 import (
 	"fmt"
+	"github.com/Tesorp1X/chipi-bot/utils"
 	"github.com/joho/godotenv"
 )
 
@@ -35,8 +36,19 @@ func InitConfig(verboseDebug bool) (*Config, error) {
 			"error in InitConfig(): couldn't extract apiKey: %v",
 			err,
 		)
+	}
+
+	admins, err := extractAdmins()
+	if err != nil {
+		return nil, fmt.Errorf(
+			"error in InitConfig(): couldn't extract admins: %v",
+			err,
+		)
+	}
+
 	return &Config{
 		ApiKey:       apiKey,
+		Admins:       admins,
 	}, nil
 }
 
@@ -51,4 +63,27 @@ func extractApiKey() (string, error) {
 	}
 	return apiKey, nil
 }
+
+func extractAdmins() ([]int64, error) {
+	var adminsList []int64
+
+	adminsListStr := os.Getenv("ADMIN_LIST")
+	if len(adminsListStr) == 0 {
+		return nil, fmt.Errorf(
+			"error: error in extractAdmins(): empty ADMIN_LIST",
+		)
+	}
+
+	adminsList, err := utils.ExtractAdminsIDs(adminsListStr)
+	if err != nil {
+		return nil, fmt.Errorf(
+			"error in extractAdmins(): couldn't extract admins ids from '%s': %v",
+			adminsListStr,
+			err,
+		)
+	}
+
+	return adminsList, nil
+}
+
 	}
