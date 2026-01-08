@@ -46,9 +46,19 @@ func InitConfig(verboseDebug bool) (*Config, error) {
 		)
 	}
 
+	dbPath, err := extractDbPath()
+	if err != nil {
+		return nil, fmt.Errorf(
+			"error in InitConfig(): couldn't extract db path: %v",
+			err,
+		)
+	}
+
 	return &Config{
 		ApiKey:       apiKey,
 		Admins:       admins,
+		VerboseDebug: verboseDebug,
+		DbPath:       dbPath,
 	}, nil
 }
 
@@ -84,6 +94,18 @@ func extractAdmins() ([]int64, error) {
 	}
 
 	return adminsList, nil
+}
+
+func extractDbPath() (string, error) {
+	dbPath := os.Getenv("DB_PATH")
+	if !fs.ValidPath(dbPath) || !strings.HasSuffix(dbPath, ".db") {
+		return "", fmt.Errorf(
+			"error in extractDbPath(): db path '%s' is invalid",
+			dbPath,
+		)
+	}
+
+	return dbPath, nil
 }
 
 	}
