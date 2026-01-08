@@ -27,11 +27,10 @@ type Config struct {
 
 func InitConfig(verboseDebug bool) (*Config, error) {
 	if err := godotenv.Load(".env"); err != nil {
-		panic(
-			fmt.Errorf(
-				"error in InitConfig(): couldn't load a '.env' file: %v",
-				err,
-			))
+		return nil, fmt.Errorf(
+			"error in InitConfig(): couldn't load a '.env' file: %v",
+			err,
+		)
 	}
 
 	apiKey, err := extractApiKey()
