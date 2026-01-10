@@ -14,33 +14,55 @@ func OnDocumentActionHandler(conf *config.Config, c tele.Context, state fsm.Cont
 	if d == nil {
 		return c.Send("error: no file")
 	}
-	f, err := c.Bot().FileByID(d.FileID)
-	if err != nil {
-		return c.Send("error with  'c.Bot().FileByID': " + err.Error())
-	}
 
-	targetFilePath := conf.DownloadPath + `\` + d.FileName
-	err = c.Bot().Download(&f, targetFilePath)
+	targetFilePath, err := downloadFile(c, conf.DownloadPath, d.FileID, d.FileName)
 	if err != nil {
-		return c.Send("error: couldn't download a file: " + err.Error())
+		return fmt.Errorf(
+			"error in OnDocumentActionHandler(): couldn't download a file (%v)",
+			err,
+		)
 	}
 
 	checkData, err := reader.ExtractCheckData(targetFilePath)
 	if err != nil {
-		wrappedErr := fmt.Errorf(
-			"error in OnDocumentActionHandler(), file '%s': %v",
+		sendErr := c.Send("error: couldn't extract data")
+
+		return fmt.Errorf(
+			"error in OnDocumentActionHandler(): could't extract data from file '%s' (%v). send with error: %v",
 			targetFilePath,
 			err,
+			sendErr,
 		)
-		if err := c.Send(wrappedErr.Error()); err != nil {
-			return fmt.Errorf(
-				wrappedErr.Error()+"\n"+
-					"error in OnDocumentActionHandler(), couldn't send a message: %v",
-				err,
-			)
-		}
-		return wrappedErr
 	}
 
 	return c.Send(checkData.OrgName)
+}
+
+func downloadFile(c tele.Context, downloadDirPath string, fileId string, fileName string) (string, error) {
+	f, err := c.Bot().FileByID(fileId)
+	if err != nil {
+		sendErr := c.Send("error with 'c.Bot().FileByID': " + err.Error())
+		return "", fmt.Errorf(
+			"error in downloadFile(): couldn't find a file with id %s (%v), message send with err: %v",
+			fileId,
+			err,
+			sendErr,
+		)
+	}
+
+	targetFilePath := downloadDirPath + `\` + fileName
+	err = c.Bot().Download(&f, targetFilePath)
+	if err != nil {
+		sendErr := c.Send("error: couldn't download a file: " + err.Error())
+		return "", fmt.Errorf(
+			"error in downloadFile(): couldn't download a file {id: %s; name: %s; path: %s} (%v), message send with err: %v",
+			fileId,
+			fileName,
+			targetFilePath,
+			err,
+			sendErr,
+		)
+	}
+
+	return targetFilePath, nil
 }
