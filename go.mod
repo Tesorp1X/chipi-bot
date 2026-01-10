@@ -9,4 +9,7 @@ require (
 	gopkg.in/telebot.v4 v4.0.0-beta.4
 )
 
-require github.com/vitaliy-ukiru/fsm-telebot/v2 v2.0.0-beta.2
+require (
+	github.com/ledongthuc/pdf v0.0.0-20250511090121-5959a4027728
+	github.com/vitaliy-ukiru/fsm-telebot/v2 v2.0.0-beta.2
+)
