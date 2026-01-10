@@ -82,6 +82,7 @@ func NewApplication(conf *config.Config) (*Application, error) {
 	}
 
 	app.registerCommands(allCommandsAndActions...)
+	app.registerActions(allAllowedActionsAndStates...)
 
 	return app, nil
 }
@@ -107,6 +108,28 @@ func (app *Application) registerCommands(commandsWithHandlers ...commandWithStat
 				fsmopt.OnStates(chs.states...),
 				fsmopt.Do(app.HandleAnyCommand),
 			),
+		)
+	}
+}
+
+type Action string
+
+func (a *Action) String() string {
+	return string(*a)
+}
+
+type actionsWithStates struct {
+	action Action
+	states []fsm.State
+}
+
+func (app *Application) registerActions(actionsWithHandlers ...actionsWithStates) {
+	for _, ahs := range actionsWithHandlers {
+		app.fsmManager.Bind(
+			app.dispatcher,
+			fsmopt.On(ahs.action.String()),
+			fsmopt.OnStates(ahs.states...),
+			fsmopt.Do(app.HandleAnyAction),
 		)
 	}
 }
