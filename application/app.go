@@ -4,11 +4,13 @@ import (
 	"context"
 	"fmt"
 	"log"
+	"time"
 
 	"github.com/Tesorp1X/chipi-bot/config"
 
 	"github.com/vitaliy-ukiru/fsm-telebot/v2"
-	"github.com/vitaliy-ukiru/telebot-filter/dispatcher"
+	"github.com/vitaliy-ukiru/fsm-telebot/v2/pkg/storage/memory"
+	"github.com/vitaliy-ukiru/telebot-filter/v2/dispatcher"
 
 	tele "gopkg.in/telebot.v4"
 )
@@ -38,4 +40,45 @@ func (app *Application) RunBot(ctx context.Context) <-chan struct{} {
 	}()
 
 	return closedCh
+}
+
+func initBot(apiKey string, debug bool) (*tele.Bot, error) {
+	b, err := tele.NewBot(tele.Settings{
+		Token:     apiKey,
+		Poller:    &tele.LongPoller{Timeout: 10 * time.Second},
+		Verbose:   debug,
+		ParseMode: tele.ModeHTML,
+	})
+
+	if err != nil {
+		return nil, fmt.Errorf(
+			"error in initBot(): couldn't init a new bot: %v",
+			err,
+		)
+	}
+
+	return b, nil
+}
+
+func NewApplication(conf *config.Config) (*Application, error) {
+	b, err := initBot(conf.ApiKey, conf.VerboseDebug)
+	if err != nil {
+		return nil, fmt.Errorf(
+			"error in NewApplication: couldn't initialize a new bot: %v",
+			err,
+		)
+	}
+	group := b.Group()
+	d := dispatcher.NewDispatcher(group)
+	manager := fsm.New(memory.NewStorage())
+
+	app := &Application{
+		tgBot:      b,
+		botGroup:   group,
+		dispatcher: d,
+		fsmManager: manager,
+		conf:       conf,
+	}
+
+	return app, nil
 }
