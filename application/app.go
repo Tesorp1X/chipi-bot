@@ -9,6 +9,7 @@ import (
 	"github.com/Tesorp1X/chipi-bot/config"
 
 	"github.com/vitaliy-ukiru/fsm-telebot/v2"
+	"github.com/vitaliy-ukiru/fsm-telebot/v2/fsmopt"
 	"github.com/vitaliy-ukiru/fsm-telebot/v2/pkg/storage/memory"
 	"github.com/vitaliy-ukiru/telebot-filter/v2/dispatcher"
 
@@ -80,5 +81,32 @@ func NewApplication(conf *config.Config) (*Application, error) {
 		conf:       conf,
 	}
 
+	app.registerCommands(allCommandsAndActions...)
+
 	return app, nil
+}
+
+type Command string
+
+func (c *Command) String() string {
+	return string(*c)
+}
+
+//type HandlerFunc = func(tele.Context, fsm.Context) error
+
+type commandWithStates struct {
+	command Command
+	states  []fsm.State
+}
+
+func (app *Application) registerCommands(commandsWithHandlers ...commandWithStates) {
+	for _, chs := range commandsWithHandlers {
+		app.dispatcher.Dispatch(
+			app.fsmManager.New(
+				fsmopt.On(chs.command.String()),
+				fsmopt.OnStates(chs.states...),
+				fsmopt.Do(app.HandleAnyCommand),
+			),
+		)
+	}
 }
