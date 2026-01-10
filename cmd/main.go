@@ -1,8 +1,12 @@
 package main
 
 import (
+	"context"
 	"flag"
+	"os/signal"
+	"syscall"
 
+	"github.com/Tesorp1X/chipi-bot/application"
 	"github.com/Tesorp1X/chipi-bot/config"
 )
 
@@ -13,4 +17,16 @@ func main() {
 	if err != nil {
 		panic(err)
 	}
+
+	app, err := application.NewApplication(cfg)
+	if err != nil {
+		panic(err)
+	}
+
+	ctx, cancel := signal.NotifyContext(context.Background(), syscall.SIGTERM, syscall.SIGINT)
+	defer cancel()
+
+	stopped := app.RunBot(ctx)
+	<-stopped
+
 }
