@@ -1,10 +1,13 @@
 package handlers
 
 import (
+	"context"
 	"fmt"
 
 	"github.com/Tesorp1X/chipi-bot/config"
+	"github.com/Tesorp1X/chipi-bot/static"
 	"github.com/Tesorp1X/chipi-bot/utils/reader"
+	"github.com/Tesorp1X/chipi-bot/utils/responses"
 	"github.com/vitaliy-ukiru/fsm-telebot/v2"
 	tele "gopkg.in/telebot.v4"
 )
@@ -35,7 +38,39 @@ func OnDocumentActionHandler(conf *config.Config, c tele.Context, state fsm.Cont
 		)
 	}
 
-	return c.Send(checkData.OrgName)
+	// convert checkData to check obj and save it in context
+	check := static.CreateCheckFromCheckData(checkData)
+	if err := state.Data(context.Background(), static.CHECK, check); err != nil {
+		sendErr := c.Send("error: couldn't save data in context")
+		return fmt.Errorf(
+			"error in OnDocumentActionHandler(): couldn't save check in state-storage (%v). send with error: %v",
+			err,
+			sendErr,
+		)
+	}
+
+	// save items in context
+	if err := state.Data(context.Background(), static.ITEMS_LIST, static.CreateItemsFromCheckData(checkData)); err != nil {
+		sendErr := c.Send("error: couldn't save data in context")
+		return fmt.Errorf(
+			"error in OnDocumentActionHandler(): couldn't save items in state-storage (%v). send with error: %v",
+			err,
+			sendErr,
+		)
+	}
+
+	// set state to StateWaitForCheckName
+	if err := state.SetState(context.Background(), static.StateWaitForCheckName); err != nil {
+		sendErr := c.Send("error: couldn't change a state")
+		return fmt.Errorf(
+			"error in OnDocumentActionHandler(): couldn't change a state to StateWaitForCheckName(%v). send with error: %v",
+			err,
+			sendErr,
+		)
+	}
+
+	// ask about check name, assuming name based on orgName
+	return c.Send(responses.GenerateNameVerificationResponse(check.Name))
 }
 
 func downloadFile(c tele.Context, downloadDirPath string, fileId string, fileName string) (string, error) {
