@@ -19,4 +19,10 @@ const (
 const (
 	CallbackSelectorKeep   = "keep"
 	CallbackSelectorChange = "change"
+
+	CallbackEditItemName     = "name"
+	CallbackEditItemPrice    = "price"
+	CallbackEditItemAmount   = "amount"
+	CallbackEditItemSubtotal = "subtotal"
+	CallbackEditItemGoBack   = "go_back"
 )
