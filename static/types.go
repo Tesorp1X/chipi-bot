@@ -65,3 +65,46 @@ func CreateCheckFromCheckData(cd *reader.CheckData) *Check {
 		Date:    &cd.TimeOfCreation,
 	}
 }
+
+type Item struct {
+	// Record id in table
+	Id int64
+
+	CheckId int64
+	// Item's name
+	Name string
+
+	// Item's owner
+	Owner string
+
+	// Cost for 1.0 amount of this item
+	Price float64
+
+	Amount float64
+
+	// Price * Amount value
+	Subtotal float64
+}
+
+func (a *Item) IsEqual(b *Item) bool {
+	fact := a.Id == b.Id && a.CheckId == b.CheckId
+	fact = fact && a.Name == b.Name && a.Owner == b.Owner
+	fact = fact && a.Price == b.Price && a.Amount == b.Amount
+	fact = fact && a.Subtotal == b.Subtotal
+
+	return fact
+}
+
+func CreateItemsFromCheckData(cd *reader.CheckData) []*Item {
+	var items []*Item
+	for _, cdItem := range cd.Items {
+		items = append(items, &Item{
+			Name:     cdItem.Name,
+			Price:    cdItem.Price,
+			Amount:   cdItem.Amount,
+			Subtotal: cdItem.SubTotal,
+		})
+	}
+
+	return items
+}
