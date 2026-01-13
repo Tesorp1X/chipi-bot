@@ -77,3 +77,37 @@ func GetItemVerificationResponse(item *static.Item, currentIndex, outOf int) (st
 
 	return response, kb
 }
+
+func GetEditItemInVerificationResponse(msgText string) (string, *tele.ReplyMarkup) {
+	text := msgText + "\n\nЧто меняем?👀"
+	kb := createSelectorInlineKb(
+		2,
+		Button{
+			BtnTxt: "Название",
+			Unique: static.CallbackActionEditItem.String(),
+			Data:   static.CallbackEditItemName,
+		},
+		Button{
+			BtnTxt: "Цена",
+			Unique: static.CallbackActionEditItem.String(),
+			Data:   static.CallbackEditItemPrice,
+		},
+		Button{
+			BtnTxt: "Кол-во",
+			Unique: static.CallbackActionEditItem.String(),
+			Data:   static.CallbackEditItemAmount,
+		},
+		Button{
+			BtnTxt: "Сумма",
+			Unique: static.CallbackActionEditItem.String(),
+			Data:   static.CallbackEditItemSubtotal,
+		},
+		Button{
+			BtnTxt: "Вернуться⬅️",
+			Unique: static.CallbackActionEditItem.String(),
+			Data:   static.CallbackEditItemGoBack,
+		},
+	)
+
+	return text, kb
+}
