@@ -14,3 +14,9 @@ const (
 	CURRENT_INDEX_TOTALS = "current_index_totals"
 	SESSION_TOTALS       = "session_totals"
 )
+
+//Callback data types
+const (
+	CallbackSelectorKeep   = "keep"
+	CallbackSelectorChange = "change"
+)
