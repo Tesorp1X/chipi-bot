@@ -21,7 +21,7 @@ func (a CallbackAction) DataMatches(data string) bool {
 
 const (
 	//CallbackAction<name> CallbackAction = "name"
-	CallbackActionKeep CallbackAction = "keep"
+	CallbackActionSelector CallbackAction = "Selector"
 )
 
 // Represents a record in checks table
