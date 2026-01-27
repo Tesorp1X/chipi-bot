@@ -111,3 +111,27 @@ func GetEditItemInVerificationResponse(msgText string) (string, *tele.ReplyMarku
 
 	return text, kb
 }
+
+func GetItemOwnershipQuestion() (string, *tele.ReplyMarkup) {
+	text := "Отлично! А чей это товар?"
+	kb := createSelectorInlineKb(
+		2,
+		Button{
+			BtnTxt: "Liz💜",
+			Unique: static.CallbackActionEditItem.String(),
+			Data:   static.CallbackEditItemName,
+		},
+		Button{
+			BtnTxt: "Pau💙",
+			Unique: static.CallbackActionEditItem.String(),
+			Data:   static.CallbackEditItemAmount,
+		},
+		Button{
+			BtnTxt: "Both💜💙",
+			Unique: static.CallbackActionEditItem.String(),
+			Data:   static.CallbackEditItemPrice,
+		},
+	)
+
+	return text, kb
+}
