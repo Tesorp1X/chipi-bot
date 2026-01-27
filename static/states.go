@@ -23,5 +23,6 @@ const (
 	StateShowingTotals fsm.State = "showing_totals"
 	StateShowingAnItem fsm.State = "showing_item"
 
-	StateEditingCheck fsm.State = "editing_check"
+	StateEditingCheck  fsm.State = "editing_check"
+	StateEditingAnItem fsm.State = "editing_item"
 )
