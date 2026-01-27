@@ -111,7 +111,8 @@ func handleKeepCheckNameCallback(conf *config.Config, c tele.Context, state fsm.
 }
 
 func handleShowingAnItemCallback(conf *config.Config, c tele.Context, state fsm.Context) error {
-	switch c.Callback().Unique {
+	action := static.CallbackActionSelector.GetData(c.Callback().Data)
+	switch action {
 	case static.CallbackSelectorChange:
 		c.Respond(&tele.CallbackResponse{})
 		// add new line of text at the bottom of that msg "Что меняем?"
