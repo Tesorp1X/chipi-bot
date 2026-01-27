@@ -90,7 +90,6 @@ func handleKeepCheckNameCallback(conf *config.Config, c tele.Context, state fsm.
 		currentIndex, len(items),
 	)
 
-	currentIndex++ // now points at the next item
 	if err := state.Update(context.Background(), static.CURRENT_INDEX_ITEMS, currentIndex); err != nil {
 		sendErr := c.Send("error: couldn't save data in context")
 		return fmt.Errorf(
@@ -154,6 +153,21 @@ func handleShowingAnItemCallback(conf *config.Config, c tele.Context, state fsm.
 			)
 		}
 
+	default:
+		return c.Respond(&tele.CallbackResponse{Text: "error todo"})
+	}
+
+	return nil
+}
+
+func handleItemOwnerCallback(conf *config.Config, c tele.Context, state fsm.Context) error {
+	action := static.CallbackActionEditItem.GetData(c.Callback().Data)
+	switch action {
+	case static.CallbackOwnerLiz, static.CallbackOwnerPau, static.CallbackOwnerBoth:
+		c.Respond(&tele.CallbackResponse{})
+		// get items and currentIndex
+		// update items info
+		// get to the next item -> display that
 	default:
 		return c.Respond(&tele.CallbackResponse{Text: "error todo"})
 	}
