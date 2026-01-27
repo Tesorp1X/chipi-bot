@@ -40,7 +40,7 @@ func OnDocumentActionHandler(conf *config.Config, c tele.Context, state fsm.Cont
 
 	// convert checkData to check obj and save it in context
 	check := static.CreateCheckFromCheckData(checkData)
-	if err := state.Data(context.Background(), static.CHECK, check); err != nil {
+	if err := state.Update(context.Background(), static.CHECK, check); err != nil {
 		sendErr := c.Send("error: couldn't save data in context")
 		return fmt.Errorf(
 			"error in OnDocumentActionHandler(): couldn't save check in state-storage (%v). send with error: %v",
@@ -50,7 +50,7 @@ func OnDocumentActionHandler(conf *config.Config, c tele.Context, state fsm.Cont
 	}
 
 	// save items in context
-	if err := state.Data(context.Background(), static.ITEMS_LIST, static.CreateItemsFromCheckData(checkData)); err != nil {
+	if err := state.Update(context.Background(), static.ITEMS_LIST, static.CreateItemsFromCheckData(checkData)); err != nil {
 		sendErr := c.Send("error: couldn't save data in context")
 		return fmt.Errorf(
 			"error in OnDocumentActionHandler(): couldn't save items in state-storage (%v). send with error: %v",
