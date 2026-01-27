@@ -14,7 +14,17 @@ import (
 var allAllowedActionsAndStates []actionsWithStates = []actionsWithStates{
 	{
 		action: tele.OnDocument,
-
+		// todo: change allowed states
+		states: []fsm.State{fsm.AnyState},
+	},
+	{
+		action: tele.OnCallback,
+		// todo: change allowed states
+		states: []fsm.State{fsm.AnyState},
+	},
+	{
+		action: tele.OnText,
+		// todo: change allowed states
 		states: []fsm.State{fsm.AnyState},
 	},
 }
