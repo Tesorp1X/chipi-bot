@@ -42,6 +42,7 @@ func HandleAnyCallback(conf *config.Config, c tele.Context, state fsm.Context) e
 }
 
 func handleKeepCheckNameCallback(conf *config.Config, c tele.Context, state fsm.Context) error {
+	c.Respond(&tele.CallbackResponse{})
 	// send ok-message
 	// show first item and increment currentIndex
 
@@ -113,12 +114,14 @@ func handleKeepCheckNameCallback(conf *config.Config, c tele.Context, state fsm.
 func handleShowingAnItemCallback(conf *config.Config, c tele.Context, state fsm.Context) error {
 	switch c.Callback().Unique {
 	case static.CallbackSelectorChange:
+		c.Respond(&tele.CallbackResponse{})
 		// add new line of text at the bottom of that msg "Что меняем?"
 		// change inline kb for that msg to a new one
 		// buttons (two in a row): название, цена, кол-во, сумма
 		// state to waitingForMenuAction maybe
 		return nil
 	case static.CallbackSelectorKeep:
+		c.Respond(&tele.CallbackResponse{})
 		// ask who's the owner of an item
 		// new message with a question and inline kb
 		// buttons: liz, both, pau
@@ -128,4 +131,5 @@ func handleShowingAnItemCallback(conf *config.Config, c tele.Context, state fsm.
 		return c.Respond(&tele.CallbackResponse{Text: "error todo"})
 	}
 
+	return nil
 }
