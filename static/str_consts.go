@@ -25,4 +25,8 @@ const (
 	CallbackEditItemAmount   = "amount"
 	CallbackEditItemSubtotal = "subtotal"
 	CallbackEditItemGoBack   = "go_back"
+
+	CallbackOwnerPau  = "owner_pau"
+	CallbackOwnerLiz  = "owner_liz"
+	CallbackOwnerBoth = "owner_both"
 )
