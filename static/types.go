@@ -19,6 +19,11 @@ func (a CallbackAction) DataMatches(data string) bool {
 	return data == cringePrefix || strings.HasPrefix(data, cringePrefix+"|")
 }
 
+// Extracts data from [Callback.Data] by removing prefix '\f + CallbackAction + |'
+func (a CallbackAction) GetData(data string) string {
+	return strings.TrimPrefix(data, "\f"+a.String()+"|")
+}
+
 const (
 	//CallbackAction<name> CallbackAction = "name"
 	CallbackActionSelector CallbackAction = "Selector"
