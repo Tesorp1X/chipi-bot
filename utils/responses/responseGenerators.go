@@ -113,23 +113,23 @@ func GetEditItemInVerificationResponse(msgText string) (string, *tele.ReplyMarku
 }
 
 func GetItemOwnershipQuestion() (string, *tele.ReplyMarkup) {
-	text := "Отлично! А чей это товар?"
+	text := "Отлично! А чей это товар?👀"
 	kb := createSelectorInlineKb(
 		2,
 		Button{
 			BtnTxt: "Liz💜",
 			Unique: static.CallbackActionEditItem.String(),
-			Data:   static.CallbackEditItemName,
+			Data:   static.CallbackOwnerLiz,
 		},
 		Button{
 			BtnTxt: "Pau💙",
 			Unique: static.CallbackActionEditItem.String(),
-			Data:   static.CallbackEditItemAmount,
+			Data:   static.CallbackOwnerPau,
 		},
 		Button{
 			BtnTxt: "Both💜💙",
 			Unique: static.CallbackActionEditItem.String(),
-			Data:   static.CallbackEditItemPrice,
+			Data:   static.CallbackOwnerBoth,
 		},
 	)
 
