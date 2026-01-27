@@ -118,15 +118,42 @@ func handleShowingAnItemCallback(conf *config.Config, c tele.Context, state fsm.
 		// add new line of text at the bottom of that msg "Что меняем?"
 		// change inline kb for that msg to a new one
 		// buttons (two in a row): название, цена, кол-во, сумма
+		if sendErr := c.EditOrReply(responses.GetEditItemInVerificationResponse(c.Message().Text)); sendErr != nil {
+			return fmt.Errorf(
+				"error in handleShowingAnItemCallback(): couldn't edit a message (%v)",
+				sendErr,
+			)
+		}
 		// state to waitingForMenuAction maybe
-		return nil
+		if err := state.SetState(context.Background(), static.StateEditingAnItem); err != nil {
+			sendErr := c.Send("error: couldn't change state")
+			return fmt.Errorf(
+				"error in handleShowingAnItemCallback(): couldn't change a state to StateEditingAnItem (%v). send with error: %v",
+				err,
+				sendErr,
+			)
+		}
 	case static.CallbackSelectorKeep:
 		c.Respond(&tele.CallbackResponse{})
 		// ask who's the owner of an item
 		// new message with a question and inline kb
 		// buttons: liz, both, pau
-		// state to waitingForItemOwner
-		return nil
+		if sendErr := c.Send(responses.GetItemOwnershipQuestion()); sendErr != nil {
+			return fmt.Errorf(
+				"error in handleShowingAnItemCallback(): couldn't send a message (%v)",
+				sendErr,
+			)
+		}
+
+		if err := state.SetState(context.Background(), static.StateWaitForItemOwner); err != nil {
+			sendErr := c.Send("error: couldn't change state")
+			return fmt.Errorf(
+				"error in handleShowingAnItemCallback(): couldn't change a state to StateWaitForItemOwner (%v). send with error: %v",
+				err,
+				sendErr,
+			)
+		}
+
 	default:
 		return c.Respond(&tele.CallbackResponse{Text: "error todo"})
 	}
