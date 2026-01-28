@@ -33,10 +33,15 @@ func HandleAnyCallback(conf *config.Config, c tele.Context, state fsm.Context) e
 		if err := handleShowingAnItemCallback(conf, c, state); err != nil {
 			return fmt.Errorf("error in HandleAnyCallback(), state 'StateShowingAnItem', action 'CallbackActionSelector': %v", err)
 		}
+	case currentState == static.StateWaitForItemOwner &&
+		static.CallbackActionEditItem.DataMatches(callbackData):
+		if err := handleItemOwnerCallback(conf, c, state); err != nil {
+			return fmt.Errorf("error in HandleAnyCallback(), state 'StateShowingAnItem', action 'CallbackActionEditItem': %v", err)
+		}
 	default:
 		// if callback query is old, remove inline buttons from that message
 		c.Bot().EditReplyMarkup(c.Callback().Message, &tele.ReplyMarkup{})
-		return c.Respond(&tele.CallbackResponse{Text: "error todo"})
+		return c.Respond(&tele.CallbackResponse{Text: "error todo", ShowAlert: true})
 	}
 	return nil
 }
@@ -162,13 +167,98 @@ func handleShowingAnItemCallback(conf *config.Config, c tele.Context, state fsm.
 }
 
 func handleItemOwnerCallback(conf *config.Config, c tele.Context, state fsm.Context) error {
-	action := static.CallbackActionEditItem.GetData(c.Callback().Data)
-	switch action {
+	itemOwner := static.CallbackActionEditItem.GetData(c.Callback().Data)
+	switch itemOwner {
 	case static.CallbackOwnerLiz, static.CallbackOwnerPau, static.CallbackOwnerBoth:
 		c.Respond(&tele.CallbackResponse{})
 		// get items and currentIndex
+
+		var items []*static.Item
+		if err := state.Data(context.Background(), static.ITEMS_LIST, &items); err != nil {
+			sendErr := c.Send("error: couldn't retrieve items_list")
+			return fmt.Errorf(
+				"error in handleItemOwnerCallback(): couldn't retrieve items_list from context (%v). send with error: %v",
+				err,
+				sendErr,
+			)
+		}
+
+		var currentIndex int
+		if err := state.Data(context.Background(), static.CURRENT_INDEX_ITEMS, &currentIndex); err != nil {
+			sendErr := c.Send("error: couldn't retrieve current items's index")
+			return fmt.Errorf(
+				"error in handleItemOwnerCallback(): couldn't retrieve currentIndex from context (%v). send with error: %v",
+				err,
+				sendErr,
+			)
+		}
+
+		if len(items) == 0 {
+			sendErr := c.Send("error: items list is empty")
+			stateErr := state.SetState(context.Background(), static.StateDefault)
+			return fmt.Errorf(
+				"error in handleItemOwnerCallback(): slice of items is empty. send with error: %v, state transition err: %v",
+				sendErr,
+				stateErr,
+			)
+		}
+
+		// check if currentIndex is ok
+		if currentIndex < 0 || currentIndex >= len(items) {
+			// todo: ehh what to do?..
+			// maybe "sorry, there was an error, let's start over"
+			// and set currentIndex to 0.
+		}
+
 		// update items info
+		items[currentIndex].Owner = itemOwner
+		currentIndex++
+		//check if it was the last item
+		if currentIndex == len(items) {
+			// todo
+			// make a show check func idk
+			// send a message with all new info and calculated totals
+			// has inline buttons: all good (saves it all to db) and edit (lets edit name and items)
+		}
+
+		// put updated info back into context
+		if err := state.Update(context.Background(), static.ITEMS_LIST, items); err != nil {
+			sendErr := c.Send("error: couldn't update items_list")
+			return fmt.Errorf(
+				"error in handleItemOwnerCallback(): couldn't update items_list in context (%v). send with error: %v",
+				err,
+				sendErr,
+			)
+		}
+
+		if err := state.Update(context.Background(), static.CURRENT_INDEX_ITEMS, currentIndex); err != nil {
+			sendErr := c.Send("error: couldn't update current items's index")
+			return fmt.Errorf(
+				"error in handleItemOwnerCallback(): couldn't update currentIndex in context (%v). send with error: %v",
+				err,
+				sendErr,
+			)
+		}
+
 		// get to the next item -> display that
+		err := c.Send(responses.GetItemVerificationResponse(items[currentIndex], currentIndex, len(items)))
+		if err != nil {
+			return fmt.Errorf(
+				"error in handleItemOwnerCallback(): couldn't send a message with a new item (%v).",
+				err,
+			)
+		}
+
+		// set state to StateShowingAnItem
+		if err := state.SetState(context.Background(), static.StateShowingAnItem); err != nil {
+			sendErr := c.Send("error: couldn't set state to StateShowingAnItem")
+			return fmt.Errorf(
+				"error in handleItemOwnerCallback(): couldn't set state to StateShowingAnItem (%v). send with error: %v",
+				err,
+				sendErr,
+			)
+		}
+
 	default:
 		return c.Respond(&tele.CallbackResponse{Text: "error todo"})
 	}
