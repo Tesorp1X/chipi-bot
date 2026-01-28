@@ -208,6 +208,29 @@ func handleItemOwnerCallback(conf *config.Config, c tele.Context, state fsm.Cont
 			// todo: ehh what to do?..
 			// maybe "sorry, there was an error, let's start over"
 			// and set currentIndex to 0.
+			currentIndex = 0
+			if err := state.Update(context.Background(), static.CURRENT_INDEX_ITEMS, currentIndex); err != nil {
+				sendErr := c.Send("error: couldn't update items current index")
+				return fmt.Errorf(
+					"error in handleItemOwnerCallback(): couldn't update current_index_items in context (%v). send with error: %v",
+					err,
+					sendErr,
+				)
+			}
+
+			// setting up verification process from ground up
+			sendErrMsgErr := c.Send("error: items list index is out of bounds. let's start over")
+			sendMsgErr := c.Send(responses.GetItemVerificationResponse(items[currentIndex], currentIndex, len(items)))
+			stateTransitionErr := state.SetState(context.Background(), static.StateShowingAnItem)
+			if sendErrMsgErr != nil || sendMsgErr != nil {
+				return fmt.Errorf(
+					"error in handleItemOwnerCallback(): problem with currentIndex being out of bounds.\nerrorMsg sent with error (%v)\nnew verification message sent with error (%v)\nstate transitioned with an error (%v)",
+					sendErrMsgErr,
+					sendMsgErr,
+					stateTransitionErr,
+				)
+			}
+			return nil
 		}
 
 		// update items info
