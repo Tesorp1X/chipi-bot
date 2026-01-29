@@ -1,6 +1,7 @@
 package static
 
 import (
+	"fmt"
 	"strings"
 	"time"
 
@@ -59,6 +60,33 @@ func (a *Check) IsEqual(b *Check) bool {
 	fact = fact && a.Date.Equal(*b.Date)
 
 	return fact
+}
+
+// Calculates and assigns Total, TotalLiz and TotalPau fields based on a given items slice.
+// If there any item without an owner or with invalid one, the method will return an error.
+func (c *Check) CalculateTotals(items []*Item) error {
+	var total, liz, pau float64
+
+	for _, item := range items {
+		total += item.Subtotal
+		switch item.Owner {
+		case CallbackOwnerLiz:
+			liz += item.Subtotal
+		case CallbackOwnerPau:
+			pau += item.Subtotal
+		case CallbackOwnerBoth:
+			liz += item.Subtotal / 2
+			pau += item.Subtotal / 2
+		default:
+			return fmt.Errorf("error in Check.CalculateTotals(): invalid owner for item %v", *item)
+		}
+	}
+
+	c.Total = total
+	c.TotalLiz = liz
+	c.TotalPau = pau
+
+	return nil
 }
 
 // Creates an object of `Check`-type from `reader.CheckData` object.
