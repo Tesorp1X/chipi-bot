@@ -2,6 +2,7 @@ package responses
 
 import (
 	"fmt"
+	"time"
 
 	"github.com/Tesorp1X/chipi-bot/static"
 	tele "gopkg.in/telebot.v4"
@@ -134,4 +135,77 @@ func GetItemOwnershipQuestion() (string, *tele.ReplyMarkup) {
 	)
 
 	return text, kb
+}
+
+func GetVerificationFinalStepResponse(check static.Check, items []*static.Item) (string, *tele.ReplyMarkup) {
+	text := "<b>Почти всё! Проверь чек и можно сохранять.</b>\n\n"
+
+	text += fmt.Sprintf("<b>Название:</b> %s; <b>Дата:</b> %s\n", check.Name, check.Date.Format(time.DateTime))
+	text += fmt.Sprintf("<b>Товары: %s</b>\n", sPrintItemsBasedOnOwnership(items))
+
+	text += fmt.Sprintf("<b><i><u>Итого с Пау:</u> %.2f</b></i>\n", check.TotalPau)
+	text += fmt.Sprintf("<b><i><u>Итого с Лиз:</u> %.2f</b></i>\n", check.TotalLiz)
+	text += fmt.Sprintf("<b><i><u>Итого:</u> %.2f</b></i>\n\n", check.Total)
+
+	switch check.Owner {
+	case static.CallbackOwnerLiz:
+		text += "Заплатила Лиз💜"
+	case static.CallbackOwnerPau:
+		text += "Заплатил Пау💙"
+	case static.CallbackOwnerBoth:
+		text += "Заплатили с совместной карты💜💙"
+	}
+
+	kb := createSelectorInlineKb(
+		2,
+		Button{
+			BtnTxt: "All Good✅",
+			Unique: static.CallbackActionSelector.String(),
+			Data:   static.CallbackSelectorKeep,
+		},
+		Button{
+			BtnTxt: "Edit✏️",
+			Unique: static.CallbackActionSelector.String(),
+			Data:   static.CallbackSelectorChange,
+		},
+	)
+
+	return text, kb
+}
+
+func sPrintItemsBasedOnOwnership(items []*static.Item) string {
+	itemToStr := func(idx int, item *static.Item) string {
+		return fmt.Sprintf(
+			"<i>%d) %s %.2f %.3f %.2f </i>\n",
+			idx,
+			item.Name,
+			item.Price,
+			item.Amount,
+			item.Subtotal,
+		)
+	}
+
+	pau := "Товары Пау:\n"
+	liz := "Товары Лиз:\n"
+	both := "Общие товары:\n"
+
+	var lizIdx, pauIdx, bothIdx int
+
+	for _, item := range items {
+		switch item.Owner {
+		case static.CallbackOwnerLiz:
+			lizIdx++
+			liz += itemToStr(lizIdx, item)
+		case static.CallbackOwnerPau:
+			pauIdx++
+			pau += itemToStr(pauIdx, item)
+		case static.CallbackOwnerBoth:
+			bothIdx++
+			both += itemToStr(bothIdx, item)
+		}
+	}
+
+	text := pau + "\n" + liz + "\n" + both + "\n"
+
+	return text
 }
