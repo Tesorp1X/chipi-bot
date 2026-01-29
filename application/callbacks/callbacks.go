@@ -242,6 +242,51 @@ func handleItemOwnerCallback(conf *config.Config, c tele.Context, state fsm.Cont
 			// make a show check func idk
 			// send a message with all new info and calculated totals
 			// has inline buttons: all good (saves it all to db) and edit (lets edit name and items)
+			var check *static.Check
+			if err := state.Data(context.Background(), static.CHECK, &check); err != nil {
+				sendErr := c.Send("error: couldn't retrieve check info from context")
+				return fmt.Errorf(
+					"error in handleItemOwnerCallback(): couldn't retrieve check info from context (%v).\nsent with error (%v)",
+					err,
+					sendErr,
+				)
+			}
+
+			if err := check.CalculateTotals(items); err != nil {
+				sendErr := c.Send("error: while calculating totals")
+				return fmt.Errorf(
+					"error in handleItemOwnerCallback(): couldn't calculate totals (%v).\nsent with error (%v)",
+					err,
+					sendErr,
+				)
+			}
+
+			if err := state.Update(context.Background(), static.CHECK, check); err != nil {
+				sendErr := c.Send("error: couldn't update check info in context")
+				return fmt.Errorf(
+					"error in handleItemOwnerCallback(): couldn't update check info in context (%v).\nsent with error (%v)",
+					err,
+					sendErr,
+				)
+			}
+
+			if err := c.Send(responses.GetVerificationFinalStepResponse(check, items)); err != nil {
+				return fmt.Errorf(
+					"error in handleItemOwnerCallback(): couldn't send a message (%v)",
+					err,
+				)
+			}
+
+			if err := state.SetState(context.Background(), static.StateWaitingForCheckConfirmation); err != nil {
+				sendErr := c.Send("error: couldn't change the state")
+				return fmt.Errorf(
+					"error in handleItemOwnerCallback(): couldn't change the state to StateWaitingForCheckConfirmation (%v).\nsent with error (%v)",
+					err,
+					sendErr,
+				)
+			}
+
+			return nil
 		}
 
 		// put updated info back into context
