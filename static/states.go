@@ -14,6 +14,8 @@ const (
 	StateWaitForNewCheckName fsm.State = "wait_for_new_check_name"
 	StateWaitForCheckOwner   fsm.State = "wait_for_check_owner"
 
+	StateWaitingForCheckConfirmation fsm.State = "waiting_for_check_confirmation"
+
 	StateWaitForItemName  fsm.State = "wait_for_item_name"
 	StateWaitForItemPrice fsm.State = "wait_for_item_price"
 	StateWaitForItemOwner fsm.State = "wait_for_item_owner"
