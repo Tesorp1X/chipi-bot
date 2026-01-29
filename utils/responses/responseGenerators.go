@@ -137,7 +137,7 @@ func GetItemOwnershipQuestion() (string, *tele.ReplyMarkup) {
 	return text, kb
 }
 
-func GetVerificationFinalStepResponse(check static.Check, items []*static.Item) (string, *tele.ReplyMarkup) {
+func GetVerificationFinalStepResponse(check *static.Check, items []*static.Item) (string, *tele.ReplyMarkup) {
 	text := "<b>Почти всё! Проверь чек и можно сохранять.</b>\n\n"
 
 	text += fmt.Sprintf("<b>Название:</b> %s; <b>Дата:</b> %s\n", check.Name, check.Date.Format(time.DateTime))
