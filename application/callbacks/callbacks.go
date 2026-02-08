@@ -38,6 +38,11 @@ func HandleAnyCallback(conf *config.Config, c tele.Context, state fsm.Context) e
 		if err := handleItemOwnerCallback(conf, c, state); err != nil {
 			return fmt.Errorf("error in HandleAnyCallback(), state 'StateShowingAnItem', action 'CallbackActionEditItem': %v", err)
 		}
+	case currentState == static.StateWaitingForCheckConfirmation &&
+		static.CallbackActionSelector.DataMatches(callbackData):
+		if err := handleFinalVerificationStage(conf, c, state); err != nil {
+			return fmt.Errorf("error in HandleAnyCallback(), state 'StateWaitingForCheckConfirmation', action 'CallbackActionSelector': %v", err)
+		}
 	default:
 		// if callback query is old, remove inline buttons from that message
 		c.Bot().EditReplyMarkup(c.Callback().Message, &tele.ReplyMarkup{})
@@ -329,6 +334,69 @@ func handleItemOwnerCallback(conf *config.Config, c tele.Context, state fsm.Cont
 
 	default:
 		return c.Respond(&tele.CallbackResponse{Text: "error todo"})
+	}
+
+	return nil
+}
+
+func handleFinalVerificationStage(conf *config.Config, c tele.Context, state fsm.Context) error {
+	action := static.CallbackActionSelector.GetData(c.Callback().Data)
+
+	switch action {
+	case static.CallbackSelectorKeep:
+		// retrieve check and items from context
+		var check *static.Check
+		if err := state.Data(context.Background(), static.CHECK, &check); err != nil {
+			sendErr := c.Send("error: couldn't retrieve check info from context")
+			return fmt.Errorf(
+				"error in handleFinalVerificationStage(): couldn't retrieve check info from context (%v).\nsent with error (%v)",
+				err,
+				sendErr,
+			)
+		}
+
+		var items []*static.Item
+		if err := state.Data(context.Background(), static.ITEMS_LIST, &items); err != nil {
+			sendErr := c.Send("error: couldn't retrieve items_list")
+			return fmt.Errorf(
+				"error in handleFinalVerificationStage(): couldn't retrieve items_list from context (%v). send with error: %v",
+				err,
+				sendErr,
+			)
+		}
+		// get session id
+		// assign session id to a check and save it to a db
+		// assign check id to every item and save it to a db
+		// transition state to Default
+		if err := state.Finish(context.Background(), true); err != nil {
+			sendErr := c.Send("error: couldn't finish your state")
+			return fmt.Errorf(
+				"error in handleFinalVerificationStage(): couldn't finish state (%v). sent with error (%v)",
+				err,
+				sendErr,
+			)
+		}
+		// send an ok msg
+		if err := c.EditOrReply(responses.GetCheckSavedMessage(check.Name)); err != nil {
+			return fmt.Errorf(
+				"error in handleFinalVerificationStage(): couldn't send an ok-message (%v)",
+				err,
+			)
+		}
+
+	case static.CallbackSelectorChange:
+		if err := state.SetState(context.Background(), static.StateEditingCheck); err != nil {
+			sendErr := c.Send("error: couldn't set state to StateEditingCheck")
+			return fmt.Errorf(
+				"error in handleFinalVerificationStage(): couldn't set state to StateEditingCheck (%v). send with error: %v",
+				err,
+				sendErr,
+			)
+		}
+		// add text "Что меняем?"
+		// change kb
+		// buttons: check name, check owner, items
+		return c.EditOrReply(responses.GetEditCheckMessage(c.Message().Text))
 	}
 
 	return nil
