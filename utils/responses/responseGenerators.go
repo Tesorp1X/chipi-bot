@@ -209,3 +209,34 @@ func sPrintItemsBasedOnOwnership(items []*static.Item) string {
 
 	return text
 }
+
+func GetCheckSavedMessage(checkName string) (string, *tele.ReplyMarkup) {
+	text := "<b>Чек" + checkName + "сохранен!</b>"
+	kb := &tele.ReplyMarkup{}
+
+	return text, kb
+}
+
+func GetEditCheckMessage(prevMsg string) (string, *tele.ReplyMarkup) {
+	text := prevMsg + "\n\n" + "<b>Что меняем?👀</b>"
+	kb := createSelectorInlineKb(
+		1,
+		Button{
+			BtnTxt: "Название ✏️",
+		},
+		Button{
+			BtnTxt: "Дату 📆",
+		},
+		Button{
+			BtnTxt: "Кто заплатил 🧑‍🤝‍🧑",
+		},
+		Button{
+			BtnTxt: "Изменить товары 📝",
+		},
+		Button{
+			BtnTxt: "Назад ⬅️",
+		},
+	)
+
+	return text, kb
+}
