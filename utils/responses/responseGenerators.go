@@ -143,9 +143,9 @@ func GetVerificationFinalStepResponse(check *static.Check, items []*static.Item)
 	text += fmt.Sprintf("<b>Название:</b> %s; <b>Дата:</b> %s\n", check.Name, check.Date.Format(time.DateTime))
 	text += fmt.Sprintf("<b>Товары: %s</b>\n", sPrintItemsBasedOnOwnership(items))
 
-	text += fmt.Sprintf("<b><i><u>Итого с Пау:</u> %.2f</b></i>\n", check.TotalPau)
-	text += fmt.Sprintf("<b><i><u>Итого с Лиз:</u> %.2f</b></i>\n", check.TotalLiz)
-	text += fmt.Sprintf("<b><i><u>Итого:</u> %.2f</b></i>\n\n", check.Total)
+	text += fmt.Sprintf("<b><i><u>Итого с Пау:</u> %.2f</i></b>\n", check.TotalPau)
+	text += fmt.Sprintf("<b><i><u>Итого с Лиз:</u> %.2f</i></b>\n", check.TotalLiz)
+	text += fmt.Sprintf("<b><i><u>Итого:</u> %.2f</i></b>\n\n", check.Total)
 
 	switch check.Owner {
 	case static.CallbackOwnerLiz:
@@ -211,7 +211,7 @@ func sPrintItemsBasedOnOwnership(items []*static.Item) string {
 }
 
 func GetCheckSavedMessage(checkName string) (string, *tele.ReplyMarkup) {
-	text := "<b>Чек" + checkName + "сохранен!</b>"
+	text := "<b>Чек <i>" + checkName + "</i> сохранен!</b>"
 	kb := &tele.ReplyMarkup{}
 
 	return text, kb
