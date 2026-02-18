@@ -26,22 +26,34 @@ func HandleAnyCallback(conf *config.Config, c tele.Context, state fsm.Context) e
 	case currentState == static.StateWaitForCheckName &&
 		static.CallbackActionSelector.DataMatches(callbackData):
 		if err := handleKeepCheckNameCallback(conf, c, state); err != nil {
-			return fmt.Errorf("error in HandleAnyCallback(), state 'StateWaitForCheckName', action 'CallbackActionSelector': %v", err)
+			return fmt.Errorf(
+				"error in HandleAnyCallback(), state 'StateWaitForCheckName', action 'CallbackActionSelector': %v",
+				err,
+			)
 		}
 	case currentState == static.StateShowingAnItem &&
 		static.CallbackActionSelector.DataMatches(callbackData):
 		if err := handleShowingAnItemCallback(conf, c, state); err != nil {
-			return fmt.Errorf("error in HandleAnyCallback(), state 'StateShowingAnItem', action 'CallbackActionSelector': %v", err)
+			return fmt.Errorf(
+				"error in HandleAnyCallback(), state 'StateShowingAnItem', action 'CallbackActionSelector': %v",
+				err,
+			)
 		}
 	case currentState == static.StateWaitForItemOwner &&
 		static.CallbackActionEditItem.DataMatches(callbackData):
 		if err := handleItemOwnerCallback(conf, c, state); err != nil {
-			return fmt.Errorf("error in HandleAnyCallback(), state 'StateShowingAnItem', action 'CallbackActionEditItem': %v", err)
+			return fmt.Errorf(
+				"error in HandleAnyCallback(), state 'StateShowingAnItem', action 'CallbackActionEditItem': %v",
+				err,
+			)
 		}
 	case currentState == static.StateWaitingForCheckConfirmation &&
 		static.CallbackActionSelector.DataMatches(callbackData):
 		if err := handleFinalVerificationStage(conf, c, state); err != nil {
-			return fmt.Errorf("error in HandleAnyCallback(), state 'StateWaitingForCheckConfirmation', action 'CallbackActionSelector': %v", err)
+			return fmt.Errorf(
+				"error in HandleAnyCallback(), state 'StateWaitingForCheckConfirmation', action 'CallbackActionSelector': %v",
+				err,
+			)
 		}
 	default:
 		// if callback query is old, remove inline buttons from that message
