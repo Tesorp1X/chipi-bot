@@ -27,8 +27,9 @@ func (a CallbackAction) GetData(data string) string {
 
 const (
 	//CallbackAction<name> CallbackAction = "name"
-	CallbackActionSelector CallbackAction = "Selector"
-	CallbackActionEditItem CallbackAction = "EditItem"
+	CallbackActionSelector  CallbackAction = "Selector"
+	CallbackActionEditItem  CallbackAction = "EditItem"
+	CallbackActionEditCheck CallbackAction = "EditCheck"
 )
 
 // Represents a record in checks table
