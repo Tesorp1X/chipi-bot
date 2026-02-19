@@ -106,7 +106,7 @@ func GetEditItemInVerificationResponse(msgText string) (string, *tele.ReplyMarku
 		Button{
 			BtnTxt: "Вернуться⬅️",
 			Unique: static.CallbackActionEditItem.String(),
-			Data:   static.CallbackEditItemGoBack,
+			Data:   static.CallbackSelectorGoBack,
 		},
 	)
 
