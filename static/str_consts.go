@@ -27,6 +27,9 @@ const (
 	CallbackEditItemSubtotal = "subtotal"
 
 	CallbackEditCheckName         = "name"
+	CallbackEditCheckCreationDate = "date"
+	CallbackEditCheckOwner        = "owner"
+	CallbackEditCheckItems        = "items"
 
 	CallbackOwnerPau  = "owner_pau"
 	CallbackOwnerLiz  = "owner_liz"
