@@ -250,3 +250,21 @@ func GetEditCheckMessage(prevMsg string) (string, *tele.ReplyMarkup) {
 
 	return text, kb
 }
+
+func GetAskForNewCheckNameResponse(currentCheckName string) (string, *tele.ReplyMarkup) {
+	text := fmt.Sprintf(
+		"Текущее название этого чека: %s\n\nНапиши новое название. Если передумал менять название, просто нажми на кнопку \"Назад ⬅️\"",
+		currentCheckName,
+	)
+
+	kb := createSelectorInlineKb(
+		1,
+		Button{
+			BtnTxt: "Назад ⬅️",
+			Unique: static.CallbackActionEditCheck.String(),
+			Data:   static.CallbackSelectorGoBack,
+		},
+	)
+
+	return text, kb
+}
