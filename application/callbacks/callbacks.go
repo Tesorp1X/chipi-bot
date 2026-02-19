@@ -55,6 +55,15 @@ func HandleAnyCallback(conf *config.Config, c tele.Context, state fsm.Context) e
 				err,
 			)
 		}
+
+	case currentState == static.StateEditingCheck &&
+		static.CallbackActionEditCheck.DataMatches(callbackData):
+		if err := handleEditFinalizedCheck(conf, c, state); err != nil {
+			return fmt.Errorf(
+				"error in HandleAnyCallback(), state 'StateEditingCheck', action 'CallbackActionSelector': %v",
+				err,
+			)
+		}
 	default:
 		// if callback query is old, remove inline buttons from that message
 		c.Bot().EditReplyMarkup(c.Callback().Message, &tele.ReplyMarkup{})
@@ -409,6 +418,58 @@ func handleFinalVerificationStage(conf *config.Config, c tele.Context, state fsm
 		// change kb
 		// buttons: check name, check owner, items
 		return c.EditOrReply(responses.GetEditCheckMessage(c.Message().Text))
+	}
+
+	return nil
+}
+
+func handleEditFinalizedCheck(conf *config.Config, c tele.Context, state fsm.Context) error {
+	// figure out an action: what do we change
+	whatToChange := static.CallbackActionEditCheck.GetData(c.Callback().Data)
+	// retrieve check and items from context
+	var check *static.Check
+	if err := state.Data(context.Background(), static.CHECK, &check); err != nil {
+		sendErr := c.Send("error: couldn't retrieve check info from context")
+		return fmt.Errorf(
+			"error in handleEditFinalizedCheck(): couldn't retrieve check info from context (%v).\nsent with error (%v)",
+			err,
+			sendErr,
+		)
+	}
+
+	var sendErr error
+	var action string
+
+	switch whatToChange {
+	case static.CallbackEditCheckName:
+		sendErr = c.EditOrSend(responses.GetAskForNewCheckNameResponse(check.Name))
+		action = static.CallbackEditCheckName
+
+	case static.CallbackEditCheckOwner:
+		sendErr = nil
+		action = static.CallbackEditCheckName
+
+	case static.CallbackEditCheckCreationDate:
+		sendErr = nil
+		action = static.CallbackEditCheckName
+
+	case static.CallbackEditCheckItems:
+		sendErr = nil
+		action = static.CallbackEditCheckName
+
+	case static.CallbackSelectorGoBack:
+		sendErr = nil
+		action = static.CallbackEditCheckName
+	}
+
+	if sendErr != nil {
+		sendErrorMsgErr := c.Send("error: couldn't retrieve check info from context")
+		return fmt.Errorf(
+			"error in handleEditFinalizedCheck(): in action '%s' couldn't send a message (%v).\nsent with error (%v)",
+			action,
+			sendErr,
+			sendErrorMsgErr,
+		)
 	}
 
 	return nil
