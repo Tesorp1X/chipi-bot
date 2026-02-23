@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 
+	storageHelpers "github.com/Tesorp1X/chipi-bot/application/StorageHelpers"
 	"github.com/Tesorp1X/chipi-bot/config"
 	"github.com/Tesorp1X/chipi-bot/static"
 	"github.com/Tesorp1X/chipi-bot/utils/responses"
@@ -39,43 +40,19 @@ func HandleAnyText(conf *config.Config, c tele.Context, state fsm.Context) error
 }
 
 func handleCheckName(conf *config.Config, c tele.Context, state fsm.Context) error {
-	//get checkData obj from context
-	var check *static.Check
-	if err := state.Data(context.Background(), static.CHECK, &check); err != nil {
-		sendErr := c.Send("error: couldn't retrieve data from context")
+	check, err := storageHelpers.SetNewCheckNameFromMessage(c, state)
+	if err != nil {
 		return fmt.Errorf(
-			"error in handleCheckName(): couldn't retrieve check from state-storage (%v). send with error: %v",
+			"error in handleCheckName(): couldn't set new check name (%v)",
 			err,
-			sendErr,
-		)
-	}
-	//save new check name in it and put new version in context
-	check.Name = c.Message().Text
-	if err := state.Update(context.Background(), static.CHECK, check); err != nil {
-		sendErr := c.Send("error: couldn't save data in context")
-		return fmt.Errorf(
-			"error in handleCheckName(): couldn't save check in state-storage (%v). send with error: %v",
-			err,
-			sendErr,
 		)
 	}
 
-	//get first item and start verification of items
-	var items []*static.Item
-	if err := state.Data(context.Background(), static.ITEMS_LIST, &items); err != nil {
-		sendErr := c.Send("error: couldn't retrieve data from context")
+	items, err := storageHelpers.GetItemsList(c, state)
+	if err != nil {
 		return fmt.Errorf(
-			"error in handleCheckName(): couldn't retrieve items from state-storage (%v). send with error: %v",
+			"error in handleCheckName(): couldn't retrieve items (%v)",
 			err,
-			sendErr,
-		)
-	}
-
-	if len(items) == 0 {
-		sendErr := c.Send("error: retrieved items-list iss empty")
-		return fmt.Errorf(
-			"error in handleCheckName(): retrieved items-list is empty. send with error: %v",
-			sendErr,
 		)
 	}
 
@@ -126,7 +103,7 @@ func handleCheckName(conf *config.Config, c tele.Context, state fsm.Context) err
 }
 
 func handleEditCheckName(conf *config.Config, c tele.Context, state fsm.Context) error {
-	check, err := storageHelpers.SetNewCheckName(c, state)
+	check, err := storageHelpers.SetNewCheckNameFromMessage(c, state)
 	if err != nil {
 		return fmt.Errorf(
 			"error in handleEditCheckName(): couldn't set new check name (%v)",

@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 
+	storageHelpers "github.com/Tesorp1X/chipi-bot/application/StorageHelpers"
 	"github.com/Tesorp1X/chipi-bot/config"
 	"github.com/Tesorp1X/chipi-bot/static"
 	"github.com/Tesorp1X/chipi-bot/utils/responses"
@@ -78,14 +79,13 @@ func handleKeepCheckNameCallback(conf *config.Config, c tele.Context, state fsm.
 	// show first item and increment currentIndex
 
 	//get first item and start verification of items
-	var items []*static.Item
-	if err := state.Data(context.Background(), static.ITEMS_LIST, &items); err != nil {
-		sendErr := c.Send("error: couldn't retrieve data from context")
+	items, err := storageHelpers.GetItemsList(c, state)
+	if err != nil {
 		return fmt.Errorf(
-			"error in handleCheckName(): couldn't retrieve items from state-storage (%v). send with error: %v",
+			"error in handleItemOwnerCallback(): couldn't retrieve items (%v)",
 			err,
-			sendErr,
 		)
+
 	}
 
 	if len(items) == 0 {
@@ -199,13 +199,11 @@ func handleItemOwnerCallback(conf *config.Config, c tele.Context, state fsm.Cont
 		c.Respond(&tele.CallbackResponse{})
 		// get items and currentIndex
 
-		var items []*static.Item
-		if err := state.Data(context.Background(), static.ITEMS_LIST, &items); err != nil {
-			sendErr := c.Send("error: couldn't retrieve items_list")
+		items, err := storageHelpers.GetItemsList(c, state)
+		if err != nil {
 			return fmt.Errorf(
-				"error in handleItemOwnerCallback(): couldn't retrieve items_list from context (%v). send with error: %v",
+				"error in handleItemOwnerCallback(): couldn't retrieve items (%v)",
 				err,
-				sendErr,
 			)
 		}
 
@@ -268,13 +266,11 @@ func handleItemOwnerCallback(conf *config.Config, c tele.Context, state fsm.Cont
 			// make a show check func idk
 			// send a message with all new info and calculated totals
 			// has inline buttons: all good (saves it all to db) and edit (lets edit name and items)
-			var check *static.Check
-			if err := state.Data(context.Background(), static.CHECK, &check); err != nil {
-				sendErr := c.Send("error: couldn't retrieve check info from context")
+			check, err := storageHelpers.GetCheck(c, state)
+			if err != nil {
 				return fmt.Errorf(
-					"error in handleItemOwnerCallback(): couldn't retrieve check info from context (%v).\nsent with error (%v)",
+					"error in handleItemOwnerCallback(): couldn't retrieve a check (%v)",
 					err,
-					sendErr,
 				)
 			}
 
@@ -335,7 +331,7 @@ func handleItemOwnerCallback(conf *config.Config, c tele.Context, state fsm.Cont
 		}
 
 		// get to the next item -> display that
-		err := c.Send(responses.GetItemVerificationResponse(items[currentIndex], currentIndex, len(items)))
+		err = c.Send(responses.GetItemVerificationResponse(items[currentIndex], currentIndex, len(items)))
 		if err != nil {
 			return fmt.Errorf(
 				"error in handleItemOwnerCallback(): couldn't send a message with a new item (%v).",
@@ -366,25 +362,23 @@ func handleFinalVerificationStage(conf *config.Config, c tele.Context, state fsm
 	switch action {
 	case static.CallbackSelectorKeep:
 		// retrieve check and items from context
-		var check *static.Check
-		if err := state.Data(context.Background(), static.CHECK, &check); err != nil {
-			sendErr := c.Send("error: couldn't retrieve check info from context")
+		check, err := storageHelpers.SetNewCheckNameFromMessage(c, state)
+		if err != nil {
 			return fmt.Errorf(
-				"error in handleFinalVerificationStage(): couldn't retrieve check info from context (%v).\nsent with error (%v)",
+				"error in handleFinalVerificationStage(): couldn't set new check name (%v)",
 				err,
-				sendErr,
 			)
 		}
 
-		var items []*static.Item
-		if err := state.Data(context.Background(), static.ITEMS_LIST, &items); err != nil {
-			sendErr := c.Send("error: couldn't retrieve items_list")
-			return fmt.Errorf(
-				"error in handleFinalVerificationStage(): couldn't retrieve items_list from context (%v). send with error: %v",
-				err,
-				sendErr,
-			)
-		}
+		// getting items
+		// items, err := storageHelpers.GetItemsList(c, state)
+		// if err != nil {
+		// 	return fmt.Errorf(
+		// 		"error in handleFinalVerificationStage(): couldn't retrieve items (%v)",
+		// 		err,
+		// 	)
+		// }
+
 		// get session id
 		// assign session id to a check and save it to a db
 		// assign check id to every item and save it to a db
@@ -427,13 +421,11 @@ func handleEditFinalizedCheck(conf *config.Config, c tele.Context, state fsm.Con
 	// figure out an action: what do we change
 	whatToChange := static.CallbackActionEditCheck.GetData(c.Callback().Data)
 	// retrieve check and items from context
-	var check *static.Check
-	if err := state.Data(context.Background(), static.CHECK, &check); err != nil {
-		sendErr := c.Send("error: couldn't retrieve check info from context")
+	check, err := storageHelpers.GetCheck(c, state)
+	if err != nil {
 		return fmt.Errorf(
-			"error in handleEditFinalizedCheck(): couldn't retrieve check info from context (%v).\nsent with error (%v)",
+			"error in handleEditFinalizedCheck(): couldn't retrieve a check (%v)",
 			err,
-			sendErr,
 		)
 	}
 
