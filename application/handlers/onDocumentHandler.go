@@ -30,7 +30,7 @@ func OnDocumentActionHandler(conf *config.Config, c tele.Context, state fsm.Cont
 	}
 
 	// todo: log an error, but don't interrupt
-	c.Send("Анализиру...🤔🔬🔍")
+	c.Send("Анализирую...🤔🔬🔍")
 
 	checkData, err := reader.ExtractCheckData(targetFilePath)
 	if err != nil {
