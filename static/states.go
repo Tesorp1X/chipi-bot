@@ -10,9 +10,10 @@ const (
 
 	StateStart fsm.State = "start"
 
-	StateWaitForCheckName    fsm.State = "wait_for_check_name"
-	StateWaitForNewCheckName fsm.State = "wait_for_new_check_name"
-	StateWaitForCheckOwner   fsm.State = "wait_for_check_owner"
+	StateWaitForCheckName         fsm.State = "wait_for_check_name"
+	StateWaitForNewCheckName      fsm.State = "wait_for_new_check_name"
+	StateWaitForCheckOwner        fsm.State = "wait_for_check_owner"
+	StateWaitForCheckCreationDate fsm.State = "wait_for_creation_date"
 
 	StateWaitingForCheckConfirmation fsm.State = "waiting_for_check_confirmation"
 
