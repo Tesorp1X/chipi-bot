@@ -207,13 +207,11 @@ func handleItemOwnerCallback(conf *config.Config, c tele.Context, state fsm.Cont
 			)
 		}
 
-		var currentIndex int
-		if err := state.Data(context.Background(), static.CURRENT_INDEX_ITEMS, &currentIndex); err != nil {
-			sendErr := c.Send("error: couldn't retrieve current items's index")
+		currentIndex, err := storageHelpers.GetCurrentIndex(c, state)
+		if err != nil {
 			return fmt.Errorf(
-				"error in handleItemOwnerCallback(): couldn't retrieve currentIndex from context (%v). send with error: %v",
+				"error in handleCheckName(): couldn't retrieve current index from context (%v)",
 				err,
-				sendErr,
 			)
 		}
 
