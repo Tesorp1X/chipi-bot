@@ -437,21 +437,22 @@ func handleEditFinalizedCheck(conf *config.Config, c tele.Context, state fsm.Con
 		)
 	}
 
-	var sendErr error
+	var sendErr, stateErr error
 	var action string
 
 	switch whatToChange {
 	case static.CallbackEditCheckName:
 		sendErr = c.EditOrSend(responses.GetAskForNewCheckNameResponse(check.Name))
+		stateErr = state.SetState(context.Background(), static.StateWaitForNewCheckName)
 		action = static.CallbackEditCheckName
 
 	case static.CallbackEditCheckOwner:
 		sendErr = nil
-		action = static.CallbackEditCheckName
+		action = static.CallbackEditCheckOwner
 
 	case static.CallbackEditCheckCreationDate:
 		sendErr = nil
-		action = static.CallbackEditCheckName
+		action = static.CallbackEditCheckCreationDate
 
 	case static.CallbackEditCheckItems:
 		sendErr = nil
@@ -468,6 +469,16 @@ func handleEditFinalizedCheck(conf *config.Config, c tele.Context, state fsm.Con
 			"error in handleEditFinalizedCheck(): in action '%s' couldn't send a message (%v).\nsent with error (%v)",
 			action,
 			sendErr,
+			sendErrorMsgErr,
+		)
+	}
+
+	if stateErr != nil {
+		sendErrorMsgErr := c.Send("error: couldn't change a state")
+		return fmt.Errorf(
+			"error in handleEditFinalizedCheck(): in action '%s' couldn't set a state (%v).\nsent with error (%v)",
+			action,
+			stateErr,
 			sendErrorMsgErr,
 		)
 	}
