@@ -49,3 +49,19 @@ func GetCheck(c tele.Context, state fsm.Context) (*static.Check, error) {
 
 	return check, nil
 }
+
+// Retrieves CURRENT_INDEX_ITEMS from a given context.
+// If error occurs, a -1 is returned alongside an error itself.
+func GetCurrentIndex(c tele.Context, state fsm.Context) (int, error) {
+	var currentIndex int
+	if err := state.Data(context.Background(), static.CURRENT_INDEX_ITEMS, &currentIndex); err != nil {
+		sendErr := c.Send("error: couldn't retrieve current items's index")
+		return -1, fmt.Errorf(
+			"error in GetCurrentIndex(): couldn't retrieve currentIndex from context (%v). send with error: %v",
+			err,
+			sendErr,
+		)
+	}
+
+	return currentIndex, nil
+}
