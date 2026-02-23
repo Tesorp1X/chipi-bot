@@ -268,3 +268,12 @@ func GetAskForNewCheckNameResponse(currentCheckName string) (string, *tele.Reply
 
 	return text, kb
 }
+
+func GetNewCheckNameIsSavedResponse(checkName string) (string, *tele.ReplyMarkup) {
+	text := fmt.Sprintf(
+		"<b>Название чека изменено на <i>%s</i>!</b>",
+		checkName,
+	)
+
+	return text, nil
+}
