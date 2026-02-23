@@ -18,9 +18,8 @@ func SetNewCheckNameFromMessage(c tele.Context, state fsm.Context) (*static.Chec
 	if err != nil {
 
 		return nil, fmt.Errorf(
-			"error in setNewCheckName(): couldn't retrieve check from state-storage (%v). send with error: %v",
+			"error in SetNewCheckName(): couldn't retrieve check from context (%v).",
 			err,
-			sendErr,
 		)
 	}
 	// // todo: verify the message
@@ -33,7 +32,7 @@ func SetNewCheckNameFromMessage(c tele.Context, state fsm.Context) (*static.Chec
 	if err := state.Update(context.Background(), static.CHECK, check); err != nil {
 		sendErr := c.Send("error: couldn't save data in context")
 		return nil, fmt.Errorf(
-			"error in setNewCheckName(): couldn't save check in state-storage (%v). send with error: %v",
+			"error in SetNewCheckName(): couldn't save check in state-storage (%v). sent with error: %v",
 			err,
 			sendErr,
 		)

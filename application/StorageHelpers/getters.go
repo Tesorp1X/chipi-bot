@@ -10,14 +10,14 @@ import (
 	tele "gopkg.in/telebot.v4"
 )
 
-// Retrieves ITEMS_LIST from given context.
+// Retrieves ITEMS_LIST from a given context.
 // If error occurs, an empty slice is returned alongside an error itself.
 func GetItemsList(c tele.Context, state fsm.Context) ([]*static.Item, error) {
 	var items []*static.Item
 	if err := state.Data(context.Background(), static.ITEMS_LIST, &items); err != nil {
 		sendErr := c.Send("error: couldn't retrieve data from context")
 		return nil, fmt.Errorf(
-			"error in handleCheckName(): couldn't retrieve items from state-storage (%v). send with error: %v",
+			"error in handleCheckName(): couldn't retrieve items from state-storage (%v). sent with error: %v",
 			err,
 			sendErr,
 		)
@@ -26,7 +26,7 @@ func GetItemsList(c tele.Context, state fsm.Context) ([]*static.Item, error) {
 	if len(items) == 0 {
 		sendErr := c.Send("error: retrieved items-list iss empty")
 		return nil, fmt.Errorf(
-			"error in handleCheckName(): retrieved items-list is empty. send with error: %v",
+			"error in handleCheckName(): retrieved items-list is empty. sent with error: %v",
 			sendErr,
 		)
 	}
