@@ -18,6 +18,9 @@ func OnDocumentActionHandler(conf *config.Config, c tele.Context, state fsm.Cont
 		return c.Send("error: no file")
 	}
 
+	// todo: log an error, but don't interrupt
+	c.Send("Скачиваю...📡💾")
+
 	targetFilePath, err := downloadFile(c, conf.DownloadPath, d.FileID, d.FileName)
 	if err != nil {
 		return fmt.Errorf(
@@ -25,6 +28,9 @@ func OnDocumentActionHandler(conf *config.Config, c tele.Context, state fsm.Cont
 			err,
 		)
 	}
+
+	// todo: log an error, but don't interrupt
+	c.Send("Анализиру...🤔🔬🔍")
 
 	checkData, err := reader.ExtractCheckData(targetFilePath)
 	if err != nil {
