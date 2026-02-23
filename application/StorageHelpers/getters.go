@@ -33,3 +33,19 @@ func GetItemsList(c tele.Context, state fsm.Context) ([]*static.Item, error) {
 
 	return items, nil
 }
+
+// Retrieves a CHECK object from a given context.
+// If error occurs, a nil is returned alongside an error itself.
+func GetCheck(c tele.Context, state fsm.Context) (*static.Check, error) {
+	var check *static.Check
+	if err := state.Data(context.Background(), static.CHECK, &check); err != nil {
+		sendErr := c.Send("error: couldn't retrieve check data from context")
+		return nil, fmt.Errorf(
+			"error in GetCheck(): couldn't retrieve check from state-storage (%v). sent with error: %v",
+			err,
+			sendErr,
+		)
+	}
+
+	return check, nil
+}
