@@ -215,16 +215,6 @@ func handleItemOwnerCallback(conf *config.Config, c tele.Context, state fsm.Cont
 			)
 		}
 
-		if len(items) == 0 {
-			sendErr := c.Send("error: items list is empty")
-			stateErr := state.SetState(context.Background(), static.StateDefault)
-			return fmt.Errorf(
-				"error in handleItemOwnerCallback(): slice of items is empty. send with error: %v, state transition err: %v",
-				sendErr,
-				stateErr,
-			)
-		}
-
 		// check if currentIndex is ok
 		if currentIndex < 0 || currentIndex >= len(items) {
 			// todo: ehh what to do?..
