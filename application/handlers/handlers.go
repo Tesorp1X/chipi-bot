@@ -7,6 +7,7 @@ import (
 	"github.com/Tesorp1X/chipi-bot/config"
 	"github.com/Tesorp1X/chipi-bot/static"
 	"github.com/Tesorp1X/chipi-bot/utils/responses"
+
 	"github.com/vitaliy-ukiru/fsm-telebot/v2"
 	tele "gopkg.in/telebot.v4"
 )
@@ -28,6 +29,10 @@ func HandleAnyText(conf *config.Config, c tele.Context, state fsm.Context) error
 	case static.StateWaitForCheckName:
 		if err := handleCheckName(conf, c, state); err != nil {
 			return fmt.Errorf("error in HandleAnyText(), state 'StateWaitForCheckName': %v", err)
+		}
+	case static.StateWaitForNewCheckName:
+		if err := handleEditCheckName(conf, c, state); err != nil {
+			return fmt.Errorf("error in HandleAnyText(), state 'StateWaitForNewCheckName': %v", err)
 		}
 	}
 	return nil
@@ -114,6 +119,43 @@ func handleCheckName(conf *config.Config, c tele.Context, state fsm.Context) err
 		return fmt.Errorf(
 			"error in handleCheckName(): couldn't send a 'item verification'-message (%v)",
 			sendErr,
+		)
+	}
+
+	return nil
+}
+
+func handleEditCheckName(conf *config.Config, c tele.Context, state fsm.Context) error {
+	check, err := storageHelpers.SetNewCheckName(c, state)
+	if err != nil {
+		return fmt.Errorf(
+			"error in handleEditCheckName(): couldn't set new check name (%v)",
+			err,
+		)
+	}
+
+	if err := c.Send(responses.GetNewCheckNameIsSavedResponse(check.Name)); err != nil {
+		return fmt.Errorf(
+			"error in handleEditCheckName(): couldn't send a message (%v)",
+			err,
+		)
+	}
+
+	if err := state.SetState(context.Background(), static.StateEditingCheck); err != nil {
+		sendErr := c.Send("error: couldn't change state")
+		return fmt.Errorf(
+			"error in handleEditCheckName(): couldn't change a state to StateEditingCheck (%v)\n sent with error (%v)",
+			err,
+			sendErr,
+		)
+	}
+
+	//responseText, kb := responses.GetVerificationFinalStepResponse(check, )
+
+	if err := c.Send(responses.GetEditCheckMessage("")); err != nil {
+		return fmt.Errorf(
+			"error in handleEditCheckName(): couldn't send a message (%v)",
+			err,
 		)
 	}
 
