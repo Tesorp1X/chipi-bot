@@ -81,7 +81,6 @@ func handleCheckName(conf *config.Config, c tele.Context, state fsm.Context) err
 		currentIndex, len(items),
 	)
 
-	currentIndex++ // now points at the next item
 	if err := state.Update(context.Background(), static.CURRENT_INDEX_ITEMS, currentIndex); err != nil {
 		sendErr := c.Send("error: couldn't save data in context")
 		return fmt.Errorf(
