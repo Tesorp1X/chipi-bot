@@ -39,3 +39,44 @@ func SetNewCheckNameFromMessage(c tele.Context, state fsm.Context) (*static.Chec
 	}
 	return check, nil
 }
+
+// Retrieves new check owner from a callback-data and updates a Check.Owner object
+// stored in a context-storage. Returns a pointer to a Check object with a nil,
+// if no errors occurred. If an error occurs, while working with a context-storage,
+// a nil is returned, alongside an error.
+func SetNewCheckOwnerFromCallback(c tele.Context, state fsm.Context) (*static.Check, error) {
+	owner := static.CallbackActionEditCheck.GetData(c.Callback().Data)
+
+	switch owner {
+	case static.CallbackOwnerLiz, static.CallbackOwnerPau, static.CallbackOwnerBoth:
+		c.Respond(&tele.CallbackResponse{})
+		check, err := GetCheck(c, state)
+		if err != nil {
+			return nil, fmt.Errorf(
+				"error in SetNewCheckOwnerFromCallback(): couldn't retrieve a check (%v)",
+				err,
+			)
+		}
+
+		check.Owner = owner
+
+		if err := state.Update(context.Background(), static.CHECK, check); err != nil {
+			sendErr := c.Send("error: couldn't save data in context")
+			return nil, fmt.Errorf(
+				"error in SetNewCheckOwnerFromCallback(): couldn't save check in state-storage (%v). sent with error: %v",
+				err,
+				sendErr,
+			)
+		}
+
+		return check, nil
+
+	default:
+		sendErr := c.Respond(&tele.CallbackResponse{Text: "error: invalid response: " + owner})
+		return nil, fmt.Errorf(
+			"error in SetNewCheckOwnerFromCallback(): invalid response (%s). sent with error: %v",
+			owner,
+			sendErr,
+		)
+	}
+}
