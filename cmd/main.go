@@ -13,6 +13,7 @@ import (
 var debug = flag.Bool("debug", false, "log debug info")
 
 func main() {
+	flag.Parse()
 	cfg, err := config.InitConfig(*debug)
 	if err != nil {
 		panic(err)
