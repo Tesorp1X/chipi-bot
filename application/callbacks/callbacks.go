@@ -85,15 +85,6 @@ func handleKeepCheckNameCallback(conf *config.Config, c tele.Context, state fsm.
 			"error in handleItemOwnerCallback(): couldn't retrieve items (%v)",
 			err,
 		)
-
-	}
-
-	if len(items) == 0 {
-		sendErr := c.Send("error: retrieved items-list iss empty")
-		return fmt.Errorf(
-			"error in handleCheckName(): retrieved items-list is empty. send with error: %v",
-			sendErr,
-		)
 	}
 
 	// First message
