@@ -126,9 +126,17 @@ func handleEditCheckName(conf *config.Config, c tele.Context, state fsm.Context)
 		)
 	}
 
-	//responseText, kb := responses.GetVerificationFinalStepResponse(check, )
+	items, err := storageHelpers.GetItemsList(c, state)
+	if err != nil {
+		return fmt.Errorf(
+			"error in handleEditCheckName(): couldn't retrieve an items list (%v)",
+			err,
+		)
+	}
 
-	if err := c.Send(responses.GetEditCheckMessage("")); err != nil {
+	responseText, _ := responses.GetVerificationFinalStepResponse(check, items)
+
+	if err := c.Send(responses.GetEditCheckMessage(responseText)); err != nil {
 		return fmt.Errorf(
 			"error in handleEditCheckName(): couldn't send a message (%v)",
 			err,
