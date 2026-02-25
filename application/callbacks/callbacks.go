@@ -368,8 +368,8 @@ func handleFinalVerificationStage(conf *config.Config, c tele.Context, state fsm
 
 	switch action {
 	case static.CallbackSelectorKeep:
-		// retrieve check and items from context
-		check, err := storageHelpers.SetNewCheckNameFromMessage(c, state)
+		// retrieve check from context
+		check, err := storageHelpers.GetCheck(c, state)
 		if err != nil {
 			return fmt.Errorf(
 				"error in handleFinalVerificationStage(): couldn't set new check name (%v)",
@@ -377,7 +377,7 @@ func handleFinalVerificationStage(conf *config.Config, c tele.Context, state fsm
 			)
 		}
 
-		// getting items
+		// retrieve items from context
 		// items, err := storageHelpers.GetItemsList(c, state)
 		// if err != nil {
 		// 	return fmt.Errorf(
