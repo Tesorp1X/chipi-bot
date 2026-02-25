@@ -62,7 +62,16 @@ func HandleAnyCallback(conf *config.Config, c tele.Context, state fsm.Context) e
 		static.CallbackActionEditCheck.DataMatches(callbackData):
 		if err := handleEditFinalizedCheck(conf, c, state); err != nil {
 			return fmt.Errorf(
-				"error in HandleAnyCallback(), state 'StateEditingCheck', action 'CallbackActionSelector': %v",
+				"error in HandleAnyCallback(), state 'StateEditingCheck', action 'CallbackActionEditCheck': %v",
+				err,
+			)
+		}
+
+	case currentState == static.StateWaitForCheckOwner &&
+		static.CallbackActionEditCheck.DataMatches(callbackData):
+		if err := handleCheckOwnerCallback(conf, c, state); err != nil {
+			return fmt.Errorf(
+				"error in HandleAnyCallback(), state 'StateWaitForCheckOwner', action 'CallbackActionEditCheck': %v",
 				err,
 			)
 		}
