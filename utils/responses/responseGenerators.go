@@ -277,3 +277,28 @@ func GetNewCheckNameIsSavedResponse(checkName string) (string, *tele.ReplyMarkup
 
 	return text, nil
 }
+
+func GetAskForCheckOwnershipQuestion() (string, *tele.ReplyMarkup) {
+	text := "<b>С чьей карты был оплачен чек?💳💵</b>"
+
+	kb := createSelectorInlineKb(
+		2,
+		Button{
+			BtnTxt: "Liz💜",
+			Unique: static.CallbackActionEditCheck.String(),
+			Data:   static.CallbackOwnerLiz,
+		},
+		Button{
+			BtnTxt: "Pau💙",
+			Unique: static.CallbackActionEditCheck.String(),
+			Data:   static.CallbackOwnerPau,
+		},
+		Button{
+			BtnTxt: "Both💜💙",
+			Unique: static.CallbackActionEditCheck.String(),
+			Data:   static.CallbackOwnerBoth,
+		},
+	)
+
+	return text, kb
+}
