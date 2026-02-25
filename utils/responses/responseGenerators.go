@@ -2,6 +2,7 @@ package responses
 
 import (
 	"fmt"
+	"strings"
 	"time"
 
 	"github.com/Tesorp1X/chipi-bot/static"
@@ -114,7 +115,7 @@ func GetEditItemInVerificationResponse(msgText string) (string, *tele.ReplyMarku
 }
 
 func GetItemOwnershipQuestion() (string, *tele.ReplyMarkup) {
-	text := "Отлично! А чей это товар?👀"
+	text := "<b>Отлично! А чей это товар?👀</b>"
 	kb := createSelectorInlineKb(
 		2,
 		Button{
@@ -141,7 +142,7 @@ func GetVerificationFinalStepResponse(check *static.Check, items []*static.Item)
 	text := "<b>Почти всё! Проверь чек и можно сохранять.</b>\n\n"
 
 	text += fmt.Sprintf("<b>Название:</b> %s; <b>Дата:</b> %s\n", check.Name, check.Date.Format(time.DateTime))
-	text += fmt.Sprintf("<b>Товары: %s</b>\n", sPrintItemsBasedOnOwnership(items))
+	text += fmt.Sprintf("<b>Товары:\n</b>%s\n", sPrintItemsBasedOnOwnership(items))
 
 	text += fmt.Sprintf("<b><i><u>Итого с Пау:</u> %.2f</i></b>\n", check.TotalPau)
 	text += fmt.Sprintf("<b><i><u>Итого с Лиз:</u> %.2f</i></b>\n", check.TotalLiz)
@@ -185,9 +186,12 @@ func sPrintItemsBasedOnOwnership(items []*static.Item) string {
 		)
 	}
 
-	pau := "Товары Пау:\n"
-	liz := "Товары Лиз:\n"
-	both := "Общие товары:\n"
+	var pau strings.Builder
+	pau.WriteString("<b><i><u>Товары Пау:</u></i></b>\n")
+	var liz strings.Builder
+	liz.WriteString("<b><i><u>Товары Лиз:</u></i></b>\n")
+	var both strings.Builder
+	both.WriteString("<b><i><u>Общие товары:</u></i></b>\n")
 
 	var lizIdx, pauIdx, bothIdx int
 
@@ -195,17 +199,27 @@ func sPrintItemsBasedOnOwnership(items []*static.Item) string {
 		switch item.Owner {
 		case static.CallbackOwnerLiz:
 			lizIdx++
-			liz += itemToStr(lizIdx, item)
+			liz.WriteString(itemToStr(lizIdx, item))
 		case static.CallbackOwnerPau:
 			pauIdx++
-			pau += itemToStr(pauIdx, item)
+			pau.WriteString(itemToStr(pauIdx, item))
 		case static.CallbackOwnerBoth:
 			bothIdx++
-			both += itemToStr(bothIdx, item)
+			both.WriteString(itemToStr(bothIdx, item))
 		}
 	}
 
-	text := pau + "\n" + liz + "\n" + both + "\n"
+	addNoItemsMsgIfEmpty := func(idx int, sb *strings.Builder) {
+		if idx == 0 {
+			sb.WriteString("<i>Товаров нет</i>\n")
+		}
+	}
+
+	addNoItemsMsgIfEmpty(lizIdx, &liz)
+	addNoItemsMsgIfEmpty(pauIdx, &pau)
+	addNoItemsMsgIfEmpty(bothIdx, &both)
+
+	text := pau.String() + "\n" + liz.String() + "\n" + both.String() + "\n"
 
 	return text
 }
