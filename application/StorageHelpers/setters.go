@@ -5,6 +5,7 @@ import (
 	"fmt"
 
 	"github.com/Tesorp1X/chipi-bot/static"
+
 	"github.com/vitaliy-ukiru/fsm-telebot/v2"
 	tele "gopkg.in/telebot.v4"
 )
@@ -79,4 +80,18 @@ func SetNewCheckOwnerFromCallback(c tele.Context, state fsm.Context) (*static.Ch
 			sendErr,
 		)
 	}
+}
+
+func SetState(newState fsm.State, c tele.Context, state fsm.Context) error {
+	if err := state.SetState(context.Background(), newState); err != nil {
+		sendErr := c.Send("error: couldn't change a state")
+		return fmt.Errorf(
+			"error in SetState(): couldn't change a state to %s (%v). sent with error: %v",
+			newState,
+			err,
+			sendErr,
+		)
+	}
+
+	return nil
 }
