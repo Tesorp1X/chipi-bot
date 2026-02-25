@@ -329,7 +329,7 @@ func handleItemOwnerCallback(conf *config.Config, c tele.Context, state fsm.Cont
 		}
 
 	default:
-		return c.Respond(&tele.CallbackResponse{Text: "error todo"})
+		return c.Respond(&tele.CallbackResponse{Text: "error: invalid response: " + itemOwner})
 	}
 
 	return nil
