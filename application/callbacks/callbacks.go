@@ -8,6 +8,7 @@ import (
 	"github.com/Tesorp1X/chipi-bot/config"
 	"github.com/Tesorp1X/chipi-bot/static"
 	"github.com/Tesorp1X/chipi-bot/utils/responses"
+
 	"github.com/vitaliy-ukiru/fsm-telebot/v2"
 	tele "gopkg.in/telebot.v4"
 )
@@ -75,35 +76,56 @@ func HandleAnyCallback(conf *config.Config, c tele.Context, state fsm.Context) e
 
 func handleKeepCheckNameCallback(conf *config.Config, c tele.Context, state fsm.Context) error {
 	c.Respond(&tele.CallbackResponse{})
-	// send ok-message
-	// show first item and increment currentIndex
-
-	//get first item and start verification of items
-	items, err := storageHelpers.GetItemsList(c, state)
-	if err != nil {
-		return fmt.Errorf(
-			"error in handleItemOwnerCallback(): couldn't retrieve items (%v)",
-			err,
-		)
-	}
-
-	// First message
 	// Replying ok!
-	if sendErr := c.Send("Хорошо. Название не меняем👌"); sendErr != nil {
+	if sendErr := c.EditOrSend("Хорошо. Название не меняем👌"); sendErr != nil {
 		return fmt.Errorf(
 			"error in handleCheckName(): couldn't send an 'ok'-message (%v)",
 			sendErr,
 		)
 	}
 
+	if err := storageHelpers.SetState(static.StateWaitForCheckOwner, c, state); err != nil {
+		return fmt.Errorf(
+			"error in handleCheckName(): couldn't change a state (%v)",
+			err,
+		)
+	}
+	// prompt check ownership
+	if sendErr := c.Send(responses.GetAskForCheckOwnershipQuestion()); sendErr != nil {
+		return fmt.Errorf(
+			"error in handleCheckName(): couldn't send a 'check-ownership'-message (%v)",
+			sendErr,
+		)
+	}
+
+	return nil
+}
+
+func handleCheckOwnerCallback(conf *config.Config, c tele.Context, state fsm.Context) error {
+	// try to set a new owner
+	_, err := storageHelpers.SetNewCheckOwnerFromCallback(c, state)
+	if err != nil {
+		return fmt.Errorf(
+			"error in handleKeepCheckOwnerCallback(): couldn't set a check owner (%v)",
+			err,
+		)
+	}
+
+	// prompt item-verification process
+	items, err := storageHelpers.GetItemsList(c, state)
+	if err != nil {
+		return fmt.Errorf(
+			"error in handleKeepCheckOwnerCallback(): couldn't retrieve items (%v)",
+			err,
+		)
+	}
+
 	var currentIndex int
 
-	if err := state.SetState(context.Background(), static.StateShowingAnItem); err != nil {
-		sendErr := c.Send("error: couldn't change state")
+	if err := storageHelpers.SetState(static.StateShowingAnItem, c, state); err != nil {
 		return fmt.Errorf(
-			"error in handleCheckName(): couldn't change a state to StateShowingAnItems (%v). send with error: %v",
+			"error in handleKeepCheckOwnerCallback(): couldn't change a state (%v)",
 			err,
-			sendErr,
 		)
 	}
 
@@ -112,19 +134,17 @@ func handleKeepCheckNameCallback(conf *config.Config, c tele.Context, state fsm.
 		currentIndex, len(items),
 	)
 
-	if err := state.Update(context.Background(), static.CURRENT_INDEX_ITEMS, currentIndex); err != nil {
-		sendErr := c.Send("error: couldn't save data in context")
+	if err := storageHelpers.UpdateCurrentItemsIndex(currentIndex, c, state); err != nil {
+
 		return fmt.Errorf(
-			"error in handleCheckName(): couldn't save current index in state-storage (%v). send with error: %v",
+			"error in handleKeepCheckOwnerCallback(): couldn't save current index in state-storage (%v)",
 			err,
-			sendErr,
 		)
 	}
 
-	// Second message
-	if sendErr := c.Send(responseTxt, kb); sendErr != nil {
+	if sendErr := c.EditOrSend(responseTxt, kb); sendErr != nil {
 		return fmt.Errorf(
-			"error in handleCheckName(): couldn't send a 'item verification'-message (%v)",
+			"error in handleKeepCheckOwnerCallback(): couldn't send a 'item verification'-message (%v)",
 			sendErr,
 		)
 	}
@@ -146,15 +166,14 @@ func handleShowingAnItemCallback(conf *config.Config, c tele.Context, state fsm.
 				sendErr,
 			)
 		}
-		// state to waitingForMenuAction maybe
-		if err := state.SetState(context.Background(), static.StateEditingAnItem); err != nil {
-			sendErr := c.Send("error: couldn't change state")
+
+		if err := storageHelpers.SetState(static.StateEditingAnItem, c, state); err != nil {
 			return fmt.Errorf(
-				"error in handleShowingAnItemCallback(): couldn't change a state to StateEditingAnItem (%v). send with error: %v",
+				"error in handleShowingAnItemCallback(): couldn't change a state (%v).",
 				err,
-				sendErr,
 			)
 		}
+
 	case static.CallbackSelectorKeep:
 		c.Respond(&tele.CallbackResponse{})
 		// ask who's the owner of an item

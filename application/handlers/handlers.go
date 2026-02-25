@@ -40,7 +40,7 @@ func HandleAnyText(conf *config.Config, c tele.Context, state fsm.Context) error
 }
 
 func handleCheckName(conf *config.Config, c tele.Context, state fsm.Context) error {
-	check, err := storageHelpers.SetNewCheckNameFromMessage(c, state)
+	_, err := storageHelpers.SetNewCheckNameFromMessage(c, state)
 	if err != nil {
 		return fmt.Errorf(
 			"error in handleCheckName(): couldn't set new check name (%v)",
@@ -48,52 +48,16 @@ func handleCheckName(conf *config.Config, c tele.Context, state fsm.Context) err
 		)
 	}
 
-	items, err := storageHelpers.GetItemsList(c, state)
-	if err != nil {
+	if err := storageHelpers.SetState(static.StateWaitForCheckOwner, c, state); err != nil {
 		return fmt.Errorf(
-			"error in handleCheckName(): couldn't retrieve items (%v)",
+			"error in handleCheckName(): couldn't change a state (%v)",
 			err,
 		)
 	}
-
-	// First message
-	// Replying ok!
-	if sendErr := c.Send("Отлично, название изменено на <b>" + check.Name + "</b>!"); sendErr != nil {
+	// prompt check ownership
+	if sendErr := c.Send(responses.GetAskForCheckOwnershipQuestion()); sendErr != nil {
 		return fmt.Errorf(
-			"error in handleCheckName(): couldn't send an 'ok'-message (%v)",
-			sendErr,
-		)
-	}
-
-	var currentIndex int
-
-	if err := state.SetState(context.Background(), static.StateShowingAnItem); err != nil {
-		sendErr := c.Send("error: couldn't change state")
-		return fmt.Errorf(
-			"error in handleCheckName(): couldn't change a state to StateShowingAnItems (%v). send with error: %v",
-			err,
-			sendErr,
-		)
-	}
-
-	responseTxt, kb := responses.GetItemVerificationResponse(
-		items[currentIndex],
-		currentIndex, len(items),
-	)
-
-	if err := state.Update(context.Background(), static.CURRENT_INDEX_ITEMS, currentIndex); err != nil {
-		sendErr := c.Send("error: couldn't save data in context")
-		return fmt.Errorf(
-			"error in handleCheckName(): couldn't save current index in state-storage (%v). send with error: %v",
-			err,
-			sendErr,
-		)
-	}
-
-	// Second message
-	if sendErr := c.Send(responseTxt, kb); sendErr != nil {
-		return fmt.Errorf(
-			"error in handleCheckName(): couldn't send a 'item verification'-message (%v)",
+			"error in handleCheckName(): couldn't send a 'check-ownership'-message (%v)",
 			sendErr,
 		)
 	}
