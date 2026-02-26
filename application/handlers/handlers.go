@@ -81,12 +81,10 @@ func handleEditCheckName(conf *config.Config, c tele.Context, state fsm.Context)
 		)
 	}
 
-	if err := state.SetState(context.Background(), static.StateEditingCheck); err != nil {
-		sendErr := c.Send("error: couldn't change state")
+	if err := storageHelpers.SetState(static.StateEditingCheck, c, state); err != nil {
 		return fmt.Errorf(
-			"error in handleEditCheckName(): couldn't change a state to StateEditingCheck (%v)\n sent with error (%v)",
+			"error in handleEditCheckName(): couldn't change a state (%v)",
 			err,
-			sendErr,
 		)
 	}
 

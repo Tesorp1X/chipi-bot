@@ -88,21 +88,21 @@ func handleKeepCheckNameCallback(conf *config.Config, c tele.Context, state fsm.
 	// Replying ok!
 	if sendErr := c.EditOrSend("Хорошо. Название не меняем👌"); sendErr != nil {
 		return fmt.Errorf(
-			"error in handleCheckName(): couldn't send an 'ok'-message (%v)",
+			"error in handleKeepCheckNameCallback(): couldn't send an 'ok'-message (%v)",
 			sendErr,
 		)
 	}
 
 	if err := storageHelpers.SetState(static.StateWaitForCheckOwner, c, state); err != nil {
 		return fmt.Errorf(
-			"error in handleCheckName(): couldn't change a state (%v)",
+			"error in handleKeepCheckNameCallback(): couldn't change a state (%v)",
 			err,
 		)
 	}
 	// prompt check ownership
 	if sendErr := c.Send(responses.GetAskForCheckOwnershipQuestion()); sendErr != nil {
 		return fmt.Errorf(
-			"error in handleCheckName(): couldn't send a 'check-ownership'-message (%v)",
+			"error in handleKeepCheckNameCallback(): couldn't send a 'check-ownership'-message (%v)",
 			sendErr,
 		)
 	}
@@ -195,12 +195,10 @@ func handleShowingAnItemCallback(conf *config.Config, c tele.Context, state fsm.
 			)
 		}
 
-		if err := state.SetState(context.Background(), static.StateWaitForItemOwner); err != nil {
-			sendErr := c.Send("error: couldn't change state")
+		if err := storageHelpers.SetState(static.StateWaitForItemOwner, c, state); err != nil {
 			return fmt.Errorf(
-				"error in handleShowingAnItemCallback(): couldn't change a state to StateWaitForItemOwner (%v). send with error: %v",
+				"error in handleShowingAnItemCallback(): couldn't change a state (%v)",
 				err,
-				sendErr,
 			)
 		}
 
@@ -250,7 +248,7 @@ func handleItemOwnerCallback(conf *config.Config, c tele.Context, state fsm.Cont
 			// setting up verification process from ground up
 			sendErrMsgErr := c.Send("error: items list index is out of bounds. let's start over")
 			sendMsgErr := c.Send(responses.GetItemVerificationResponse(items[currentIndex], currentIndex, len(items)))
-			stateTransitionErr := state.SetState(context.Background(), static.StateShowingAnItem)
+			stateTransitionErr := storageHelpers.SetState(static.StateShowingAnItem, c, state)
 			if sendErrMsgErr != nil || sendMsgErr != nil {
 				return fmt.Errorf(
 					"error in handleItemOwnerCallback(): problem with currentIndex being out of bounds.\nerrorMsg sent with error (%v)\nnew verification message sent with error (%v)\nstate transitioned with an error (%v)",
@@ -304,12 +302,10 @@ func handleItemOwnerCallback(conf *config.Config, c tele.Context, state fsm.Cont
 				)
 			}
 
-			if err := state.SetState(context.Background(), static.StateWaitingForCheckConfirmation); err != nil {
-				sendErr := c.Send("error: couldn't change the state")
+			if err := storageHelpers.SetState(static.StateWaitingForCheckConfirmation, c, state); err != nil {
 				return fmt.Errorf(
-					"error in handleItemOwnerCallback(): couldn't change the state to StateWaitingForCheckConfirmation (%v).\nsent with error (%v)",
+					"error in handleItemOwnerCallback(): couldn't change a state (%v)",
 					err,
-					sendErr,
 				)
 			}
 
@@ -343,12 +339,10 @@ func handleItemOwnerCallback(conf *config.Config, c tele.Context, state fsm.Cont
 		}
 
 		// set state to StateShowingAnItem
-		if err := state.SetState(context.Background(), static.StateShowingAnItem); err != nil {
-			sendErr := c.Send("error: couldn't set state to StateShowingAnItem")
+		if err := storageHelpers.SetState(static.StateShowingAnItem, c, state); err != nil {
 			return fmt.Errorf(
-				"error in handleItemOwnerCallback(): couldn't set state to StateShowingAnItem (%v). send with error: %v",
+				"error in handleItemOwnerCallback(): couldn't change a state (%v)",
 				err,
-				sendErr,
 			)
 		}
 
@@ -403,14 +397,13 @@ func handleFinalVerificationStage(conf *config.Config, c tele.Context, state fsm
 		}
 
 	case static.CallbackSelectorChange:
-		if err := state.SetState(context.Background(), static.StateEditingCheck); err != nil {
-			sendErr := c.Send("error: couldn't set state to StateEditingCheck")
+		if err := storageHelpers.SetState(static.StateEditingCheck, c, state); err != nil {
 			return fmt.Errorf(
-				"error in handleFinalVerificationStage(): couldn't set state to StateEditingCheck (%v). send with error: %v",
+				"error in handleFinalVerificationStage(): couldn't change a state (%v)",
 				err,
-				sendErr,
 			)
 		}
+
 		// add text "Что меняем?"
 		// change kb
 		// buttons: check name, check owner, items
@@ -438,7 +431,7 @@ func handleEditFinalizedCheck(conf *config.Config, c tele.Context, state fsm.Con
 	switch whatToChange {
 	case static.CallbackEditCheckName:
 		sendErr = c.EditOrSend(responses.GetAskForNewCheckNameResponse(check.Name))
-		stateErr = state.SetState(context.Background(), static.StateWaitForNewCheckName)
+		stateErr = storageHelpers.SetState(static.StateWaitForNewCheckName, c, state)
 		action = static.CallbackEditCheckName
 
 	case static.CallbackEditCheckOwner:
