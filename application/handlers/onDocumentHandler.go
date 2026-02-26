@@ -9,6 +9,7 @@ import (
 	"github.com/Tesorp1X/chipi-bot/static"
 	"github.com/Tesorp1X/chipi-bot/utils/reader"
 	"github.com/Tesorp1X/chipi-bot/utils/responses"
+
 	"github.com/vitaliy-ukiru/fsm-telebot/v2"
 	tele "gopkg.in/telebot.v4"
 )
@@ -65,12 +66,10 @@ func OnDocumentActionHandler(conf *config.Config, c tele.Context, state fsm.Cont
 	}
 
 	// set state to StateWaitForCheckName
-	if err := state.SetState(context.Background(), static.StateWaitForCheckName); err != nil {
-		sendErr := c.Send("error: couldn't change a state")
+	if err := storageHelpers.SetState(static.StateWaitForCheckName, c, state); err != nil {
 		return fmt.Errorf(
-			"error in OnDocumentActionHandler(): couldn't change a state to StateWaitForCheckName(%v). send with error: %v",
+			"error in OnDocumentActionHandler(): couldn't change a state to StateWaitForCheckName(%v)",
 			err,
-			sendErr,
 		)
 	}
 
@@ -83,7 +82,7 @@ func downloadFile(c tele.Context, downloadDirPath string, fileId string, fileNam
 	if err != nil {
 		sendErr := c.Send("error with 'c.Bot().FileByID': " + err.Error())
 		return "", fmt.Errorf(
-			"error in downloadFile(): couldn't find a file with id %s (%v), message send with err: %v",
+			"error in downloadFile(): couldn't find a file with id %s (%v), message sent with err: %v",
 			fileId,
 			err,
 			sendErr,
@@ -95,7 +94,7 @@ func downloadFile(c tele.Context, downloadDirPath string, fileId string, fileNam
 	if err != nil {
 		sendErr := c.Send("error: couldn't download a file: " + err.Error())
 		return "", fmt.Errorf(
-			"error in downloadFile(): couldn't download a file {id: %s; name: %s; path: %s} (%v), message send with err: %v",
+			"error in downloadFile(): couldn't download a file {id: %s; name: %s; path: %s} (%v), message sent with err: %v",
 			fileId,
 			fileName,
 			targetFilePath,
