@@ -286,12 +286,10 @@ func handleItemOwnerCallback(conf *config.Config, c tele.Context, state fsm.Cont
 				)
 			}
 
-			if err := state.Update(context.Background(), static.CHECK, check); err != nil {
-				sendErr := c.Send("error: couldn't update check info in context")
+			if err := storageHelpers.UpdateCheck(check, c, state); err != nil {
 				return fmt.Errorf(
-					"error in handleItemOwnerCallback(): couldn't update check info in context (%v).\nsent with error (%v)",
+					"error in handleItemOwnerCallback(): couldn't update check info in context (%v)",
 					err,
-					sendErr,
 				)
 			}
 

@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 
+	storageHelpers "github.com/Tesorp1X/chipi-bot/application/StorageHelpers"
 	"github.com/Tesorp1X/chipi-bot/config"
 	"github.com/Tesorp1X/chipi-bot/static"
 	"github.com/Tesorp1X/chipi-bot/utils/reader"
@@ -46,12 +47,10 @@ func OnDocumentActionHandler(conf *config.Config, c tele.Context, state fsm.Cont
 
 	// convert checkData to check obj and save it in context
 	check := static.CreateCheckFromCheckData(checkData)
-	if err := state.Update(context.Background(), static.CHECK, check); err != nil {
-		sendErr := c.Send("error: couldn't save data in context")
+	if err := storageHelpers.UpdateCheck(check, c, state); err != nil {
 		return fmt.Errorf(
-			"error in OnDocumentActionHandler(): couldn't save check in state-storage (%v). send with error: %v",
+			"error in OnDocumentActionHandler(): couldn't save check in state-storage (%v)",
 			err,
-			sendErr,
 		)
 	}
 
