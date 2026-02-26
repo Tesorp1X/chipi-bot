@@ -311,12 +311,10 @@ func handleItemOwnerCallback(conf *config.Config, c tele.Context, state fsm.Cont
 		}
 
 		// put updated info back into context
-		if err := state.Update(context.Background(), static.ITEMS_LIST, items); err != nil {
-			sendErr := c.Send("error: couldn't update items_list")
+		if err := storageHelpers.UpdateItemsList(items, c, state); err != nil {
 			return fmt.Errorf(
-				"error in handleItemOwnerCallback(): couldn't update items_list in context (%v). send with error: %v",
+				"error in handleItemOwnerCallback(): couldn't update items_list in context (%v)",
 				err,
-				sendErr,
 			)
 		}
 

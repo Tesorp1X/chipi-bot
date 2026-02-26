@@ -1,7 +1,6 @@
 package handlers
 
 import (
-	"context"
 	"fmt"
 
 	storageHelpers "github.com/Tesorp1X/chipi-bot/application/StorageHelpers"
@@ -56,12 +55,10 @@ func OnDocumentActionHandler(conf *config.Config, c tele.Context, state fsm.Cont
 	}
 
 	// save items in context
-	if err := state.Update(context.Background(), static.ITEMS_LIST, static.CreateItemsFromCheckData(checkData)); err != nil {
-		sendErr := c.Send("error: couldn't save data in context")
+	if err := storageHelpers.UpdateItemsList(static.CreateItemsFromCheckData(checkData), c, state); err != nil {
 		return fmt.Errorf(
-			"error in OnDocumentActionHandler(): couldn't save items in state-storage (%v). send with error: %v",
+			"error in OnDocumentActionHandler(): couldn't save items in state-storage (%v)",
 			err,
-			sendErr,
 		)
 	}
 
