@@ -240,12 +240,10 @@ func handleItemOwnerCallback(conf *config.Config, c tele.Context, state fsm.Cont
 			// maybe "sorry, there was an error, let's start over"
 			// and set currentIndex to 0.
 			currentIndex = 0
-			if err := state.Update(context.Background(), static.CURRENT_INDEX_ITEMS, currentIndex); err != nil {
-				sendErr := c.Send("error: couldn't update items current index")
+			if err := storageHelpers.UpdateCurrentItemsIndex(currentIndex, c, state); err != nil {
 				return fmt.Errorf(
-					"error in handleItemOwnerCallback(): couldn't update current_index_items in context (%v). send with error: %v",
+					"error in handleItemOwnerCallback(): couldn't update current_index_items in context (%v)",
 					err,
-					sendErr,
 				)
 			}
 
@@ -328,12 +326,10 @@ func handleItemOwnerCallback(conf *config.Config, c tele.Context, state fsm.Cont
 			)
 		}
 
-		if err := state.Update(context.Background(), static.CURRENT_INDEX_ITEMS, currentIndex); err != nil {
-			sendErr := c.Send("error: couldn't update current items's index")
+		if err := storageHelpers.UpdateCurrentItemsIndex(currentIndex, c, state); err != nil {
 			return fmt.Errorf(
-				"error in handleItemOwnerCallback(): couldn't update currentIndex in context (%v). send with error: %v",
+				"error in handleItemOwnerCallback(): couldn't update current_index_items in context (%v)",
 				err,
-				sendErr,
 			)
 		}
 
