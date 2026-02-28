@@ -11,5 +11,6 @@ require (
 
 require (
 	github.com/ledongthuc/pdf v0.0.0-20250511090121-5959a4027728
+	github.com/mattn/go-sqlite3 v1.14.34
 	github.com/vitaliy-ukiru/fsm-telebot/v2 v2.0.0-beta.2
 )
