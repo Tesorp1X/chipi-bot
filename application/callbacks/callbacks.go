@@ -57,7 +57,6 @@ func HandleAnyCallback(conf *config.Config, c tele.Context, state fsm.Context) e
 				err,
 			)
 		}
-
 	case currentState == static.StateEditingCheck &&
 		static.CallbackActionEditCheck.DataMatches(callbackData):
 		if err := handleEditFinalizedCheck(conf, c, state); err != nil {
@@ -66,7 +65,6 @@ func HandleAnyCallback(conf *config.Config, c tele.Context, state fsm.Context) e
 				err,
 			)
 		}
-
 	case currentState == static.StateWaitForCheckOwner &&
 		static.CallbackActionEditCheck.DataMatches(callbackData):
 		if err := handleCheckOwnerCallback(conf, c, state); err != nil {
@@ -144,7 +142,6 @@ func handleCheckOwnerCallback(conf *config.Config, c tele.Context, state fsm.Con
 	)
 
 	if err := storageHelpers.UpdateCurrentItemsIndex(currentIndex, c, state); err != nil {
-
 		return fmt.Errorf(
 			"error in handleKeepCheckOwnerCallback(): couldn't save current index in state-storage (%v)",
 			err,
@@ -201,7 +198,6 @@ func handleShowingAnItemCallback(conf *config.Config, c tele.Context, state fsm.
 				err,
 			)
 		}
-
 	default:
 		return c.Respond(&tele.CallbackResponse{Text: "error todo"})
 	}
@@ -257,6 +253,7 @@ func handleItemOwnerCallback(conf *config.Config, c tele.Context, state fsm.Cont
 					stateTransitionErr,
 				)
 			}
+
 			return nil
 		}
 
@@ -391,7 +388,6 @@ func handleFinalVerificationStage(conf *config.Config, c tele.Context, state fsm
 				err,
 			)
 		}
-
 	case static.CallbackSelectorChange:
 		if err := storageHelpers.SetState(static.StateEditingCheck, c, state); err != nil {
 			return fmt.Errorf(
