@@ -135,3 +135,26 @@ var (
 		},
 	}
 )
+
+type tableNameAndFields struct {
+	Name   string
+	Fields []*field
+}
+
+type tables []*tableNameAndFields
+
+// Array of all tables
+var tablesWithNames = tables{
+	{
+		Name:   SESSIONS_TABLE_NAME,
+		Fields: sessionsTableFields,
+	},
+	{
+		Name:   CHECKS_TABLE_NAME,
+		Fields: checksTableFields,
+	},
+	{
+		Name:   ITEMS_TABLE_NAME,
+		Fields: itemsTableFields,
+	},
+}
