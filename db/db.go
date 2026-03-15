@@ -46,7 +46,6 @@ func (dbs *DBService) CreateIfNotExists() error {
 // If error occurs, returns a wrapped error.
 func (dbs *DBService) createTable(name string, fields ...*field) error {
 	sqlStmt, err := makeSqlStmtCreateTable(name, fields...)
-
 	if err != nil {
 		return fmt.Errorf(
 			"error in db.createTable(): couldn't prepare a sql-statement (%v)",
@@ -56,20 +55,29 @@ func (dbs *DBService) createTable(name string, fields ...*field) error {
 
 	createTableStatement, err := dbs.db.Prepare(sqlStmt)
 	if err != nil {
-
 		return fmt.Errorf(
 			"error in db.createTable(): couldn't prepare a db query (%v)",
 			err,
 		)
 	}
 
-	_, err = createTableStatement.Exec()
-	if err != nil {
+	if _, err = createTableStatement.Exec(); err != nil {
 		return fmt.Errorf(
 			"error in db.createTable(): couldn't execute a statement (%v)",
 			err,
 		)
 	}
+
+	if err := createTableStatement.Close(); err != nil {
+		return fmt.Errorf(
+			"error in db.createTable(): failed to close a createTableStatement (%v)",
+			err,
+		)
+	}
+
+	return nil
+}
+
 
 	return nil
 }
