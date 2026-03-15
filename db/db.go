@@ -27,6 +27,20 @@ func MakeNewDBService(dsnURI string) (*DBService, error) {
 
 	return &DBService{db: db}, nil
 }
+// Creates all the tables from tablesWithNames array. Returns an error if anything goes wrong.
+func (dbs *DBService) CreateIfNotExists() error {
+	for _, table := range tablesWithNames {
+		if err := dbs.createTable(table.Name, table.Fields...); err != nil {
+			return fmt.Errorf(
+				"in db.CreateIfNotExists(): couldn't create a '%s' table (%v)",
+				table.Name,
+				err,
+			)
+		}
+	}
+
+	return nil
+}
 
 // Creates a table with provided name and fields.
 // If error occurs, returns a wrapped error.
