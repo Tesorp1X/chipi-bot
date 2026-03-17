@@ -151,5 +151,59 @@ func (dbs *DBService) getOrCreateSession(tx *sql.Tx) (int64, error) {
 	return id, nil
 }
 
+// Creates a new check record in given transaction. Returns an id of that record,
+// if no errors occurred. Otherwise, returns -1 and an error.
+func (dbs *DBService) addCheck(tx *sql.Tx, check *static.Check) (int64, error) {
+	// save the check
+	sessionId, err := dbs.getOrCreateSession(tx)
+	if err != nil {
+		return -1, fmt.Errorf(
+			"error in db.addCheck(): failed to retrieve a session_id (%v)",
+			err,
+		)
+	}
+
+	ds := goqu.Insert(CHECKS_TABLE_NAME).
+		Cols(CHECKS_SESSION_ID, CHECKS_NAME, CHECKS_ORGNAME,
+			CHECKS_OWNER, CHECKS_TOTAL, CHECKS_TOTAL_PAU,
+			CHECKS_TOTAL_LIZ, CHECKS_DATE_OF_PURCHASE).
+		Vals(
+			goqu.Vals{
+				sessionId, check.Name, check.OrgName, check.Owner,
+				check.Total, check.TotalPau, check.TotalLiz,
+				check.Date.Format(time.DateTime)},
+		)
+	insertSql, args, _ := ds.ToSQL()
+
+	statement, err := tx.Prepare(insertSql)
+	if err != nil {
+		return -1, fmt.Errorf(
+			"error in db.addCheck(): failed to prepare a statement '%s' (%v)",
+			insertSql,
+			err,
+		)
+	}
+
+	res, err := statement.Exec(args...)
+	if err != nil {
+		return -1, fmt.Errorf(
+			"error in db.addCheck(): failed to execute a statement '%s' (%v)",
+			insertSql,
+			err,
+		)
+	}
+
+	id, err := res.LastInsertId()
+	if err != nil {
+		return -1, fmt.Errorf(
+			"error in db.addCheck(): to retrieve an id from result (%v)",
+			err,
+		)
+	}
+
+	return id, nil
+
+}
+
 	return nil
 }
