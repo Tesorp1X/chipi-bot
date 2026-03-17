@@ -3,7 +3,12 @@ package db
 import (
 	"database/sql"
 	"fmt"
+	"time"
 
+	"github.com/Tesorp1X/chipi-bot/static"
+	"github.com/doug-martin/goqu/v9"
+
+	_ "github.com/doug-martin/goqu/v9/dialect/sqlite3"
 	_ "github.com/mattn/go-sqlite3"
 )
 

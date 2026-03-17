@@ -14,3 +14,5 @@ require (
 	github.com/mattn/go-sqlite3 v1.14.34
 	github.com/vitaliy-ukiru/fsm-telebot/v2 v2.0.0-beta.2
 )
+
+require github.com/doug-martin/goqu/v9 v9.19.0 // indirect
