@@ -1,6 +1,7 @@
 package db
 
 import (
+	"context"
 	"database/sql"
 	"fmt"
 	"time"
@@ -32,6 +33,19 @@ func MakeNewDBService(dsnURI string) (*DBService, error) {
 
 	return &DBService{db: db}, nil
 }
+
+func (dbs *DBService) Close() error {
+	err := dbs.db.Close()
+	if err != nil {
+		return fmt.Errorf(
+			"error in db.Close(): failed to close a db (%v)",
+			err,
+		)
+	}
+
+	return nil
+}
+
 // Creates all the tables from tablesWithNames array. Returns an error if anything goes wrong.
 func (dbs *DBService) CreateIfNotExists() error {
 	for _, table := range tablesWithNames {
@@ -204,6 +218,71 @@ func (dbs *DBService) addCheck(tx *sql.Tx, check *static.Check) (int64, error) {
 	return id, nil
 
 }
+
+// This method creates a new record in checks and records for every item,
+// associated with that check. The method will assign a current session to a check.
+func (dbs *DBService) AddNewCheckWithItems(check *static.Check, items []*static.Item) error {
+	ctx, cancel := context.WithCancel(context.Background())
+	defer cancel()
+
+	tx, err := dbs.db.BeginTx(ctx, nil)
+	if err != nil {
+		return fmt.Errorf(
+			"error in db.AddNewCheckWithItems(): failed to begin a transaction (%v)",
+			err,
+		)
+	}
+
+	var committed bool
+	defer func() {
+		if !committed {
+			tx.Rollback()
+		}
+	}()
+
+	checkId, err := dbs.addCheck(tx, check)
+	if err != nil {
+		return fmt.Errorf(
+			"error in db.AddNewCheckWithItems(): failed to add check (%v)",
+			err,
+		)
+	}
+
+	insertItemSql := fmt.Sprintf(
+		//"INSERT INTO items (check_id, name, owner, price, amount, subtotal) VALUES (?, ?, ?, ?, ?, ?)"
+		"INSERT INTO items (%s, %s, %s, %s, %s, %s) VALUES (?, ?, ?, ?, ?, ?)",
+		ITEMS_CHECK_ID,
+		ITEMS_NAME,
+		ITEMS_OWNER,
+		ITEMS_PRICE,
+		ITEMS_AMOUNT,
+		ITEMS_SUBTOTAL,
+	)
+	addItemStatement, err := tx.Prepare(insertItemSql)
+	if err != nil {
+		return fmt.Errorf(
+			"error in db.AddNewCheckWithItems(): failed to prepare a statement with sql: '%s' (%v)",
+			insertItemSql,
+			err,
+		)
+	}
+
+	for _, item := range items {
+		if _, err := addItemStatement.Exec(
+			checkId, item.Name, item.Name,
+			item.Price, item.Amount, item.Subtotal); err != nil {
+			return fmt.Errorf(
+				"error in db.AddNewCheckWithItems(): couldn't insert an item %+v (%v)",
+				item,
+				err,
+			)
+		}
+	}
+
+	if err := tx.Commit(); err != nil {
+		return err
+	}
+	committed = true
 
 	return nil
 }
