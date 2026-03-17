@@ -78,6 +78,73 @@ func (dbs *DBService) createTable(name string, fields ...*field) error {
 	return nil
 }
 
+// Creates a new session in given transaction. Returns an id of that record,
+// if no errors occurred. Otherwise, returns -1 and an error.
+func (dbs *DBService) createNewSession(tx *sql.Tx) (int64, error) {
+	ds := goqu.Insert(SESSIONS_TABLE_NAME).
+		Cols("created_at", "is_open").
+		Vals(
+			goqu.Vals{"time", "true"},
+		)
+	insertSql, args, _ := ds.ToSQL()
+
+	statement, err := tx.Prepare(insertSql)
+	if err != nil {
+		return -1, fmt.Errorf(
+			"error in db.createNewSession(): failed to prepare a statement '%s' (%v)",
+			insertSql,
+			err,
+		)
+	}
+
+	res, err := statement.Exec(args...)
+	if err != nil {
+		return -1, fmt.Errorf(
+			"error in db.createNewSession(): failed to execute a statement '%s' (%v)",
+			insertSql,
+			err,
+		)
+	}
+
+	id, err := res.LastInsertId()
+	if err != nil {
+		return -1, fmt.Errorf(
+			"error in db.createNewSession(): to retrieve an id from result (%v)",
+			err,
+		)
+	}
+
+	return id, nil
+}
+
+// Returns an id of a current session in given transaction.
+// If there is no active session, then it will be created first.
+// If anything goes wrong, '-1' and dn error is returned.
+func (dbs *DBService) getOrCreateSession(tx *sql.Tx) (int64, error) {
+	selectRowSql := fmt.Sprintf("SELECT id FROM %s WHERE is_open = ?", SESSIONS_TABLE_NAME)
+	row := tx.QueryRow(selectRowSql, "true")
+	var id int64 = -1
+
+	err := row.Scan(&id)
+	if err == sql.ErrNoRows {
+		if id, err = dbs.createNewSession(tx); err != nil {
+			return -1, fmt.Errorf(
+				"error in db.getOrCreateSession(): failed to create a new session (%v)",
+				err,
+			)
+		}
+
+	}
+
+	if err != nil {
+		return -1, fmt.Errorf(
+			"error in db.getOrCreateSession(): failed to scan a row (%v)",
+			err,
+		)
+	}
+
+	return id, nil
+}
 
 	return nil
 }
