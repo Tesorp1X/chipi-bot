@@ -17,7 +17,7 @@ func HandleAnyCallback(conf *config.Config, c tele.Context, state fsm.Context) e
 	currentState, err := state.State(context.Background())
 	if err != nil {
 		return fmt.Errorf(
-			"error in HandleAnyCallback(): couldn't receive users(%d) current state: %v",
+			"error in callbacks.HandleAnyCallback(): couldn't receive users(%d) current state: %v",
 			c.Sender().ID, err,
 		)
 	}
@@ -29,7 +29,7 @@ func HandleAnyCallback(conf *config.Config, c tele.Context, state fsm.Context) e
 		static.CallbackActionSelector.DataMatches(callbackData):
 		if err := handleKeepCheckNameCallback(conf, c, state); err != nil {
 			return fmt.Errorf(
-				"error in HandleAnyCallback(), state 'StateWaitForCheckName', action 'CallbackActionSelector': %v",
+				"error in callbacks.HandleAnyCallback(), state 'StateWaitForCheckName', action 'CallbackActionSelector': %v",
 				err,
 			)
 		}
@@ -37,7 +37,7 @@ func HandleAnyCallback(conf *config.Config, c tele.Context, state fsm.Context) e
 		static.CallbackActionSelector.DataMatches(callbackData):
 		if err := handleShowingAnItemCallback(conf, c, state); err != nil {
 			return fmt.Errorf(
-				"error in HandleAnyCallback(), state 'StateShowingAnItem', action 'CallbackActionSelector': %v",
+				"error in callbacks.HandleAnyCallback(), state 'StateShowingAnItem', action 'CallbackActionSelector': %v",
 				err,
 			)
 		}
@@ -45,7 +45,7 @@ func HandleAnyCallback(conf *config.Config, c tele.Context, state fsm.Context) e
 		static.CallbackActionEditItem.DataMatches(callbackData):
 		if err := handleItemOwnerCallback(conf, c, state); err != nil {
 			return fmt.Errorf(
-				"error in HandleAnyCallback(), state 'StateShowingAnItem', action 'CallbackActionEditItem': %v",
+				"error in callbacks.HandleAnyCallback(), state 'StateShowingAnItem', action 'CallbackActionEditItem': %v",
 				err,
 			)
 		}
@@ -53,7 +53,7 @@ func HandleAnyCallback(conf *config.Config, c tele.Context, state fsm.Context) e
 		static.CallbackActionSelector.DataMatches(callbackData):
 		if err := handleFinalVerificationStage(conf, c, state); err != nil {
 			return fmt.Errorf(
-				"error in HandleAnyCallback(), state 'StateWaitingForCheckConfirmation', action 'CallbackActionSelector': %v",
+				"error in callbacks.HandleAnyCallback(), state 'StateWaitingForCheckConfirmation', action 'CallbackActionSelector': %v",
 				err,
 			)
 		}
@@ -61,7 +61,7 @@ func HandleAnyCallback(conf *config.Config, c tele.Context, state fsm.Context) e
 		static.CallbackActionEditCheck.DataMatches(callbackData):
 		if err := handleEditFinalizedCheck(conf, c, state); err != nil {
 			return fmt.Errorf(
-				"error in HandleAnyCallback(), state 'StateEditingCheck', action 'CallbackActionEditCheck': %v",
+				"error in callbacks.HandleAnyCallback(), state 'StateEditingCheck', action 'CallbackActionEditCheck': %v",
 				err,
 			)
 		}
@@ -69,7 +69,7 @@ func HandleAnyCallback(conf *config.Config, c tele.Context, state fsm.Context) e
 		static.CallbackActionEditCheck.DataMatches(callbackData):
 		if err := handleCheckOwnerCallback(conf, c, state); err != nil {
 			return fmt.Errorf(
-				"error in HandleAnyCallback(), state 'StateWaitForCheckOwner', action 'CallbackActionEditCheck': %v",
+				"error in callbacks.HandleAnyCallback(), state 'StateWaitForCheckOwner', action 'CallbackActionEditCheck': %v",
 				err,
 			)
 		}
@@ -86,21 +86,21 @@ func handleKeepCheckNameCallback(conf *config.Config, c tele.Context, state fsm.
 	// Replying ok!
 	if sendErr := c.EditOrSend("Хорошо. Название не меняем👌"); sendErr != nil {
 		return fmt.Errorf(
-			"error in handleKeepCheckNameCallback(): couldn't send an 'ok'-message (%v)",
+			"error in callbacks.handleKeepCheckNameCallback(): couldn't send an 'ok'-message (%v)",
 			sendErr,
 		)
 	}
 
 	if err := storageHelpers.SetState(static.StateWaitForCheckOwner, c, state); err != nil {
 		return fmt.Errorf(
-			"error in handleKeepCheckNameCallback(): couldn't change a state (%v)",
+			"error in callbacks.handleKeepCheckNameCallback(): couldn't change a state (%v)",
 			err,
 		)
 	}
 	// prompt check ownership
 	if sendErr := c.Send(responses.GetAskForCheckOwnershipQuestion()); sendErr != nil {
 		return fmt.Errorf(
-			"error in handleKeepCheckNameCallback(): couldn't send a 'check-ownership'-message (%v)",
+			"error in callbacks.handleKeepCheckNameCallback(): couldn't send a 'check-ownership'-message (%v)",
 			sendErr,
 		)
 	}
@@ -113,7 +113,7 @@ func handleCheckOwnerCallback(conf *config.Config, c tele.Context, state fsm.Con
 	_, err := storageHelpers.SetNewCheckOwnerFromCallback(c, state)
 	if err != nil {
 		return fmt.Errorf(
-			"error in handleKeepCheckOwnerCallback(): couldn't set a check owner (%v)",
+			"error in callbacks.handleKeepCheckOwnerCallback(): couldn't set a check owner (%v)",
 			err,
 		)
 	}
@@ -122,7 +122,7 @@ func handleCheckOwnerCallback(conf *config.Config, c tele.Context, state fsm.Con
 	items, err := storageHelpers.GetItemsList(c, state)
 	if err != nil {
 		return fmt.Errorf(
-			"error in handleKeepCheckOwnerCallback(): couldn't retrieve items (%v)",
+			"error in callbacks.handleKeepCheckOwnerCallback(): couldn't retrieve items (%v)",
 			err,
 		)
 	}
@@ -131,7 +131,7 @@ func handleCheckOwnerCallback(conf *config.Config, c tele.Context, state fsm.Con
 
 	if err := storageHelpers.SetState(static.StateShowingAnItem, c, state); err != nil {
 		return fmt.Errorf(
-			"error in handleKeepCheckOwnerCallback(): couldn't change a state (%v)",
+			"error in callbacks.handleKeepCheckOwnerCallback(): couldn't change a state (%v)",
 			err,
 		)
 	}
@@ -143,14 +143,14 @@ func handleCheckOwnerCallback(conf *config.Config, c tele.Context, state fsm.Con
 
 	if err := storageHelpers.UpdateCurrentItemsIndex(currentIndex, c, state); err != nil {
 		return fmt.Errorf(
-			"error in handleKeepCheckOwnerCallback(): couldn't save current index in state-storage (%v)",
+			"error in callbacks.handleKeepCheckOwnerCallback(): couldn't save current index in state-storage (%v)",
 			err,
 		)
 	}
 
 	if sendErr := c.EditOrSend(responseTxt, kb); sendErr != nil {
 		return fmt.Errorf(
-			"error in handleKeepCheckOwnerCallback(): couldn't send a 'item verification'-message (%v)",
+			"error in callbacks.handleKeepCheckOwnerCallback(): couldn't send a 'item verification'-message (%v)",
 			sendErr,
 		)
 	}
@@ -168,14 +168,14 @@ func handleShowingAnItemCallback(conf *config.Config, c tele.Context, state fsm.
 		// buttons (two in a row): название, цена, кол-во, сумма
 		if sendErr := c.EditOrReply(responses.GetEditItemInVerificationResponse(c.Message().Text)); sendErr != nil {
 			return fmt.Errorf(
-				"error in handleShowingAnItemCallback(): couldn't edit a message (%v)",
+				"error in callbacks.handleShowingAnItemCallback(): couldn't edit a message (%v)",
 				sendErr,
 			)
 		}
 
 		if err := storageHelpers.SetState(static.StateEditingAnItem, c, state); err != nil {
 			return fmt.Errorf(
-				"error in handleShowingAnItemCallback(): couldn't change a state (%v).",
+				"error in callbacks.handleShowingAnItemCallback(): couldn't change a state (%v).",
 				err,
 			)
 		}
@@ -187,14 +187,14 @@ func handleShowingAnItemCallback(conf *config.Config, c tele.Context, state fsm.
 		// buttons: liz, both, pau
 		if sendErr := c.Send(responses.GetItemOwnershipQuestion()); sendErr != nil {
 			return fmt.Errorf(
-				"error in handleShowingAnItemCallback(): couldn't send a message (%v)",
+				"error in callbacks.handleShowingAnItemCallback(): couldn't send a message (%v)",
 				sendErr,
 			)
 		}
 
 		if err := storageHelpers.SetState(static.StateWaitForItemOwner, c, state); err != nil {
 			return fmt.Errorf(
-				"error in handleShowingAnItemCallback(): couldn't change a state (%v)",
+				"error in callbacks.handleShowingAnItemCallback(): couldn't change a state (%v)",
 				err,
 			)
 		}
@@ -215,7 +215,7 @@ func handleItemOwnerCallback(conf *config.Config, c tele.Context, state fsm.Cont
 		items, err := storageHelpers.GetItemsList(c, state)
 		if err != nil {
 			return fmt.Errorf(
-				"error in handleItemOwnerCallback(): couldn't retrieve items (%v)",
+				"error in callbacks.handleItemOwnerCallback(): couldn't retrieve items (%v)",
 				err,
 			)
 		}
@@ -223,7 +223,7 @@ func handleItemOwnerCallback(conf *config.Config, c tele.Context, state fsm.Cont
 		currentIndex, err := storageHelpers.GetCurrentIndex(c, state)
 		if err != nil {
 			return fmt.Errorf(
-				"error in handleCheckName(): couldn't retrieve current index from context (%v)",
+				"error in callbacks.handleCheckName(): couldn't retrieve current index from context (%v)",
 				err,
 			)
 		}
@@ -236,7 +236,7 @@ func handleItemOwnerCallback(conf *config.Config, c tele.Context, state fsm.Cont
 			currentIndex = 0
 			if err := storageHelpers.UpdateCurrentItemsIndex(currentIndex, c, state); err != nil {
 				return fmt.Errorf(
-					"error in handleItemOwnerCallback(): couldn't update current_index_items in context (%v)",
+					"error in callbacks.handleItemOwnerCallback(): couldn't update current_index_items in context (%v)",
 					err,
 				)
 			}
@@ -247,7 +247,7 @@ func handleItemOwnerCallback(conf *config.Config, c tele.Context, state fsm.Cont
 			stateTransitionErr := storageHelpers.SetState(static.StateShowingAnItem, c, state)
 			if sendErrMsgErr != nil || sendMsgErr != nil {
 				return fmt.Errorf(
-					"error in handleItemOwnerCallback(): problem with currentIndex being out of bounds.\nerrorMsg sent with error (%v)\nnew verification message sent with error (%v)\nstate transitioned with an error (%v)",
+					"error in callbacks.handleItemOwnerCallback(): problem with currentIndex being out of bounds.\nerrorMsg sent with error (%v)\nnew verification message sent with error (%v)\nstate transitioned with an error (%v)",
 					sendErrMsgErr,
 					sendMsgErr,
 					stateTransitionErr,
@@ -269,7 +269,7 @@ func handleItemOwnerCallback(conf *config.Config, c tele.Context, state fsm.Cont
 			check, err := storageHelpers.GetCheck(c, state)
 			if err != nil {
 				return fmt.Errorf(
-					"error in handleItemOwnerCallback(): couldn't retrieve a check (%v)",
+					"error in callbacks.handleItemOwnerCallback(): couldn't retrieve a check (%v)",
 					err,
 				)
 			}
@@ -277,7 +277,7 @@ func handleItemOwnerCallback(conf *config.Config, c tele.Context, state fsm.Cont
 			if err := check.CalculateTotals(items); err != nil {
 				sendErr := c.Send("error: while calculating totals")
 				return fmt.Errorf(
-					"error in handleItemOwnerCallback(): couldn't calculate totals (%v).\nsent with error (%v)",
+					"error in callbacks.handleItemOwnerCallback(): couldn't calculate totals (%v).\nsent with error (%v)",
 					err,
 					sendErr,
 				)
@@ -285,21 +285,21 @@ func handleItemOwnerCallback(conf *config.Config, c tele.Context, state fsm.Cont
 
 			if err := storageHelpers.UpdateCheck(check, c, state); err != nil {
 				return fmt.Errorf(
-					"error in handleItemOwnerCallback(): couldn't update check info in context (%v)",
+					"error in callbacks.handleItemOwnerCallback(): couldn't update check info in context (%v)",
 					err,
 				)
 			}
 
 			if err := c.Send(responses.GetVerificationFinalStepResponse(check, items)); err != nil {
 				return fmt.Errorf(
-					"error in handleItemOwnerCallback(): couldn't send a message (%v)",
+					"error in callbacks.handleItemOwnerCallback(): couldn't send a message (%v)",
 					err,
 				)
 			}
 
 			if err := storageHelpers.SetState(static.StateWaitingForCheckConfirmation, c, state); err != nil {
 				return fmt.Errorf(
-					"error in handleItemOwnerCallback(): couldn't change a state (%v)",
+					"error in callbacks.handleItemOwnerCallback(): couldn't change a state (%v)",
 					err,
 				)
 			}
@@ -310,14 +310,14 @@ func handleItemOwnerCallback(conf *config.Config, c tele.Context, state fsm.Cont
 		// put updated info back into context
 		if err := storageHelpers.UpdateItemsList(items, c, state); err != nil {
 			return fmt.Errorf(
-				"error in handleItemOwnerCallback(): couldn't update items_list in context (%v)",
+				"error in callbacks.handleItemOwnerCallback(): couldn't update items_list in context (%v)",
 				err,
 			)
 		}
 
 		if err := storageHelpers.UpdateCurrentItemsIndex(currentIndex, c, state); err != nil {
 			return fmt.Errorf(
-				"error in handleItemOwnerCallback(): couldn't update current_index_items in context (%v)",
+				"error in callbacks.handleItemOwnerCallback(): couldn't update current_index_items in context (%v)",
 				err,
 			)
 		}
@@ -326,7 +326,7 @@ func handleItemOwnerCallback(conf *config.Config, c tele.Context, state fsm.Cont
 		err = c.Send(responses.GetItemVerificationResponse(items[currentIndex], currentIndex, len(items)))
 		if err != nil {
 			return fmt.Errorf(
-				"error in handleItemOwnerCallback(): couldn't send a message with a new item (%v).",
+				"error in callbacks.handleItemOwnerCallback(): couldn't send a message with a new item (%v).",
 				err,
 			)
 		}
@@ -334,7 +334,7 @@ func handleItemOwnerCallback(conf *config.Config, c tele.Context, state fsm.Cont
 		// set state to StateShowingAnItem
 		if err := storageHelpers.SetState(static.StateShowingAnItem, c, state); err != nil {
 			return fmt.Errorf(
-				"error in handleItemOwnerCallback(): couldn't change a state (%v)",
+				"error in callbacks.handleItemOwnerCallback(): couldn't change a state (%v)",
 				err,
 			)
 		}
@@ -355,7 +355,7 @@ func handleFinalVerificationStage(conf *config.Config, c tele.Context, state fsm
 		check, err := storageHelpers.GetCheck(c, state)
 		if err != nil {
 			return fmt.Errorf(
-				"error in handleFinalVerificationStage(): couldn't set new check name (%v)",
+				"error in callbacks.handleFinalVerificationStage(): couldn't set new check name (%v)",
 				err,
 			)
 		}
@@ -376,7 +376,7 @@ func handleFinalVerificationStage(conf *config.Config, c tele.Context, state fsm
 		if err := state.Finish(context.Background(), true); err != nil {
 			sendErr := c.Send("error: couldn't finish your state")
 			return fmt.Errorf(
-				"error in handleFinalVerificationStage(): couldn't finish state (%v). sent with error (%v)",
+				"error in callbacks.handleFinalVerificationStage(): couldn't finish state (%v). sent with error (%v)",
 				err,
 				sendErr,
 			)
@@ -384,14 +384,14 @@ func handleFinalVerificationStage(conf *config.Config, c tele.Context, state fsm
 		// send an ok msg
 		if err := c.EditOrReply(responses.GetCheckSavedMessage(check.Name)); err != nil {
 			return fmt.Errorf(
-				"error in handleFinalVerificationStage(): couldn't send an ok-message (%v)",
+				"error in callbacks.handleFinalVerificationStage(): couldn't send an ok-message (%v)",
 				err,
 			)
 		}
 	case static.CallbackSelectorChange:
 		if err := storageHelpers.SetState(static.StateEditingCheck, c, state); err != nil {
 			return fmt.Errorf(
-				"error in handleFinalVerificationStage(): couldn't change a state (%v)",
+				"error in callbacks.handleFinalVerificationStage(): couldn't change a state (%v)",
 				err,
 			)
 		}
@@ -412,7 +412,7 @@ func handleEditFinalizedCheck(conf *config.Config, c tele.Context, state fsm.Con
 	check, err := storageHelpers.GetCheck(c, state)
 	if err != nil {
 		return fmt.Errorf(
-			"error in handleEditFinalizedCheck(): couldn't retrieve a check (%v)",
+			"error in callbacks.handleEditFinalizedCheck(): couldn't retrieve a check (%v)",
 			err,
 		)
 	}
@@ -446,7 +446,7 @@ func handleEditFinalizedCheck(conf *config.Config, c tele.Context, state fsm.Con
 	if sendErr != nil {
 		sendErrorMsgErr := c.Send("error: couldn't retrieve check info from context")
 		return fmt.Errorf(
-			"error in handleEditFinalizedCheck(): in action '%s' couldn't send a message (%v).\nsent with error (%v)",
+			"error in callbacks.handleEditFinalizedCheck(): in action '%s' couldn't send a message (%v).\nsent with error (%v)",
 			action,
 			sendErr,
 			sendErrorMsgErr,
@@ -456,7 +456,7 @@ func handleEditFinalizedCheck(conf *config.Config, c tele.Context, state fsm.Con
 	if stateErr != nil {
 		sendErrorMsgErr := c.Send("error: couldn't change a state")
 		return fmt.Errorf(
-			"error in handleEditFinalizedCheck(): in action '%s' couldn't set a state (%v).\nsent with error (%v)",
+			"error in callbacks.handleEditFinalizedCheck(): in action '%s' couldn't set a state (%v).\nsent with error (%v)",
 			action,
 			stateErr,
 			sendErrorMsgErr,

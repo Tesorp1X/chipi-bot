@@ -16,7 +16,7 @@ func UpdateCurrentItemsIndex(newCurrentIndex int, c tele.Context, state fsm.Cont
 	if err := state.Update(context.Background(), static.CURRENT_INDEX_ITEMS, newCurrentIndex); err != nil {
 		sendErr := c.Send("error: couldn't save data in context")
 		return fmt.Errorf(
-			"error in UpdateCurrentIndex(): couldn't save current index in state-storage (%v). sent with error: %v",
+			"error in storageHelpers.UpdateCurrentIndex(): couldn't save current index in state-storage (%v). sent with error: %v",
 			err,
 			sendErr,
 		)
@@ -31,7 +31,7 @@ func UpdateCheck(check *static.Check, c tele.Context, state fsm.Context) error {
 	if err := state.Update(context.Background(), static.CHECK, check); err != nil {
 		sendErr := c.Send("error: couldn't save data in context")
 		return fmt.Errorf(
-			"error in UpdateCheck(): couldn't save check in state-storage (%v). sent with error: %v",
+			"error in storageHelpers.UpdateCheck(): couldn't save check in state-storage (%v). sent with error: %v",
 			err,
 			sendErr,
 		)
@@ -46,7 +46,7 @@ func UpdateItemsList(items []*static.Item, c tele.Context, state fsm.Context) er
 	if err := state.Update(context.Background(), static.ITEMS_LIST, items); err != nil {
 		sendErr := c.Send("error: couldn't save data in context")
 		return fmt.Errorf(
-			"error in UpdateItemsList(): couldn't save items in state-storage (%v). sent with error: %v",
+			"error in storageHelpers.UpdateItemsList(): couldn't save items in state-storage (%v). sent with error: %v",
 			err,
 			sendErr,
 		)

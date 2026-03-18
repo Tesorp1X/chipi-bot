@@ -11,7 +11,7 @@ import (
 func ExtractCheckData(filename string) (*CheckData, error) {
 	if !strings.HasSuffix(filename, ".pdf") {
 		return nil, fmt.Errorf(
-			"error in ExtractCheckData(%s): wrong file format (must be a pdf).",
+			"error in reader.ExtractCheckData(%s): wrong file format (must be a pdf).",
 			filename,
 		)
 	}
@@ -19,7 +19,7 @@ func ExtractCheckData(filename string) (*CheckData, error) {
 	f, r, err := pdf.Open(filename)
 	if err != nil {
 		return nil, fmt.Errorf(
-			"error in ExtractCheckData(%s): couldn't open a file: %v",
+			"error in reader.ExtractCheckData(%s): couldn't open a file: %v",
 			filename,
 			err,
 		)
@@ -29,7 +29,7 @@ func ExtractCheckData(filename string) (*CheckData, error) {
 	b, err := r.GetPlainText()
 	if err != nil {
 		return nil, fmt.Errorf(
-			"error in ExtractCheckData(%s): couldn't extract plain text from a PDF: %v",
+			"error in reader.ExtractCheckData(%s): couldn't extract plain text from a PDF: %v",
 			filename,
 			err,
 		)
@@ -39,7 +39,7 @@ func ExtractCheckData(filename string) (*CheckData, error) {
 	_, err = buf.ReadFrom(b)
 	if err != nil {
 		return nil, fmt.Errorf(
-			"error in ExtractCheckData(%s): couldn't read from a reader: %v",
+			"error in reader.ExtractCheckData(%s): couldn't read from a reader: %v",
 			filename,
 			err,
 		)
@@ -48,7 +48,7 @@ func ExtractCheckData(filename string) (*CheckData, error) {
 	cd, err := NewCheckData(buf.String())
 	if err != nil {
 		return nil, fmt.Errorf(
-			"error in ExtractCheckData(%s): couldn't extract check data: %v",
+			"error in reader.ExtractCheckData(%s): couldn't extract check data: %v",
 			filename,
 			err,
 		)
@@ -61,7 +61,7 @@ func ExtractAllCheckData(filenames ...string) ([]*CheckData, error) {
 	var cdList []*CheckData
 	if len(filenames) == 0 {
 		return cdList, fmt.Errorf(
-			"error in ExtractAllCheckData(%v): zero filenames were provided.",
+			"error in reader.ExtractAllCheckData(%v): zero filenames were provided.",
 			filenames,
 		)
 	}
@@ -70,7 +70,7 @@ func ExtractAllCheckData(filenames ...string) ([]*CheckData, error) {
 		cd, err := ExtractCheckData(filename)
 		if err != nil {
 			return cdList, fmt.Errorf(
-				"error in ExtractAllCheckData(%v): couldn't extract data from a file with index '%d': %v.",
+				"error in reader.ExtractAllCheckData(%v): couldn't extract data from a file with index '%d': %v.",
 				filenames,
 				i,
 				err,

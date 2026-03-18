@@ -16,7 +16,7 @@ func ExtractAdminsIDs(adminsStr string) ([]int64, error) {
 		n, err := strconv.ParseInt(s, 10, 64)
 		if err != nil {
 			return nil, fmt.Errorf(
-				"error in ExtractAdminsIDs(): couldn't parse '%s': %v",
+				"error in utils.ExtractAdminsIDs(): couldn't parse '%s': %v",
 				s,
 				err,
 			)
@@ -25,7 +25,7 @@ func ExtractAdminsIDs(adminsStr string) ([]int64, error) {
 	}
 	if len(res) == 0 {
 		return nil, fmt.Errorf(
-			"error in ExtractAdminsIDs(): got list of length 0 from '%s'",
+			"error in utils.ExtractAdminsIDs(): got list of length 0 from '%s'",
 			adminsStr,
 		)
 	}

@@ -28,7 +28,7 @@ type Config struct {
 func InitConfig(verboseDebug bool) (*Config, error) {
 	if err := godotenv.Load(".env"); err != nil {
 		return nil, fmt.Errorf(
-			"error in InitConfig(): couldn't load a '.env' file: %v",
+			"error in config.InitConfig(): couldn't load a '.env' file: %v",
 			err,
 		)
 	}
@@ -36,7 +36,7 @@ func InitConfig(verboseDebug bool) (*Config, error) {
 	apiKey, err := extractApiKey()
 	if err != nil {
 		return nil, fmt.Errorf(
-			"error in InitConfig(): couldn't extract apiKey: %v",
+			"error in config.InitConfig(): couldn't extract apiKey: %v",
 			err,
 		)
 	}
@@ -44,7 +44,7 @@ func InitConfig(verboseDebug bool) (*Config, error) {
 	admins, err := extractAdmins()
 	if err != nil {
 		return nil, fmt.Errorf(
-			"error in InitConfig(): couldn't extract admins: %v",
+			"error in config.InitConfig(): couldn't extract admins: %v",
 			err,
 		)
 	}
@@ -52,7 +52,7 @@ func InitConfig(verboseDebug bool) (*Config, error) {
 	dbPath, err := extractDbPath()
 	if err != nil {
 		return nil, fmt.Errorf(
-			"error in InitConfig(): couldn't extract db path: %v",
+			"error in config.InitConfig(): couldn't extract db path: %v",
 			err,
 		)
 	}
@@ -60,7 +60,7 @@ func InitConfig(verboseDebug bool) (*Config, error) {
 	downloadPath, err := extractDownloadPath()
 	if err != nil {
 		return nil, fmt.Errorf(
-			"error in InitConfig(): couldn't extract download path: %v",
+			"error in config.InitConfig(): couldn't extract download path: %v",
 			err,
 		)
 	}
@@ -68,7 +68,7 @@ func InitConfig(verboseDebug bool) (*Config, error) {
 	logPath, err := extractLogPath()
 	if err != nil {
 		return nil, fmt.Errorf(
-			"error in InitConfig(): couldn't extract log path: %v",
+			"error in config.InitConfig(): couldn't extract log path: %v",
 			err,
 		)
 	}
@@ -89,7 +89,7 @@ func extractApiKey() (string, error) {
 	apiKey := os.Getenv("API_KEY")
 	if len(apiKey) == 0 {
 		return "", fmt.Errorf(
-			"error in extractApiKey(): empty API_KEY.",
+			"error in config.extractApiKey(): empty API_KEY.",
 		)
 	}
 	return apiKey, nil
@@ -101,14 +101,14 @@ func extractAdmins() ([]int64, error) {
 	adminsListStr := os.Getenv("ADMIN_LIST")
 	if len(adminsListStr) == 0 {
 		return nil, fmt.Errorf(
-			"error: error in extractAdmins(): empty ADMIN_LIST",
+			"error: error in config.extractAdmins(): empty ADMIN_LIST",
 		)
 	}
 
 	adminsList, err := utils.ExtractAdminsIDs(adminsListStr)
 	if err != nil {
 		return nil, fmt.Errorf(
-			"error in extractAdmins(): couldn't extract admins ids from '%s': %v",
+			"error in config.extractAdmins(): couldn't extract admins ids from '%s': %v",
 			adminsListStr,
 			err,
 		)
@@ -121,7 +121,7 @@ func extractDbPath() (string, error) {
 	dbPath := os.Getenv("DB_PATH")
 	if !fs.ValidPath(dbPath) || !strings.HasSuffix(dbPath, ".db") {
 		return "", fmt.Errorf(
-			"error in extractDbPath(): db path '%s' is invalid",
+			"error in config.extractDbPath(): db path '%s' is invalid",
 			dbPath,
 		)
 	}
@@ -134,7 +134,7 @@ func extractDownloadPath() (string, error) {
 	// TODO: also check that path is a dir and not a file
 	if !fs.ValidPath(dbPath) {
 		return "", fmt.Errorf(
-			"error in extractDownloadPath(): download path '%s' is invalid",
+			"error in config.extractDownloadPath(): download path '%s' is invalid",
 			dbPath,
 		)
 	}
@@ -147,7 +147,7 @@ func extractLogPath() (string, error) {
 	// TODO: also check that path is a dir and not a file
 	if !fs.ValidPath(dbPath) {
 		return "", fmt.Errorf(
-			"error in extractLogPath(): log path '%s' is invalid",
+			"error in config.extractLogPath(): log path '%s' is invalid",
 			dbPath,
 		)
 	}

@@ -44,7 +44,7 @@ func NewCheckData(rawCheckText string) (*CheckData, error) {
 	lines := r.Split(rawCheckText, -1)
 	if len(lines) == 0 {
 		return nil, fmt.Errorf(
-			"error in NewCheckData(%s): couldn't split the text by 'В т\\.ч\\. НДС \\d+%%'-pattern",
+			"error in reader.NewCheckData(%s): couldn't split the text by 'В т\\.ч\\. НДС \\d+%%'-pattern",
 			rawCheckText,
 		)
 	}
@@ -52,7 +52,7 @@ func NewCheckData(rawCheckText string) (*CheckData, error) {
 	timeOfCreation, err := extractTime(lines[0])
 	if err != nil {
 		return nil, fmt.Errorf(
-			"error in NewCheckData(%s): couldn't extract time: %v",
+			"error in reader.NewCheckData(%s): couldn't extract time: %v",
 			rawCheckText,
 			err,
 		)
@@ -61,7 +61,7 @@ func NewCheckData(rawCheckText string) (*CheckData, error) {
 	normalizedItems, err := normalizeItems(lines)
 	if err != nil {
 		return nil, fmt.Errorf(
-			"error in NewCheckData(%s): couldn't normalize items: %v",
+			"error in reader.NewCheckData(%s): couldn't normalize items: %v",
 			rawCheckText,
 			err,
 		)
@@ -70,7 +70,7 @@ func NewCheckData(rawCheckText string) (*CheckData, error) {
 	extractedItems, err := extractItems(normalizedItems)
 	if err != nil {
 		return nil, fmt.Errorf(
-			"error in NewCheckData(%s): couldn't extract items: %v",
+			"error in reader.NewCheckData(%s): couldn't extract items: %v",
 			rawCheckText,
 			err,
 		)
@@ -79,7 +79,7 @@ func NewCheckData(rawCheckText string) (*CheckData, error) {
 	orgName, err := extractOrgName(normalizedItems[len(lines)-1])
 	if err != nil {
 		return nil, fmt.Errorf(
-			"error in NewCheckData(%s): couldn't extract org name: %v",
+			"error in reader.NewCheckData(%s): couldn't extract org name: %v",
 			rawCheckText,
 			err,
 		)
@@ -88,7 +88,7 @@ func NewCheckData(rawCheckText string) (*CheckData, error) {
 	total, err := extractTotal(normalizedItems[len(lines)-1])
 	if err != nil {
 		return nil, fmt.Errorf(
-			"error in NewCheckData(%s): couldn't extract total: %v",
+			"error in reader.NewCheckData(%s): couldn't extract total: %v",
 			rawCheckText,
 			err,
 		)
@@ -110,12 +110,12 @@ const (
 func extractTime(rawLine string) (time.Time, error) {
 	idx := strings.Index(rawLine, "\n")
 	if idx == -1 {
-		return time.Time{}, fmt.Errorf("error in extractTime(%s): couldn't find '\\n'-symbol", rawLine)
+		return time.Time{}, fmt.Errorf("error in reader.extractTime(%s): couldn't find '\\n'-symbol", rawLine)
 	}
 
 	t, err := time.Parse(TBANK_TIME_FORMAT, rawLine[:idx])
 	if err != nil {
-		return t, fmt.Errorf("error in extractTime(%s): couldn't parse string '%s': %v", rawLine, rawLine[:idx], err)
+		return t, fmt.Errorf("error in reader.extractTime(%s): couldn't parse string '%s': %v", rawLine, rawLine[:idx], err)
 	}
 
 	return t, err
@@ -136,7 +136,7 @@ func normalizeItems(rawLines []string) ([]string, error) {
 	var lines []string
 	idx := strings.Index(rawLines[0], "\n")
 	if idx == -1 {
-		return lines, fmt.Errorf("error in normalizeItems(%v): couldn't normalize first line (can't find '\\n'-symbol); line: '%s'", lines, rawLines[0])
+		return lines, fmt.Errorf("error in reader.normalizeItems(%v): couldn't normalize first line (can't find '\\n'-symbol); line: '%s'", lines, rawLines[0])
 	}
 	rawLines[0] = rawLines[0][idx:]
 
@@ -158,7 +158,7 @@ func extractItems(lines []string) ([]CheckItem, error) {
 		item, err := NewCheckItem(line)
 		if err != nil {
 			return nil, fmt.Errorf(
-				"error in extractItems(%v): couldn't extract an item from line '%s': %v",
+				"error in reader.extractItems(%v): couldn't extract an item from line '%s': %v",
 				lines,
 				line,
 				err,
@@ -174,18 +174,18 @@ func extractOrgName(rawText string) (string, error) {
 	//rawText = trimAllLeadingNonsense(rawText)
 	idx := strings.Index(rawText, "РН ККТ: ") + len("РН ККТ: ")
 	if idx == -1 {
-		return "", fmt.Errorf("error in extractOrgName(%s): couldn't find substr 'РН ККТ: '", rawText)
+		return "", fmt.Errorf("error in reader.extractOrgName(%s): couldn't find substr 'РН ККТ: '", rawText)
 	}
 	rawText = rawText[idx:]
 
 	startIdx := strings.Index(rawText, " ") + 1
 	if startIdx == -1 {
-		return "", fmt.Errorf("error in extractOrgName(%s): couldn't find ' '-symbol for startIdx", rawText)
+		return "", fmt.Errorf("error in reader.extractOrgName(%s): couldn't find ' '-symbol for startIdx", rawText)
 	}
 
 	endIdx := strings.Index(rawText, "ИНН")
 	if endIdx == -1 {
-		return "", fmt.Errorf("error in extractOrgName(%s): couldn't find substr 'ИНН' for endIdx", rawText)
+		return "", fmt.Errorf("error in reader.extractOrgName(%s): couldn't find substr 'ИНН' for endIdx", rawText)
 	}
 
 	return strings.TrimSpace(rawText[startIdx:endIdx]), nil
@@ -195,19 +195,19 @@ func extractTotal(rawText string) (float64, error) {
 	rawText = trimAllLeadingNonsense(rawText)
 	startIdx := strings.Index(rawText, "Электронный платеж ") + len("Электронный платеж ")
 	if startIdx == -1 {
-		return -1, fmt.Errorf("error in extractTotal(%s): couldn't find substr 'Электронный платеж ' for startIdx", rawText)
+		return -1, fmt.Errorf("error in reader.extractTotal(%s): couldn't find substr 'Электронный платеж ' for startIdx", rawText)
 	}
 
 	endIdx := strings.Index(rawText, "Цена")
 	if startIdx == -1 {
-		return -1, fmt.Errorf("error in extractTotal(%s): couldn't find substr 'Цена' for endIdx", rawText)
+		return -1, fmt.Errorf("error in reader.extractTotal(%s): couldn't find substr 'Цена' for endIdx", rawText)
 	}
 
 	normalizedTotal := normalizePriceStr(rawText[startIdx:endIdx])
 	total, err := strconv.ParseFloat(normalizedTotal, 64)
 	if err != nil {
 		return -1, fmt.Errorf(
-			"error in extractTotal(%s): couldn't parse the total from line '%s': %v",
+			"error in reader.extractTotal(%s): couldn't parse the total from line '%s': %v",
 			rawText,
 			normalizedTotal,
 			err,

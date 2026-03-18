@@ -25,7 +25,7 @@ func OnDocumentActionHandler(conf *config.Config, c tele.Context, state fsm.Cont
 	targetFilePath, err := downloadFile(c, conf.DownloadPath, d.FileID, d.FileName)
 	if err != nil {
 		return fmt.Errorf(
-			"error in OnDocumentActionHandler(): couldn't download a file (%v)",
+			"error in handlers.OnDocumentActionHandler(): couldn't download a file (%v)",
 			err,
 		)
 	}
@@ -38,7 +38,7 @@ func OnDocumentActionHandler(conf *config.Config, c tele.Context, state fsm.Cont
 		sendErr := c.Send("error: couldn't extract data")
 
 		return fmt.Errorf(
-			"error in OnDocumentActionHandler(): could't extract data from file '%s' (%v). send with error: %v",
+			"error in handlers.OnDocumentActionHandler(): could't extract data from file '%s' (%v). send with error: %v",
 			targetFilePath,
 			err,
 			sendErr,
@@ -49,7 +49,7 @@ func OnDocumentActionHandler(conf *config.Config, c tele.Context, state fsm.Cont
 	check := static.CreateCheckFromCheckData(checkData)
 	if err := storageHelpers.UpdateCheck(check, c, state); err != nil {
 		return fmt.Errorf(
-			"error in OnDocumentActionHandler(): couldn't save check in state-storage (%v)",
+			"error in handlers.OnDocumentActionHandler(): couldn't save check in state-storage (%v)",
 			err,
 		)
 	}
@@ -57,7 +57,7 @@ func OnDocumentActionHandler(conf *config.Config, c tele.Context, state fsm.Cont
 	// save items in context
 	if err := storageHelpers.UpdateItemsList(static.CreateItemsFromCheckData(checkData), c, state); err != nil {
 		return fmt.Errorf(
-			"error in OnDocumentActionHandler(): couldn't save items in state-storage (%v)",
+			"error in handlers.OnDocumentActionHandler(): couldn't save items in state-storage (%v)",
 			err,
 		)
 	}
@@ -65,7 +65,7 @@ func OnDocumentActionHandler(conf *config.Config, c tele.Context, state fsm.Cont
 	// set state to StateWaitForCheckName
 	if err := storageHelpers.SetState(static.StateWaitForCheckName, c, state); err != nil {
 		return fmt.Errorf(
-			"error in OnDocumentActionHandler(): couldn't change a state to StateWaitForCheckName(%v)",
+			"error in handlers.OnDocumentActionHandler(): couldn't change a state to StateWaitForCheckName(%v)",
 			err,
 		)
 	}
@@ -79,7 +79,7 @@ func downloadFile(c tele.Context, downloadDirPath string, fileId string, fileNam
 	if err != nil {
 		sendErr := c.Send("error with 'c.Bot().FileByID': " + err.Error())
 		return "", fmt.Errorf(
-			"error in downloadFile(): couldn't find a file with id %s (%v), message sent with err: %v",
+			"error in handlers.downloadFile(): couldn't find a file with id %s (%v), message sent with err: %v",
 			fileId,
 			err,
 			sendErr,
@@ -91,7 +91,7 @@ func downloadFile(c tele.Context, downloadDirPath string, fileId string, fileNam
 	if err != nil {
 		sendErr := c.Send("error: couldn't download a file: " + err.Error())
 		return "", fmt.Errorf(
-			"error in downloadFile(): couldn't download a file {id: %s; name: %s; path: %s} (%v), message sent with err: %v",
+			"error in handlers.downloadFile(): couldn't download a file {id: %s; name: %s; path: %s} (%v), message sent with err: %v",
 			fileId,
 			fileName,
 			targetFilePath,

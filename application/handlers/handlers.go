@@ -21,7 +21,7 @@ func HandleAnyText(conf *config.Config, c tele.Context, state fsm.Context) error
 	currentState, err := state.State(context.Background())
 	if err != nil {
 		return fmt.Errorf(
-			"error in HandleAnyCallback(): couldn't receive users(%d) current state: %v",
+			"error in handlers.HandleAnyCallback(): couldn't receive users(%d) current state: %v",
 			c.Sender().ID, err,
 		)
 	}
@@ -29,11 +29,11 @@ func HandleAnyText(conf *config.Config, c tele.Context, state fsm.Context) error
 	switch currentState {
 	case static.StateWaitForCheckName:
 		if err := handleCheckName(conf, c, state); err != nil {
-			return fmt.Errorf("error in HandleAnyText(), state 'StateWaitForCheckName': %v", err)
+			return fmt.Errorf("error in handlers.HandleAnyText(), state 'StateWaitForCheckName': %v", err)
 		}
 	case static.StateWaitForNewCheckName:
 		if err := handleEditCheckName(conf, c, state); err != nil {
-			return fmt.Errorf("error in HandleAnyText(), state 'StateWaitForNewCheckName': %v", err)
+			return fmt.Errorf("error in handlers.HandleAnyText(), state 'StateWaitForNewCheckName': %v", err)
 		}
 	}
 	return nil
@@ -43,21 +43,21 @@ func handleCheckName(conf *config.Config, c tele.Context, state fsm.Context) err
 	_, err := storageHelpers.SetNewCheckNameFromMessage(c, state)
 	if err != nil {
 		return fmt.Errorf(
-			"error in handleCheckName(): couldn't set new check name (%v)",
+			"error in handlers.handleCheckName(): couldn't set new check name (%v)",
 			err,
 		)
 	}
 
 	if err := storageHelpers.SetState(static.StateWaitForCheckOwner, c, state); err != nil {
 		return fmt.Errorf(
-			"error in handleCheckName(): couldn't change a state (%v)",
+			"error in handlers.handleCheckName(): couldn't change a state (%v)",
 			err,
 		)
 	}
 	// prompt check ownership
 	if sendErr := c.Send(responses.GetAskForCheckOwnershipQuestion()); sendErr != nil {
 		return fmt.Errorf(
-			"error in handleCheckName(): couldn't send a 'check-ownership'-message (%v)",
+			"error in handlers.handleCheckName(): couldn't send a 'check-ownership'-message (%v)",
 			sendErr,
 		)
 	}
@@ -69,21 +69,21 @@ func handleEditCheckName(conf *config.Config, c tele.Context, state fsm.Context)
 	check, err := storageHelpers.SetNewCheckNameFromMessage(c, state)
 	if err != nil {
 		return fmt.Errorf(
-			"error in handleEditCheckName(): couldn't set new check name (%v)",
+			"error in handlers.handleEditCheckName(): couldn't set new check name (%v)",
 			err,
 		)
 	}
 
 	if err := c.Send(responses.GetNewCheckNameIsSavedResponse(check.Name)); err != nil {
 		return fmt.Errorf(
-			"error in handleEditCheckName(): couldn't send a message (%v)",
+			"error in handlers.handleEditCheckName(): couldn't send a message (%v)",
 			err,
 		)
 	}
 
 	if err := storageHelpers.SetState(static.StateEditingCheck, c, state); err != nil {
 		return fmt.Errorf(
-			"error in handleEditCheckName(): couldn't change a state (%v)",
+			"error in handlers.handleEditCheckName(): couldn't change a state (%v)",
 			err,
 		)
 	}
@@ -91,7 +91,7 @@ func handleEditCheckName(conf *config.Config, c tele.Context, state fsm.Context)
 	items, err := storageHelpers.GetItemsList(c, state)
 	if err != nil {
 		return fmt.Errorf(
-			"error in handleEditCheckName(): couldn't retrieve an items list (%v)",
+			"error in handlers.handleEditCheckName(): couldn't retrieve an items list (%v)",
 			err,
 		)
 	}
@@ -100,7 +100,7 @@ func handleEditCheckName(conf *config.Config, c tele.Context, state fsm.Context)
 
 	if err := c.Send(responses.GetEditCheckMessage(responseText)); err != nil {
 		return fmt.Errorf(
-			"error in handleEditCheckName(): couldn't send a message (%v)",
+			"error in handlers.handleEditCheckName(): couldn't send a message (%v)",
 			err,
 		)
 	}

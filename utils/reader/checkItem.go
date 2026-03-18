@@ -29,17 +29,17 @@ func (a *CheckItem) IsEqual(b *CheckItem) bool {
 func NewCheckItem(rawItemText string) (CheckItem, error) {
 	subTotal, err := extractPrice(rawItemText, SUBTOTAL)
 	if err != nil {
-		return CheckItem{}, fmt.Errorf("error in NewCheckIte: extractPrice('%s', SUBTOTAL) finished with an error: %v.", rawItemText, err)
+		return CheckItem{}, fmt.Errorf("error in reader.NewCheckIte: extractPrice('%s', SUBTOTAL) finished with an error: %v.", rawItemText, err)
 	}
 
 	price, err := extractPrice(rawItemText, PRICE)
 	if err != nil {
-		return CheckItem{}, fmt.Errorf("error in NewCheckIte: extractPrice('%s', PRICE) finished with an error: %v.", rawItemText, err)
+		return CheckItem{}, fmt.Errorf("error in reader.NewCheckIte: extractPrice('%s', PRICE) finished with an error: %v.", rawItemText, err)
 	}
 
 	name, err := extractItemName(rawItemText)
 	if err != nil {
-		return CheckItem{}, fmt.Errorf("error in NewCheckIte: extractItemName('%s') finished with an error: %v.", rawItemText, err)
+		return CheckItem{}, fmt.Errorf("error in reader.NewCheckIte: extractItemName('%s') finished with an error: %v.", rawItemText, err)
 	}
 
 	return CheckItem{
@@ -75,7 +75,7 @@ func extractPrice(rawItemText string, pos int) (float64, error) {
 		spaceIdx := strings.Index(s[dotIdx:], " ") + 1
 		priceStr = s[dotIdx:][spaceIdx:]
 	default:
-		return -1, fmt.Errorf("error: invalid 'pos' option: %v", pos)
+		return -1, fmt.Errorf("error in reader.extractPrice: invalid 'pos' option: %v", pos)
 	}
 
 	price, err := strconv.ParseFloat(normalizePriceStr(priceStr), 32)
@@ -95,12 +95,12 @@ func normalizePriceStr(rawPriceStr string) string {
 func extractItemName(rawItemText string) (string, error) {
 	dotIdx := strings.LastIndex(rawItemText, ".")
 	if dotIdx == -1 {
-		return "", fmt.Errorf("error: in extractItemName. couldn't find a '.' symbol in string: '%s'", rawItemText)
+		return "", fmt.Errorf("error in reader.extractItemName: couldn't find a '.' symbol in string: '%s'", rawItemText)
 	}
 	rawItemText = rawItemText[:dotIdx]
 	spaceIdx := strings.LastIndex(rawItemText, " ")
 	if spaceIdx == -1 {
-		return "", fmt.Errorf("error: in extractItemName. couldn't find a ' ' symbol in string: '%s'", rawItemText)
+		return "", fmt.Errorf("error in reader.extractItemName: couldn't find a ' ' symbol in string: '%s'", rawItemText)
 	}
 
 	return strings.TrimSpace(rawItemText[:spaceIdx]), nil

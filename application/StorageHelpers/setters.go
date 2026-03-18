@@ -19,7 +19,7 @@ func SetNewCheckNameFromMessage(c tele.Context, state fsm.Context) (*static.Chec
 	if err != nil {
 
 		return nil, fmt.Errorf(
-			"error in SetNewCheckName(): couldn't retrieve check from context (%v).",
+			"error in storageHelpers.SetNewCheckName(): couldn't retrieve check from context (%v).",
 			err,
 		)
 	}
@@ -33,7 +33,7 @@ func SetNewCheckNameFromMessage(c tele.Context, state fsm.Context) (*static.Chec
 	if err := state.Update(context.Background(), static.CHECK, check); err != nil {
 		sendErr := c.Send("error: couldn't save data in context")
 		return nil, fmt.Errorf(
-			"error in SetNewCheckName(): couldn't save check in state-storage (%v). sent with error: %v",
+			"error in storageHelpers.SetNewCheckName(): couldn't save check in state-storage (%v). sent with error: %v",
 			err,
 			sendErr,
 		)
@@ -54,7 +54,7 @@ func SetNewCheckOwnerFromCallback(c tele.Context, state fsm.Context) (*static.Ch
 		check, err := GetCheck(c, state)
 		if err != nil {
 			return nil, fmt.Errorf(
-				"error in SetNewCheckOwnerFromCallback(): couldn't retrieve a check (%v)",
+				"error in storageHelpers.SetNewCheckOwnerFromCallback(): couldn't retrieve a check (%v)",
 				err,
 			)
 		}
@@ -64,7 +64,7 @@ func SetNewCheckOwnerFromCallback(c tele.Context, state fsm.Context) (*static.Ch
 		if err := state.Update(context.Background(), static.CHECK, check); err != nil {
 			sendErr := c.Send("error: couldn't save data in context")
 			return nil, fmt.Errorf(
-				"error in SetNewCheckOwnerFromCallback(): couldn't save check in state-storage (%v). sent with error: %v",
+				"error in storageHelpers.SetNewCheckOwnerFromCallback(): couldn't save check in state-storage (%v). sent with error: %v",
 				err,
 				sendErr,
 			)
@@ -75,7 +75,7 @@ func SetNewCheckOwnerFromCallback(c tele.Context, state fsm.Context) (*static.Ch
 	default:
 		sendErr := c.Respond(&tele.CallbackResponse{Text: "error: invalid response: " + owner})
 		return nil, fmt.Errorf(
-			"error in SetNewCheckOwnerFromCallback(): invalid response (%s). sent with error: %v",
+			"error in storageHelpers.SetNewCheckOwnerFromCallback(): invalid response (%s). sent with error: %v",
 			owner,
 			sendErr,
 		)
@@ -86,7 +86,7 @@ func SetState(newState fsm.State, c tele.Context, state fsm.Context) error {
 	if err := state.SetState(context.Background(), newState); err != nil {
 		sendErr := c.Send("error: couldn't change a state")
 		return fmt.Errorf(
-			"error in SetState(): couldn't change a state to %s (%v). sent with error: %v",
+			"error in storageHelpers.SetState(): couldn't change a state to %s (%v). sent with error: %v",
 			newState,
 			err,
 			sendErr,
