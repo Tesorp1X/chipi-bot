@@ -7,6 +7,7 @@ import (
 	"time"
 
 	"github.com/Tesorp1X/chipi-bot/config"
+	"github.com/Tesorp1X/chipi-bot/db"
 
 	"github.com/vitaliy-ukiru/fsm-telebot/v2"
 	"github.com/vitaliy-ukiru/fsm-telebot/v2/fsmopt"
@@ -22,6 +23,7 @@ type Application struct {
 	dispatcher *dispatcher.Dispatcher
 	fsmManager *fsm.Manager
 	conf       *config.Config
+	dbService  *db.DBService
 }
 
 func (app *Application) RunBot(ctx context.Context) <-chan struct{} {
@@ -73,12 +75,21 @@ func NewApplication(conf *config.Config) (*Application, error) {
 	d := dispatcher.NewDispatcher(group)
 	manager := fsm.New(memory.NewStorage())
 
+	dbs, err := db.MakeNewDBService(conf)
+	if err != nil {
+		return nil, fmt.Errorf(
+			"error in application.NewApplication: couldn't initialize DB-Service: %v",
+			err,
+		)
+	}
+
 	app := &Application{
 		tgBot:      b,
 		botGroup:   group,
 		dispatcher: d,
 		fsmManager: manager,
 		conf:       conf,
+		dbService:  dbs,
 	}
 
 	app.registerCommands(allCommandsAndActions...)
