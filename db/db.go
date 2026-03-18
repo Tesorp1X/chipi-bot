@@ -32,7 +32,16 @@ func MakeNewDBService(conf *config.Config) (*DBService, error) {
 		)
 	}
 
-	return &DBService{db: db}, nil
+	dbs := &DBService{db: db}
+
+	if err := dbs.CreateIfNotExists(); err != nil {
+		return nil, fmt.Errorf(
+			"error in db.MakeNewDBService(): failed to create tables (%v)",
+			err,
+		)
+	}
+
+	return dbs, nil
 }
 
 func (dbs *DBService) Close() error {
