@@ -33,7 +33,7 @@ var allAllowedActionsAndStates []actionsWithStates = []actionsWithStates{
 func (app *Application) HandleAnyAction(c tele.Context, state fsm.Context) error {
 	switch {
 	case c.Callback() != nil:
-		if err := callbacks.HandleAnyCallback(app.conf, c, state); err != nil {
+		if err := callbacks.HandleAnyCallback(app.dbService, c, state); err != nil {
 			return fmt.Errorf("error in application.HandleAnyAction(), action 'OnCallback': %v", err)
 		}
 	case c.Message().Document != nil:

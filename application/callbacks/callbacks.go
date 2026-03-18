@@ -5,7 +5,7 @@ import (
 	"fmt"
 
 	storageHelpers "github.com/Tesorp1X/chipi-bot/application/StorageHelpers"
-	"github.com/Tesorp1X/chipi-bot/config"
+	"github.com/Tesorp1X/chipi-bot/db"
 	"github.com/Tesorp1X/chipi-bot/static"
 	"github.com/Tesorp1X/chipi-bot/utils/responses"
 
@@ -13,7 +13,7 @@ import (
 	tele "gopkg.in/telebot.v4"
 )
 
-func HandleAnyCallback(conf *config.Config, c tele.Context, state fsm.Context) error {
+func HandleAnyCallback(dbs *db.DBService, c tele.Context, state fsm.Context) error {
 	currentState, err := state.State(context.Background())
 	if err != nil {
 		return fmt.Errorf(
@@ -27,7 +27,7 @@ func HandleAnyCallback(conf *config.Config, c tele.Context, state fsm.Context) e
 	switch {
 	case currentState == static.StateWaitForCheckName &&
 		static.CallbackActionSelector.DataMatches(callbackData):
-		if err := handleKeepCheckNameCallback(conf, c, state); err != nil {
+		if err := handleKeepCheckNameCallback(dbs, c, state); err != nil {
 			return fmt.Errorf(
 				"error in callbacks.HandleAnyCallback(), state 'StateWaitForCheckName', action 'CallbackActionSelector': %v",
 				err,
@@ -35,7 +35,7 @@ func HandleAnyCallback(conf *config.Config, c tele.Context, state fsm.Context) e
 		}
 	case currentState == static.StateShowingAnItem &&
 		static.CallbackActionSelector.DataMatches(callbackData):
-		if err := handleShowingAnItemCallback(conf, c, state); err != nil {
+		if err := handleShowingAnItemCallback(dbs, c, state); err != nil {
 			return fmt.Errorf(
 				"error in callbacks.HandleAnyCallback(), state 'StateShowingAnItem', action 'CallbackActionSelector': %v",
 				err,
@@ -43,7 +43,7 @@ func HandleAnyCallback(conf *config.Config, c tele.Context, state fsm.Context) e
 		}
 	case currentState == static.StateWaitForItemOwner &&
 		static.CallbackActionEditItem.DataMatches(callbackData):
-		if err := handleItemOwnerCallback(conf, c, state); err != nil {
+		if err := handleItemOwnerCallback(dbs, c, state); err != nil {
 			return fmt.Errorf(
 				"error in callbacks.HandleAnyCallback(), state 'StateShowingAnItem', action 'CallbackActionEditItem': %v",
 				err,
@@ -51,7 +51,7 @@ func HandleAnyCallback(conf *config.Config, c tele.Context, state fsm.Context) e
 		}
 	case currentState == static.StateWaitingForCheckConfirmation &&
 		static.CallbackActionSelector.DataMatches(callbackData):
-		if err := handleFinalVerificationStage(conf, c, state); err != nil {
+		if err := handleFinalVerificationStage(dbs, c, state); err != nil {
 			return fmt.Errorf(
 				"error in callbacks.HandleAnyCallback(), state 'StateWaitingForCheckConfirmation', action 'CallbackActionSelector': %v",
 				err,
@@ -59,7 +59,7 @@ func HandleAnyCallback(conf *config.Config, c tele.Context, state fsm.Context) e
 		}
 	case currentState == static.StateEditingCheck &&
 		static.CallbackActionEditCheck.DataMatches(callbackData):
-		if err := handleEditFinalizedCheck(conf, c, state); err != nil {
+		if err := handleEditFinalizedCheck(dbs, c, state); err != nil {
 			return fmt.Errorf(
 				"error in callbacks.HandleAnyCallback(), state 'StateEditingCheck', action 'CallbackActionEditCheck': %v",
 				err,
@@ -67,7 +67,7 @@ func HandleAnyCallback(conf *config.Config, c tele.Context, state fsm.Context) e
 		}
 	case currentState == static.StateWaitForCheckOwner &&
 		static.CallbackActionEditCheck.DataMatches(callbackData):
-		if err := handleCheckOwnerCallback(conf, c, state); err != nil {
+		if err := handleCheckOwnerCallback(dbs, c, state); err != nil {
 			return fmt.Errorf(
 				"error in callbacks.HandleAnyCallback(), state 'StateWaitForCheckOwner', action 'CallbackActionEditCheck': %v",
 				err,
@@ -81,7 +81,7 @@ func HandleAnyCallback(conf *config.Config, c tele.Context, state fsm.Context) e
 	return nil
 }
 
-func handleKeepCheckNameCallback(conf *config.Config, c tele.Context, state fsm.Context) error {
+func handleKeepCheckNameCallback(dbs *db.DBService, c tele.Context, state fsm.Context) error {
 	c.Respond(&tele.CallbackResponse{})
 	// Replying ok!
 	if sendErr := c.EditOrSend("Хорошо. Название не меняем👌"); sendErr != nil {
@@ -108,7 +108,7 @@ func handleKeepCheckNameCallback(conf *config.Config, c tele.Context, state fsm.
 	return nil
 }
 
-func handleCheckOwnerCallback(conf *config.Config, c tele.Context, state fsm.Context) error {
+func handleCheckOwnerCallback(dbs *db.DBService, c tele.Context, state fsm.Context) error {
 	// try to set a new owner
 	_, err := storageHelpers.SetNewCheckOwnerFromCallback(c, state)
 	if err != nil {
@@ -158,7 +158,7 @@ func handleCheckOwnerCallback(conf *config.Config, c tele.Context, state fsm.Con
 	return nil
 }
 
-func handleShowingAnItemCallback(conf *config.Config, c tele.Context, state fsm.Context) error {
+func handleShowingAnItemCallback(dbs *db.DBService, c tele.Context, state fsm.Context) error {
 	action := static.CallbackActionSelector.GetData(c.Callback().Data)
 	switch action {
 	case static.CallbackSelectorChange:
@@ -205,7 +205,7 @@ func handleShowingAnItemCallback(conf *config.Config, c tele.Context, state fsm.
 	return nil
 }
 
-func handleItemOwnerCallback(conf *config.Config, c tele.Context, state fsm.Context) error {
+func handleItemOwnerCallback(dbs *db.DBService, c tele.Context, state fsm.Context) error {
 	itemOwner := static.CallbackActionEditItem.GetData(c.Callback().Data)
 	switch itemOwner {
 	case static.CallbackOwnerLiz, static.CallbackOwnerPau, static.CallbackOwnerBoth:
@@ -346,7 +346,7 @@ func handleItemOwnerCallback(conf *config.Config, c tele.Context, state fsm.Cont
 	return nil
 }
 
-func handleFinalVerificationStage(conf *config.Config, c tele.Context, state fsm.Context) error {
+func handleFinalVerificationStage(dbs *db.DBService, c tele.Context, state fsm.Context) error {
 	action := static.CallbackActionSelector.GetData(c.Callback().Data)
 
 	switch action {
@@ -360,19 +360,23 @@ func handleFinalVerificationStage(conf *config.Config, c tele.Context, state fsm
 			)
 		}
 
-		// retrieve items from context
-		// items, err := storageHelpers.GetItemsList(c, state)
-		// if err != nil {
-		// 	return fmt.Errorf(
-		// 		"error in handleFinalVerificationStage(): couldn't retrieve items (%v)",
-		// 		err,
-		// 	)
-		// }
+		items, err := storageHelpers.GetItemsList(c, state)
+		if err != nil {
+			return fmt.Errorf(
+				"error in callbacks.handleFinalVerificationStage(): couldn't retrieve items (%v)",
+				err,
+			)
+		}
 
-		// get session id
-		// assign session id to a check and save it to a db
-		// assign check id to every item and save it to a db
-		// transition state to Default
+		if err := dbs.AddNewCheckWithItems(check, items); err != nil {
+			sendErr := c.Send("error: couldn't save your check. try again")
+			return fmt.Errorf(
+				"error in callbacks.handleFinalVerificationStage(): couldn't save check-data to db (%v). sent with error (%v)",
+				err,
+				sendErr,
+			)
+		}
+
 		if err := state.Finish(context.Background(), true); err != nil {
 			sendErr := c.Send("error: couldn't finish your state")
 			return fmt.Errorf(
@@ -405,7 +409,7 @@ func handleFinalVerificationStage(conf *config.Config, c tele.Context, state fsm
 	return nil
 }
 
-func handleEditFinalizedCheck(conf *config.Config, c tele.Context, state fsm.Context) error {
+func handleEditFinalizedCheck(dbs *db.DBService, c tele.Context, state fsm.Context) error {
 	// figure out an action: what do we change
 	whatToChange := static.CallbackActionEditCheck.GetData(c.Callback().Data)
 	// retrieve check and items from context
