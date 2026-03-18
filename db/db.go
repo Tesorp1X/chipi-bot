@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"time"
 
+	"github.com/Tesorp1X/chipi-bot/config"
 	"github.com/Tesorp1X/chipi-bot/static"
 	"github.com/doug-martin/goqu/v9"
 
@@ -21,12 +22,12 @@ type DBService struct {
 // Creates a new instance of DBService with provided path [dsnURI].
 // Returns a pointer and a nil, if all goes well.
 // If any error occurs, a nil is returned with a wrapped error.
-func MakeNewDBService(dsnURI string) (*DBService, error) {
-	db, err := sql.Open("sqlite3", dsnURI)
+func MakeNewDBService(conf *config.Config) (*DBService, error) {
+	db, err := sql.Open("sqlite3", conf.DbPath)
 	if err != nil {
 		return nil, fmt.Errorf(
 			"error in db.MakeNewDBService(): couldn't open a db with uri: '%s' (%v)",
-			dsnURI,
+			conf.DbPath,
 			err,
 		)
 	}
