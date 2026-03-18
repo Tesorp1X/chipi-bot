@@ -22,7 +22,7 @@ func (app *Application) HandleAnyCommand(c tele.Context, state fsm.Context) erro
 	switch cmd {
 	case "/start":
 		if err := handlers.HandleStartCommand(c, state); err != nil {
-			return fmt.Errorf("error in HandleAnyCommand(), command '%s': %v", cmd, err)
+			return fmt.Errorf("error in application.HandleAnyCommand(), command '%s': %v", cmd, err)
 		}
 	default:
 		return c.Send("unknown command")

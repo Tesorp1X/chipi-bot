@@ -29,7 +29,7 @@ type Application struct {
 func (app *Application) RunBot(ctx context.Context) <-chan struct{} {
 	closedCh := make(chan struct{})
 	go app.tgBot.Start()
-	fmt.Println("started: from RunBot (after bot.Start())")
+	log.Println("started: from RunBot (after bot.Start())")
 
 	go func() {
 		defer func() {
@@ -55,7 +55,7 @@ func initBot(apiKey string, debug bool) (*tele.Bot, error) {
 
 	if err != nil {
 		return nil, fmt.Errorf(
-			"error in initBot(): couldn't init a new bot: %v",
+			"error in application.initBot(): couldn't init a new bot: %v",
 			err,
 		)
 	}
@@ -67,7 +67,7 @@ func NewApplication(conf *config.Config) (*Application, error) {
 	b, err := initBot(conf.ApiKey, conf.VerboseDebug)
 	if err != nil {
 		return nil, fmt.Errorf(
-			"error in NewApplication: couldn't initialize a new bot: %v",
+			"error in application.NewApplication: couldn't initialize a new bot: %v",
 			err,
 		)
 	}
