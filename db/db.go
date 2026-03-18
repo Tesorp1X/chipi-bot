@@ -111,9 +111,9 @@ func (dbs *DBService) createTable(name string, fields ...*field) error {
 // if no errors occurred. Otherwise, returns -1 and an error.
 func (dbs *DBService) createNewSession(tx *sql.Tx) (int64, error) {
 	ds := goqu.Insert(SESSIONS_TABLE_NAME).
-		Cols("created_at", "is_open").
+		Cols(SESSIONS_OPENED_AT, SESSIONS_IS_OPEN).
 		Vals(
-			goqu.Vals{"time", "true"},
+			goqu.Vals{time.Now().Format(time.DateTime), "true"},
 		)
 	insertSql, args, _ := ds.ToSQL()
 
@@ -150,7 +150,11 @@ func (dbs *DBService) createNewSession(tx *sql.Tx) (int64, error) {
 // If there is no active session, then it will be created first.
 // If anything goes wrong, '-1' and dn error is returned.
 func (dbs *DBService) getOrCreateSession(tx *sql.Tx) (int64, error) {
-	selectRowSql := fmt.Sprintf("SELECT id FROM %s WHERE is_open = ?", SESSIONS_TABLE_NAME)
+	selectRowSql := fmt.Sprintf(
+		"SELECT id FROM %s WHERE %s = ?",
+		SESSIONS_TABLE_NAME,
+		SESSIONS_IS_OPEN,
+	)
 	row := tx.QueryRow(selectRowSql, "true")
 	var id int64 = -1
 
