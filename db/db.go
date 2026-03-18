@@ -59,7 +59,7 @@ func (dbs *DBService) Close() error {
 // Creates all the tables from tablesWithNames array. Returns an error if anything goes wrong.
 func (dbs *DBService) CreateIfNotExists() error {
 	for _, table := range tablesWithNames {
-		if err := dbs.createTable(table.Name, table.Fields...); err != nil {
+		if err := dbs.createTable(table.Name, table.Columns...); err != nil {
 			return fmt.Errorf(
 				"in db.CreateIfNotExists(): couldn't create a '%s' table (%v)",
 				table.Name,
@@ -73,7 +73,7 @@ func (dbs *DBService) CreateIfNotExists() error {
 
 // Creates a table with provided name and fields.
 // If error occurs, returns a wrapped error.
-func (dbs *DBService) createTable(name string, fields ...*field) error {
+func (dbs *DBService) createTable(name string, fields ...*column) error {
 	sqlStmt, err := makeSqlStmtCreateTable(name, fields...)
 	if err != nil {
 		return fmt.Errorf(

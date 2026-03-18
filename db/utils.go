@@ -2,9 +2,10 @@ package db
 
 import (
 	"fmt"
+	"strings"
 )
 
-type field struct {
+type column struct {
 	Name         string
 	Type         string
 	IsPrimaryKey bool
@@ -16,46 +17,47 @@ type field struct {
 
 // Returns a ready to use SQL-statement for creating a table with provided name and fields.
 // If error occurs, returns an empty string with an error.
-func makeSqlStmtCreateTable(tableName string, fields ...*field) (string, error) {
-	var foreignKeys string
-	sqlStmt := "CREATE TABLE IF NOT EXISTS " + tableName + " ("
-	for i, f := range fields {
+func makeSqlStmtCreateTable(tableName string, columns ...*column) (string, error) {
+	var foreignKeys strings.Builder
+	var sqlStmt strings.Builder
+	sqlStmt.WriteString("CREATE TABLE IF NOT EXISTS " + tableName + " (")
+	for i, col := range columns {
 		if i == 0 {
-			if !f.IsPrimaryKey {
+			if !col.IsPrimaryKey {
 				return "", fmt.Errorf(
 					"error in db.makeSqlStmtCreateTable(): first field must be a primary key",
 				)
 			}
-			sqlStmt += f.Name + " " + f.Type + " PRIMARY KEY" + ", "
+			sqlStmt.WriteString(col.Name + " " + col.Type + " PRIMARY KEY" + ", ")
 		} else {
-			sqlStmt += f.Name + " " + f.Type
+			sqlStmt.WriteString(col.Name + " " + col.Type)
 
-			if !f.IsNullable {
-				sqlStmt += " NOT NULL"
+			if !col.IsNullable {
+				sqlStmt.WriteString(" NOT NULL")
 			}
 
-			if i != len(fields)-1 {
-				sqlStmt += ", "
+			if i != len(columns)-1 {
+				sqlStmt.WriteString(", ")
 			}
 
-			if f.IsForeignKey {
+			if col.IsForeignKey {
 				switch {
-				case f.RefTableName == "":
+				case col.RefTableName == "":
 					return "", fmt.Errorf(
 						"error in db.makeSqlStmtCreateTable(): RefTableName must be not empty if IsForeignKey is true",
 					)
-				case f.RefFieldName == "":
+				case col.RefFieldName == "":
 					return "", fmt.Errorf(
 						"error in db.makeSqlStmtCreateTable(): RefFieldName must be not empty if IsForeignKey is true",
 					)
 				default:
-					foreignKeys += ", FOREIGN KEY(" + f.Name + ") REFERENCES " + f.RefTableName + " (" + f.RefFieldName + ") "
+					foreignKeys.WriteString(", FOREIGN KEY(" + col.Name + ") REFERENCES " + col.RefTableName + " (" + col.RefFieldName + ") ")
 				}
 
 			}
 		}
 	}
-	sqlStmt += foreignKeys + ")"
+	sqlStmt.WriteString(foreignKeys.String() + ")")
 
-	return sqlStmt, nil
+	return sqlStmt.String(), nil
 }

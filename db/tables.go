@@ -54,7 +54,7 @@ const (
 )
 
 var (
-	checksTableFields []*field = []*field{
+	checksTableColumns []*column = []*column{
 		{
 			Name:         CHECKS_ID,
 			Type:         IntegerType,
@@ -98,7 +98,7 @@ var (
 		},
 	}
 
-	itemsTableFields []*field = []*field{
+	itemsTableColumns []*column = []*column{
 		{
 			Name:         ITEMS_ID,
 			Type:         IntegerType,
@@ -134,7 +134,7 @@ var (
 		},
 	}
 
-	sessionsTableFields []*field = []*field{
+	sessionsTableColumns []*column = []*column{
 		{
 			Name:         SESSIONS_ID,
 			Type:         IntegerType,
@@ -193,25 +193,25 @@ var (
 	}
 )
 
-type tableNameAndFields struct {
-	Name   string
-	Fields []*field
+type tableNameAndColumns struct {
+	Name    string
+	Columns []*column
 }
 
-type tables []*tableNameAndFields
+type tables []*tableNameAndColumns
 
 // Array of all tables
 var tablesWithNames = tables{
 	{
-		Name:   SESSIONS_TABLE_NAME,
-		Fields: sessionsTableFields,
+		Name:    SESSIONS_TABLE_NAME,
+		Columns: sessionsTableColumns,
 	},
 	{
-		Name:   CHECKS_TABLE_NAME,
-		Fields: checksTableFields,
+		Name:    CHECKS_TABLE_NAME,
+		Columns: checksTableColumns,
 	},
 	{
-		Name:   ITEMS_TABLE_NAME,
-		Fields: itemsTableFields,
+		Name:    ITEMS_TABLE_NAME,
+		Columns: itemsTableColumns,
 	},
 }
