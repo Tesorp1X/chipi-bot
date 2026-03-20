@@ -13,6 +13,8 @@ const (
 	SESSION_ID           = "session_id"
 	CURRENT_INDEX_TOTALS = "current_index_totals"
 	SESSION_TOTALS       = "session_totals"
+
+	IS_FROM_FINAL_STAGE = "is_from_final_stage"
 )
 
 //Callback data types

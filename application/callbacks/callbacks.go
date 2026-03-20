@@ -2,6 +2,7 @@ package callbacks
 
 import (
 	"context"
+	"errors"
 	"fmt"
 
 	storageHelpers "github.com/Tesorp1X/chipi-bot/application/StorageHelpers"
@@ -108,6 +109,58 @@ func handleKeepCheckNameCallback(dbs *db.DBService, c tele.Context, state fsm.Co
 	return nil
 }
 
+func handleCheckOwnerFromEditCheckCallback(c tele.Context, state fsm.Context) error {
+	errStorage := state.Update(context.Background(), static.IS_FROM_FINAL_STAGE, nil)
+
+	check, errCheck := storageHelpers.GetCheck(c, state)
+	items, errItems := storageHelpers.GetItemsList(c, state)
+
+	var checkStr string
+
+	if errCheck == nil && errItems == nil {
+		checkStr, _ = responses.GetVerificationFinalStepResponse(check, items)
+	}
+
+	sendErr := c.Send(responses.GetEditCheckMessage(checkStr))
+	stateErr := state.SetState(context.Background(), static.StateEditingCheck)
+
+	if sendErr != nil || stateErr != nil || errStorage != nil {
+		errMsg := "error in callbacks.handleCheckOwnerFromEditCheckCallback(): "
+		if errStorage != nil {
+			errMsg += fmt.Sprintf(
+				"\ncouldn't delete value with key '%s' from the storage (%v)\n",
+				static.IS_FROM_FINAL_STAGE,
+				sendErr,
+			)
+		}
+
+		if sendErr != nil {
+			errMsg += fmt.Sprintf(
+				"\nfailed to send a message (%v)\n",
+				sendErr,
+			)
+		}
+
+		if stateErr != nil {
+			errMsg += fmt.Sprintf(
+				"\nfailed to set the state to 'StateEditingCheck' (%v)\n",
+				stateErr,
+			)
+		}
+
+		if err := c.Send("error: " + errMsg); err != nil {
+			errMsg += fmt.Sprintf(
+				"sent with error (%v)\n",
+				err,
+			)
+		}
+
+		return errors.New(errMsg)
+	}
+
+	return nil
+}
+
 func handleCheckOwnerCallback(dbs *db.DBService, c tele.Context, state fsm.Context) error {
 	// try to set a new owner
 	_, err := storageHelpers.SetNewCheckOwnerFromCallback(c, state)
@@ -116,6 +169,16 @@ func handleCheckOwnerCallback(dbs *db.DBService, c tele.Context, state fsm.Conte
 			"error in callbacks.handleKeepCheckOwnerCallback(): couldn't set a check owner (%v)",
 			err,
 		)
+	}
+
+	// check if it's from EditCheck
+	var isFromFinalStage bool
+	if err := state.Data(
+		context.Background(),
+		static.IS_FROM_FINAL_STAGE,
+		&isFromFinalStage,
+	); err == nil && isFromFinalStage {
+		return handleCheckOwnerFromEditCheckCallback(c, state)
 	}
 
 	// prompt item-verification process
@@ -431,7 +494,9 @@ func handleEditFinalizedCheck(dbs *db.DBService, c tele.Context, state fsm.Conte
 		action = static.CallbackEditCheckName
 
 	case static.CallbackEditCheckOwner:
-		sendErr = nil
+		state.Update(context.Background(), static.IS_FROM_FINAL_STAGE, true)
+		sendErr = c.Send(responses.GetAskForCheckOwnershipQuestion())
+		stateErr = storageHelpers.SetState(static.StateWaitForCheckOwner, c, state)
 		action = static.CallbackEditCheckOwner
 
 	case static.CallbackEditCheckCreationDate:
