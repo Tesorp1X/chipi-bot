@@ -501,6 +501,7 @@ func handleEditFinalizedCheck(dbs *db.DBService, c tele.Context, state fsm.Conte
 
 	case static.CallbackEditCheckCreationDate:
 		sendErr = nil
+		//stateErr = storageHelpers.SetState(static.StateWaitForCheckCreationDate, c, state)
 		action = static.CallbackEditCheckCreationDate
 
 	case static.CallbackEditCheckItems:
@@ -512,24 +513,32 @@ func handleEditFinalizedCheck(dbs *db.DBService, c tele.Context, state fsm.Conte
 		action = static.CallbackEditCheckName
 	}
 
-	if sendErr != nil {
-		sendErrorMsgErr := c.Send("error: couldn't retrieve check info from context")
-		return fmt.Errorf(
-			"error in callbacks.handleEditFinalizedCheck(): in action '%s' couldn't send a message (%v).\nsent with error (%v)",
-			action,
-			sendErr,
-			sendErrorMsgErr,
-		)
-	}
+	if sendErr != nil || stateErr != nil {
+		errMsg := "error in callbacks.handleEditFinalizedCheck(): "
+		if sendErr != nil {
+			errMsg += fmt.Sprintf(
+				"\nin action '%s' couldn't send a message (%v)\n",
+				action,
+				sendErr,
+			)
+		}
 
-	if stateErr != nil {
-		sendErrorMsgErr := c.Send("error: couldn't change a state")
-		return fmt.Errorf(
-			"error in callbacks.handleEditFinalizedCheck(): in action '%s' couldn't set a state (%v).\nsent with error (%v)",
-			action,
-			stateErr,
-			sendErrorMsgErr,
-		)
+		if stateErr != nil {
+			errMsg += fmt.Sprintf(
+				"in action '%s' couldn't set a state (%v)\n",
+				action,
+				stateErr,
+			)
+		}
+
+		if err := c.Send("error: " + errMsg); err != nil {
+			errMsg += fmt.Sprintf(
+				"sent with error (%v)\n",
+				err,
+			)
+		}
+
+		return errors.New(errMsg)
 	}
 
 	return nil
