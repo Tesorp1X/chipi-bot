@@ -295,6 +295,7 @@ func GetNewCheckNameIsSavedResponse(checkName string) (string, *tele.ReplyMarkup
 func GetAskForCheckOwnershipQuestion() (string, *tele.ReplyMarkup) {
 	text := "<b>С чьей карты был оплачен чек?💳💵</b>"
 
+	// todo: add back button, i guess...
 	kb := createSelectorInlineKb(
 		2,
 		Button{
@@ -315,4 +316,12 @@ func GetAskForCheckOwnershipQuestion() (string, *tele.ReplyMarkup) {
 	)
 
 	return text, kb
+}
+
+func GetAskForNewCheckCreationDateQuestion() (string, *tele.ReplyMarkup) {
+	text := "<b><u>Изменение даты и времени</u></b>\n\n"
+	text += "Укажите новую дату и время в формате: <i>ГГГГ-ММ-ДД ЧЧ:ММ</i>"
+
+	// todo: add back button, i guess...
+	return text, nil
 }
