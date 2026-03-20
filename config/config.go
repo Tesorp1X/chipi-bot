@@ -92,6 +92,7 @@ func extractApiKey() (string, error) {
 			"error in config.extractApiKey(): empty API_KEY.",
 		)
 	}
+
 	return apiKey, nil
 }
 
@@ -118,39 +119,39 @@ func extractAdmins() ([]int64, error) {
 }
 
 func extractDbPath() (string, error) {
-	dbPath := os.Getenv("DB_PATH")
-	if !fs.ValidPath(dbPath) || !strings.HasSuffix(dbPath, ".db") {
+	path := os.Getenv("DB_PATH")
+	if !fs.ValidPath(path) || !strings.HasSuffix(path, ".db") {
 		return "", fmt.Errorf(
 			"error in config.extractDbPath(): db path '%s' is invalid",
-			dbPath,
+			path,
 		)
 	}
 
-	return dbPath, nil
+	return path, nil
 }
 
 func extractDownloadPath() (string, error) {
-	dbPath := os.Getenv("DOWNLOAD_PATH")
+	path := os.Getenv("DOWNLOAD_PATH")
 	// TODO: also check that path is a dir and not a file
-	if !fs.ValidPath(dbPath) {
+	if !fs.ValidPath(path) {
 		return "", fmt.Errorf(
 			"error in config.extractDownloadPath(): download path '%s' is invalid",
-			dbPath,
+			path,
 		)
 	}
 
-	return dbPath, nil
+	return path, nil
 }
 
 func extractLogPath() (string, error) {
-	dbPath := os.Getenv("LOG_PATH")
+	path := os.Getenv("LOG_PATH")
 	// TODO: also check that path is a dir and not a file
-	if !fs.ValidPath(dbPath) {
+	if !fs.ValidPath(path) {
 		return "", fmt.Errorf(
 			"error in config.extractLogPath(): log path '%s' is invalid",
-			dbPath,
+			path,
 		)
 	}
 
-	return dbPath, nil
+	return path, nil
 }
