@@ -115,7 +115,7 @@ func handleEditCheckName(c tele.Context, state fsm.Context) error {
 }
 
 func handleEditCheckCreationDate(c tele.Context, state fsm.Context) error {
-	gotDateStr := c.Message().Text
+	gotDateStr := c.Message().Text + ":00"
 	newDate, errTime := time.Parse(time.DateTime, gotDateStr)
 	if errTime != nil {
 		errMsg := fmt.Sprintf(
