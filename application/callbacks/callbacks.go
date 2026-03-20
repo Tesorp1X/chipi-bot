@@ -60,7 +60,7 @@ func HandleAnyCallback(dbs *db.DBService, c tele.Context, state fsm.Context) err
 		}
 	case currentState == static.StateEditingCheck &&
 		static.CallbackActionEditCheck.DataMatches(callbackData):
-		if err := handleEditFinalizedCheck(dbs, c, state); err != nil {
+		if err := handleEditFinalizedCheck(c, state); err != nil {
 			return fmt.Errorf(
 				"error in callbacks.HandleAnyCallback(), state 'StateEditingCheck', action 'CallbackActionEditCheck': %v",
 				err,
@@ -473,7 +473,7 @@ func handleFinalVerificationStage(dbs *db.DBService, c tele.Context, state fsm.C
 	return nil
 }
 
-func handleEditFinalizedCheck(dbs *db.DBService, c tele.Context, state fsm.Context) error {
+func handleEditFinalizedCheck(c tele.Context, state fsm.Context) error {
 	// figure out an action: what do we change
 	whatToChange := static.CallbackActionEditCheck.GetData(c.Callback().Data)
 	// retrieve check and items from context
