@@ -153,7 +153,7 @@ func handleEditCheckCreationDate(c tele.Context, state fsm.Context) error {
 
 	var checkStr string
 
-	if errCheck == nil && errItems == nil {
+	if errItems == nil {
 		checkStr, _ = responses.GetVerificationFinalStepResponse(check, items)
 	}
 
