@@ -500,8 +500,8 @@ func handleEditFinalizedCheck(dbs *db.DBService, c tele.Context, state fsm.Conte
 		action = static.CallbackEditCheckOwner
 
 	case static.CallbackEditCheckCreationDate:
-		sendErr = nil
-		//stateErr = storageHelpers.SetState(static.StateWaitForCheckCreationDate, c, state)
+		sendErr = c.Send(responses.GetAskForNewCheckCreationDateQuestion())
+		stateErr = storageHelpers.SetState(static.StateWaitForCheckCreationDate, c, state)
 		action = static.CallbackEditCheckCreationDate
 
 	case static.CallbackEditCheckItems:

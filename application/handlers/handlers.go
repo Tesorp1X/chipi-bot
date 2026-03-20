@@ -2,7 +2,9 @@ package handlers
 
 import (
 	"context"
+	"errors"
 	"fmt"
+	"time"
 
 	storageHelpers "github.com/Tesorp1X/chipi-bot/application/StorageHelpers"
 	"github.com/Tesorp1X/chipi-bot/config"
@@ -32,7 +34,8 @@ func HandleAnyText(conf *config.Config, c tele.Context, state fsm.Context) error
 			return fmt.Errorf("error in handlers.HandleAnyText(), state 'StateWaitForCheckName': %v", err)
 		}
 	case static.StateWaitForNewCheckName:
-		if err := handleEditCheckName(conf, c, state); err != nil {
+	case static.StateWaitForCheckCreationDate:
+		if err := handleEditCheckCreationDate(c, state); err != nil {
 			return fmt.Errorf("error in handlers.HandleAnyText(), state 'StateWaitForNewCheckName': %v", err)
 		}
 	}
@@ -103,6 +106,82 @@ func handleEditCheckName(conf *config.Config, c tele.Context, state fsm.Context)
 			"error in handlers.handleEditCheckName(): couldn't send a message (%v)",
 			err,
 		)
+	}
+
+	return nil
+}
+
+func handleEditCheckCreationDate(c tele.Context, state fsm.Context) error {
+	gotDateStr := c.Message().Text
+	newDate, errTime := time.Parse(time.DateTime, gotDateStr)
+	if errTime != nil {
+		errMsg := fmt.Sprintf(
+			"error in handlers.handleEditCheckCreationDate(): \nfailed to parse a given date-time '%s' (%v)\n",
+			gotDateStr,
+			errTime,
+		)
+		// todo: specify error maybe
+		sendErr := c.Send("error: wrong date-time format: " + errTime.Error())
+		if sendErr != nil {
+			errMsg += fmt.Sprintf("couldn't send a message (%v)\n", sendErr)
+		}
+
+		return errors.New(errMsg)
+	}
+
+	// date is fine
+	check, errCheck := storageHelpers.GetCheck(c, state)
+	if errCheck != nil {
+		return fmt.Errorf(
+			"error in handlers.handleEditCheckCreationDate(): failed to retrieve a check (%v)",
+			errCheck,
+		)
+	}
+
+	check.Date = &newDate
+	if err := storageHelpers.UpdateCheck(check, c, state); err != nil {
+		return fmt.Errorf(
+			"error in handlers.handleEditCheckCreationDate(): failed to update a check (%v)",
+			err,
+		)
+	}
+
+	items, errItems := storageHelpers.GetItemsList(c, state)
+
+	var checkStr string
+
+	if errCheck == nil && errItems == nil {
+		checkStr, _ = responses.GetVerificationFinalStepResponse(check, items)
+	}
+
+	sendErr := c.Send(responses.GetEditCheckMessage(checkStr))
+	stateErr := state.SetState(context.Background(), static.StateEditingCheck)
+
+	if sendErr != nil || stateErr != nil {
+		errMsg := "error in chandlers.handleEditCheckCreationDate(): "
+
+		if sendErr != nil {
+			errMsg += fmt.Sprintf(
+				"\nfailed to send a message (%v)\n",
+				sendErr,
+			)
+		}
+
+		if stateErr != nil {
+			errMsg += fmt.Sprintf(
+				"\nfailed to set the state to 'StateEditingCheck' (%v)\n",
+				stateErr,
+			)
+		}
+
+		if err := c.Send("error: " + errMsg); err != nil {
+			errMsg += fmt.Sprintf(
+				"sent with error (%v)\n",
+				err,
+			)
+		}
+
+		return errors.New(errMsg)
 	}
 
 	return nil
