@@ -30,10 +30,13 @@ func HandleAnyText(conf *config.Config, c tele.Context, state fsm.Context) error
 
 	switch currentState {
 	case static.StateWaitForCheckName:
-		if err := handleCheckName(conf, c, state); err != nil {
+		if err := handleCheckName(c, state); err != nil {
 			return fmt.Errorf("error in handlers.HandleAnyText(), state 'StateWaitForCheckName': %v", err)
 		}
 	case static.StateWaitForNewCheckName:
+		if err := handleEditCheckName(c, state); err != nil {
+			return fmt.Errorf("error in handlers.HandleAnyText(), state 'StateWaitForNewCheckName': %v", err)
+		}
 	case static.StateWaitForCheckCreationDate:
 		if err := handleEditCheckCreationDate(c, state); err != nil {
 			return fmt.Errorf("error in handlers.HandleAnyText(), state 'StateWaitForNewCheckName': %v", err)
@@ -42,7 +45,7 @@ func HandleAnyText(conf *config.Config, c tele.Context, state fsm.Context) error
 	return nil
 }
 
-func handleCheckName(conf *config.Config, c tele.Context, state fsm.Context) error {
+func handleCheckName(c tele.Context, state fsm.Context) error {
 	_, err := storageHelpers.SetNewCheckNameFromMessage(c, state)
 	if err != nil {
 		return fmt.Errorf(
@@ -68,7 +71,7 @@ func handleCheckName(conf *config.Config, c tele.Context, state fsm.Context) err
 	return nil
 }
 
-func handleEditCheckName(conf *config.Config, c tele.Context, state fsm.Context) error {
+func handleEditCheckName(c tele.Context, state fsm.Context) error {
 	check, err := storageHelpers.SetNewCheckNameFromMessage(c, state)
 	if err != nil {
 		return fmt.Errorf(

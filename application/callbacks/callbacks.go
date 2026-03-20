@@ -28,7 +28,7 @@ func HandleAnyCallback(dbs *db.DBService, c tele.Context, state fsm.Context) err
 	switch {
 	case currentState == static.StateWaitForCheckName &&
 		static.CallbackActionSelector.DataMatches(callbackData):
-		if err := handleKeepCheckNameCallback(dbs, c, state); err != nil {
+		if err := handleKeepCheckNameCallback(c, state); err != nil {
 			return fmt.Errorf(
 				"error in callbacks.HandleAnyCallback(), state 'StateWaitForCheckName', action 'CallbackActionSelector': %v",
 				err,
@@ -36,7 +36,7 @@ func HandleAnyCallback(dbs *db.DBService, c tele.Context, state fsm.Context) err
 		}
 	case currentState == static.StateShowingAnItem &&
 		static.CallbackActionSelector.DataMatches(callbackData):
-		if err := handleShowingAnItemCallback(dbs, c, state); err != nil {
+		if err := handleShowingAnItemCallback(c, state); err != nil {
 			return fmt.Errorf(
 				"error in callbacks.HandleAnyCallback(), state 'StateShowingAnItem', action 'CallbackActionSelector': %v",
 				err,
@@ -44,7 +44,7 @@ func HandleAnyCallback(dbs *db.DBService, c tele.Context, state fsm.Context) err
 		}
 	case currentState == static.StateWaitForItemOwner &&
 		static.CallbackActionEditItem.DataMatches(callbackData):
-		if err := handleItemOwnerCallback(dbs, c, state); err != nil {
+		if err := handleItemOwnerCallback(c, state); err != nil {
 			return fmt.Errorf(
 				"error in callbacks.HandleAnyCallback(), state 'StateShowingAnItem', action 'CallbackActionEditItem': %v",
 				err,
@@ -68,7 +68,7 @@ func HandleAnyCallback(dbs *db.DBService, c tele.Context, state fsm.Context) err
 		}
 	case currentState == static.StateWaitForCheckOwner &&
 		static.CallbackActionEditCheck.DataMatches(callbackData):
-		if err := handleCheckOwnerCallback(dbs, c, state); err != nil {
+		if err := handleCheckOwnerCallback(c, state); err != nil {
 			return fmt.Errorf(
 				"error in callbacks.HandleAnyCallback(), state 'StateWaitForCheckOwner', action 'CallbackActionEditCheck': %v",
 				err,
@@ -82,7 +82,7 @@ func HandleAnyCallback(dbs *db.DBService, c tele.Context, state fsm.Context) err
 	return nil
 }
 
-func handleKeepCheckNameCallback(dbs *db.DBService, c tele.Context, state fsm.Context) error {
+func handleKeepCheckNameCallback(c tele.Context, state fsm.Context) error {
 	c.Respond(&tele.CallbackResponse{})
 	// Replying ok!
 	if sendErr := c.EditOrSend("Хорошо. Название не меняем👌"); sendErr != nil {
@@ -161,7 +161,8 @@ func handleCheckOwnerFromEditCheckCallback(c tele.Context, state fsm.Context) er
 	return nil
 }
 
-func handleCheckOwnerCallback(dbs *db.DBService, c tele.Context, state fsm.Context) error {
+func handleCheckOwnerCallback(c tele.Context, state fsm.Context) error {
+	c.Respond(&tele.CallbackResponse{})
 	// try to set a new owner
 	_, err := storageHelpers.SetNewCheckOwnerFromCallback(c, state)
 	if err != nil {
@@ -221,7 +222,7 @@ func handleCheckOwnerCallback(dbs *db.DBService, c tele.Context, state fsm.Conte
 	return nil
 }
 
-func handleShowingAnItemCallback(dbs *db.DBService, c tele.Context, state fsm.Context) error {
+func handleShowingAnItemCallback(c tele.Context, state fsm.Context) error {
 	action := static.CallbackActionSelector.GetData(c.Callback().Data)
 	switch action {
 	case static.CallbackSelectorChange:
@@ -262,13 +263,13 @@ func handleShowingAnItemCallback(dbs *db.DBService, c tele.Context, state fsm.Co
 			)
 		}
 	default:
-		return c.Respond(&tele.CallbackResponse{Text: "error todo"})
+		return c.Respond(&tele.CallbackResponse{Text: "error: unknown action"})
 	}
 
 	return nil
 }
 
-func handleItemOwnerCallback(dbs *db.DBService, c tele.Context, state fsm.Context) error {
+func handleItemOwnerCallback(c tele.Context, state fsm.Context) error {
 	itemOwner := static.CallbackActionEditItem.GetData(c.Callback().Data)
 	switch itemOwner {
 	case static.CallbackOwnerLiz, static.CallbackOwnerPau, static.CallbackOwnerBoth:
