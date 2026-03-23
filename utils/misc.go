@@ -32,3 +32,9 @@ func ExtractAdminsIDs(adminsStr string) ([]int64, error) {
 
 	return res, nil
 }
+
+// Returns Callback data part, that comes after '|' symbol.
+func ExtractCallbackData(rawData string) string {
+	idx := strings.IndexRune(rawData, '|') + 1
+	return rawData[idx:]
+}
