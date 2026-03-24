@@ -329,36 +329,68 @@ func GetNewCheckNameIsSavedResponse(checkName string) (string, *tele.ReplyMarkup
 	return text, nil
 }
 
-func GetAskForCheckOwnershipQuestion() (string, *tele.ReplyMarkup) {
+func GetAskForCheckOwnershipQuestion(withBackButton bool) (string, *tele.ReplyMarkup) {
 	text := "<b>С чьей карты был оплачен чек?💳💵</b>"
 
-	// todo: add back button, i guess...
-	kb := createSelectorInlineKb(
-		2,
-		Button{
-			BtnTxt: "Liz💜",
-			Unique: static.CallbackActionEditCheck.String(),
-			Data:   static.CallbackOwnerLiz,
+	// todo: add go back button, i guess...
+	rows := []RowOfButtons{
+		{ // First row
+			BtnsPerRow: 2,
+			Btns: []Button{
+				{
+					BtnTxt: "Liz💜",
+					Unique: static.CallbackActionEditCheck.String(),
+					Data:   static.CallbackOwnerLiz,
+				},
+				{
+					BtnTxt: "Pau💙",
+					Unique: static.CallbackActionEditCheck.String(),
+					Data:   static.CallbackOwnerPau,
+				},
+			},
 		},
-		Button{
-			BtnTxt: "Pau💙",
-			Unique: static.CallbackActionEditCheck.String(),
-			Data:   static.CallbackOwnerPau,
+		{ // Second row
+			BtnsPerRow: 1,
+			Btns: []Button{
+				{
+					BtnTxt: "Both💜💙",
+					Unique: static.CallbackActionEditCheck.String(),
+					Data:   static.CallbackOwnerBoth,
+				},
+			},
 		},
-		Button{
-			BtnTxt: "Both💜💙",
-			Unique: static.CallbackActionEditCheck.String(),
-			Data:   static.CallbackOwnerBoth,
-		},
-	)
+	}
 
-	return text, kb
+	if withBackButton {
+		rows = append(rows,
+			RowOfButtons{
+				BtnsPerRow: 1,
+				Btns: []Button{
+					{
+						BtnTxt: "Назад ⬅️",
+						Unique: static.CallbackActionEditCheck.String(),
+						Data:   static.CallbackSelectorGoBack,
+					},
+				},
+			},
+		)
+	}
+
+	return text, createCustomRowsInlineKb(rows...)
 }
 
 func GetAskForNewCheckCreationDateQuestion() (string, *tele.ReplyMarkup) {
 	text := "<b><u>Изменение даты и времени</u></b>\n\n"
 	text += "Укажите новую дату и время в формате: <i>ГГГГ-ММ-ДД ЧЧ:ММ</i>"
 
-	// todo: add back button, i guess...
-	return text, nil
+	kb := createSelectorInlineKb(
+		1,
+		Button{
+			BtnTxt: "Назад ⬅️",
+			Unique: static.CallbackActionSelector.String(),
+			Data:   static.CallbackSelectorGoBack,
+		},
+	)
+
+	return text, kb
 }

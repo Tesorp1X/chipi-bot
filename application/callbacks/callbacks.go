@@ -8,6 +8,7 @@ import (
 	storageHelpers "github.com/Tesorp1X/chipi-bot/application/StorageHelpers"
 	"github.com/Tesorp1X/chipi-bot/db"
 	"github.com/Tesorp1X/chipi-bot/static"
+	"github.com/Tesorp1X/chipi-bot/utils"
 	"github.com/Tesorp1X/chipi-bot/utils/responses"
 
 	"github.com/vitaliy-ukiru/fsm-telebot/v2"
@@ -26,6 +27,14 @@ func HandleAnyCallback(dbs *db.DBService, c tele.Context, state fsm.Context) err
 	callbackData := c.Callback().Data
 
 	switch {
+	case utils.ExtractCallbackData(callbackData) == static.CallbackSelectorGoBack:
+		if err := handleGoBackButtonCallback(c, state); err != nil {
+			return fmt.Errorf(
+				"error in callbacks.HandleAnyCallback(), state '%s', action 'CallbackActionSelector', 'GoBack Button': %v",
+				currentState.GoString(),
+				err,
+			)
+		}
 	case currentState == static.StateWaitForCheckName &&
 		static.CallbackActionSelector.DataMatches(callbackData):
 		if err := handleKeepCheckNameCallback(c, state); err != nil {
@@ -79,6 +88,7 @@ func HandleAnyCallback(dbs *db.DBService, c tele.Context, state fsm.Context) err
 		c.Bot().EditReplyMarkup(c.Callback().Message, &tele.ReplyMarkup{})
 		return c.Respond(&tele.CallbackResponse{Text: "error todo", ShowAlert: true})
 	}
+
 	return nil
 }
 
@@ -99,7 +109,7 @@ func handleKeepCheckNameCallback(c tele.Context, state fsm.Context) error {
 		)
 	}
 	// prompt check ownership
-	if sendErr := c.Send(responses.GetAskForCheckOwnershipQuestion()); sendErr != nil {
+	if sendErr := c.Send(responses.GetAskForCheckOwnershipQuestion(responses.NO_GO_BACK_BUTTON)); sendErr != nil {
 		return fmt.Errorf(
 			"error in callbacks.handleKeepCheckNameCallback(): couldn't send a 'check-ownership'-message (%v)",
 			sendErr,
@@ -496,7 +506,7 @@ func handleEditFinalizedCheck(c tele.Context, state fsm.Context) error {
 
 	case static.CallbackEditCheckOwner:
 		state.Update(context.Background(), static.IS_FROM_FINAL_STAGE, true)
-		sendErr = c.Send(responses.GetAskForCheckOwnershipQuestion())
+		sendErr = c.Send(responses.GetAskForCheckOwnershipQuestion(responses.WITH_GO_BACK_BUTTON))
 		stateErr = storageHelpers.SetState(static.StateWaitForCheckOwner, c, state)
 		action = static.CallbackEditCheckOwner
 
@@ -541,6 +551,104 @@ func handleEditFinalizedCheck(c tele.Context, state fsm.Context) error {
 
 		return errors.New(errMsg)
 	}
+
+	return nil
+}
+
+func handleGoBackButtonCallback(c tele.Context, state fsm.Context) error {
+	currentState, err := state.State(context.Background())
+	if err != nil {
+		errResp := c.Respond(&tele.CallbackResponse{Text: "error: couldn't get your state"})
+		return fmt.Errorf(
+			"error in callbacks.handleGoBackButtonCallback(): failed to retrieve a current state (%v), responded with error (%v)",
+			err,
+			errResp,
+		)
+	}
+
+	errMsg := "error in callbacks.handleGoBackButtonCallback():\n"
+	userErrMsg := "error: "
+	switch currentState {
+	case static.StateEditingCheck:
+		// if from finalize go back to finalize else go to menu it came from (todo...)
+
+		check, checkErr := storageHelpers.GetCheck(c, state)
+		if checkErr != nil {
+			errMsg += fmt.Sprintf(
+				"failed to retrieve check from context (%v)\n",
+				checkErr,
+			)
+			userErrMsg += "failed to retrieve check data; "
+		}
+		items, itemsErr := storageHelpers.GetItemsList(c, state)
+		if itemsErr != nil {
+			errMsg += fmt.Sprintf(
+				"failed to retrieve items from context (%v)\n",
+				itemsErr,
+			)
+			userErrMsg += "failed to retrieve items; "
+		}
+
+		if checkErr != nil || itemsErr != nil {
+			respErr := c.Respond(&tele.CallbackResponse{Text: userErrMsg})
+			if respErr != nil {
+				errMsg += fmt.Sprintf(
+					"failed respond with errMsg '%s' (%v)\n",
+					userErrMsg,
+					respErr,
+				)
+			}
+
+			return errors.New(errMsg)
+		}
+
+		sendErr := c.Send(responses.GetVerificationFinalStepResponse(check, items))
+		if sendErr != nil {
+			errMsg += fmt.Sprintf(
+				"failed to send a message (%v)\n",
+				sendErr,
+			)
+		}
+		stateErr := state.SetState(context.Background(), static.StateWaitingForCheckConfirmation)
+		if stateErr != nil {
+			errMsg += fmt.Sprintf(
+				"failed to set state to 'StateWaitingForCheckConfirmation' (%v)\n",
+				stateErr,
+			)
+		}
+
+	case static.StateWaitForNewCheckName,
+		static.StateWaitForCheckOwner,
+		static.StateWaitForCheckCreationDate:
+		// go to edit check menu
+		check, checkErr := storageHelpers.GetCheck(c, state)
+		if checkErr != nil {
+
+		}
+		items, itemsErr := storageHelpers.GetItemsList(c, state)
+		if itemsErr != nil {
+
+		}
+		verificationText, _ := responses.GetVerificationFinalStepResponse(check, items)
+		sendErr := c.Send(responses.GetEditCheckMessage(verificationText))
+		if sendErr != nil {
+
+		}
+		stateErr := state.SetState(context.Background(), static.StateEditingCheck)
+		if stateErr != nil {
+
+		}
+
+	default:
+		respErr := c.Respond(&tele.CallbackResponse{Text: "error: couldn't take you back"})
+		return fmt.Errorf(
+			"error in callbacks.handleGoBackButtonCallback(): invalid state (%s) for 'go back' to be called from, responded with err (%v)",
+			currentState.GoString(),
+			respErr,
+		)
+	}
+
+	//c.Respond(&tele.CallbackResponse{Text: userErrMsg})
 
 	return nil
 }

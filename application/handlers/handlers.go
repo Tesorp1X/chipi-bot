@@ -61,7 +61,7 @@ func handleCheckName(c tele.Context, state fsm.Context) error {
 		)
 	}
 	// prompt check ownership
-	if sendErr := c.Send(responses.GetAskForCheckOwnershipQuestion()); sendErr != nil {
+	if sendErr := c.Send(responses.GetAskForCheckOwnershipQuestion(responses.WITH_GO_BACK_BUTTON)); sendErr != nil {
 		return fmt.Errorf(
 			"error in handlers.handleCheckName(): couldn't send a 'check-ownership'-message (%v)",
 			sendErr,
