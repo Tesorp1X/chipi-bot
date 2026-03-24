@@ -451,7 +451,7 @@ func handleFinalVerificationStage(dbs *db.DBService, c tele.Context, state fsm.C
 			)
 		}
 
-		if err := state.Finish(context.Background(), true); err != nil {
+		if err := state.Finish(context.Background(), static.DELETE_DATA); err != nil {
 			sendErr := c.Send("error: couldn't finish your state")
 			return fmt.Errorf(
 				"error in callbacks.handleFinalVerificationStage(): couldn't finish state (%v). sent with error (%v)",

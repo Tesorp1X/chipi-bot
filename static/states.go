@@ -29,3 +29,9 @@ const (
 	StateEditingCheck  fsm.State = "editing_check"
 	StateEditingAnItem fsm.State = "editing_item"
 )
+
+const (
+	// For usage in state.Finish method
+	DELETE_DATA = true
+	KEEP_DATA   = false
+)
