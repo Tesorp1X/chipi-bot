@@ -15,6 +15,11 @@ type Button struct {
 	Data   string
 }
 
+type RowOfButtons struct {
+	BtnsPerRow int
+	Btns       []Button
+}
+
 // Selector kb factory
 func createSelectorInlineKb(btnsPerRow int, buttons ...Button) *tele.ReplyMarkup {
 	rowsOfButtons := []tele.Btn{}
@@ -29,6 +34,38 @@ func createSelectorInlineKb(btnsPerRow int, buttons ...Button) *tele.ReplyMarkup
 	rm.Inline(rm.Split(btnsPerRow, rowsOfButtons)...)
 
 	return rm
+}
+
+func makeTeleRowFromButtons(amountOfBtns int, buttons ...Button) tele.Row {
+	var row tele.Row
+	for i, b := range buttons {
+		if i >= amountOfBtns {
+			// the rest of btns are cut of
+			break
+		}
+		row = append(row,
+			tele.Btn{
+				Text:   b.BtnTxt,
+				Unique: b.Unique,
+				Data:   b.Data,
+			},
+		)
+	}
+
+	return row
+}
+
+// Allows to create Inline Keyboards with different amount of buttons per row.
+// Returns a ready to use keyboard.
+func createCustomRowsInlineKb(rows ...RowOfButtons) *tele.ReplyMarkup {
+	kb := &tele.ReplyMarkup{}
+	var teleRows []tele.Row
+	for _, row := range rows {
+		teleRows = append(teleRows, appendButtonsToTeleBtn(row.BtnsPerRow, row.Btns...))
+	}
+
+	kb.Inline(teleRows...)
+	return kb
 }
 
 func GenerateNameVerificationResponse(checkName string) (string, *tele.ReplyMarkup) {
