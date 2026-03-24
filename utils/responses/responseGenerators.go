@@ -103,12 +103,12 @@ func GetItemVerificationResponse(item *static.Item, currentIndex, outOf int) (st
 	kb := createSelectorInlineKb(
 		2,
 		Button{
-			BtnTxt: "All good✅",
+			BtnTxt: "All good ✅",
 			Unique: static.CallbackActionSelector.String(),
 			Data:   static.CallbackSelectorKeep,
 		},
 		Button{
-			BtnTxt: "Изменить",
+			BtnTxt: "Изменить ✏️",
 			Unique: static.CallbackActionSelector.String(),
 			Data:   static.CallbackSelectorChange,
 		},
@@ -142,7 +142,7 @@ func GetEditItemInVerificationResponse(msgText string) (string, *tele.ReplyMarku
 			Data:   static.CallbackEditItemSubtotal,
 		},
 		Button{
-			BtnTxt: "Вернуться⬅️",
+			BtnTxt: "Вернуться ⬅️",
 			Unique: static.CallbackActionEditItem.String(),
 			Data:   static.CallbackSelectorGoBack,
 		},
@@ -156,17 +156,17 @@ func GetItemOwnershipQuestion() (string, *tele.ReplyMarkup) {
 	kb := createSelectorInlineKb(
 		2,
 		Button{
-			BtnTxt: "Liz💜",
+			BtnTxt: "Liz 💜",
 			Unique: static.CallbackActionEditItem.String(),
 			Data:   static.CallbackOwnerLiz,
 		},
 		Button{
-			BtnTxt: "Pau💙",
+			BtnTxt: "Pau 💙",
 			Unique: static.CallbackActionEditItem.String(),
 			Data:   static.CallbackOwnerPau,
 		},
 		Button{
-			BtnTxt: "Both💜💙",
+			BtnTxt: "Общий 💜💙",
 			Unique: static.CallbackActionEditItem.String(),
 			Data:   static.CallbackOwnerBoth,
 		},
@@ -197,12 +197,12 @@ func GetVerificationFinalStepResponse(check *static.Check, items []*static.Item)
 	kb := createSelectorInlineKb(
 		2,
 		Button{
-			BtnTxt: "All Good✅",
+			BtnTxt: "All Good ✅",
 			Unique: static.CallbackActionSelector.String(),
 			Data:   static.CallbackSelectorKeep,
 		},
 		Button{
-			BtnTxt: "Edit✏️",
+			BtnTxt: "Изменить ✏️",
 			Unique: static.CallbackActionSelector.String(),
 			Data:   static.CallbackSelectorChange,
 		},
@@ -338,12 +338,12 @@ func GetAskForCheckOwnershipQuestion(withBackButton bool) (string, *tele.ReplyMa
 			BtnsPerRow: 2,
 			Btns: []Button{
 				{
-					BtnTxt: "Liz💜",
+					BtnTxt: "Liz 💜",
 					Unique: static.CallbackActionEditCheck.String(),
 					Data:   static.CallbackOwnerLiz,
 				},
 				{
-					BtnTxt: "Pau💙",
+					BtnTxt: "Pau 💙",
 					Unique: static.CallbackActionEditCheck.String(),
 					Data:   static.CallbackOwnerPau,
 				},
@@ -353,7 +353,7 @@ func GetAskForCheckOwnershipQuestion(withBackButton bool) (string, *tele.ReplyMa
 			BtnsPerRow: 1,
 			Btns: []Button{
 				{
-					BtnTxt: "Both💜💙",
+					BtnTxt: "С общей 💜💙",
 					Unique: static.CallbackActionEditCheck.String(),
 					Data:   static.CallbackOwnerBoth,
 				},
