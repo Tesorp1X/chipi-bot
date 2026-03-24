@@ -61,7 +61,7 @@ func createCustomRowsInlineKb(rows ...RowOfButtons) *tele.ReplyMarkup {
 	kb := &tele.ReplyMarkup{}
 	var teleRows []tele.Row
 	for _, row := range rows {
-		teleRows = append(teleRows, appendButtonsToTeleBtn(row.BtnsPerRow, row.Btns...))
+		teleRows = append(teleRows, makeTeleRowFromButtons(row.BtnsPerRow, row.Btns...))
 	}
 
 	kb.Inline(teleRows...)
