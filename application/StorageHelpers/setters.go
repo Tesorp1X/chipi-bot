@@ -95,3 +95,29 @@ func SetState(newState fsm.State, c tele.Context, state fsm.Context) error {
 
 	return nil
 }
+
+// Sets a state of fsm.Context to default and removes data, if removeData is true.
+// Returns any error, that happened during work.
+func FinishState(removeData bool, c tele.Context, state fsm.Context) error {
+	currentState, _ := state.State(context.Background())
+	if stateErr := state.Finish(context.Background(), removeData); stateErr != nil {
+		sendErr := c.Send("error: failed to finish your state and delete all context data")
+		return fmt.Errorf(
+			"error in storageHelpers.FinishState(): failed to finish '%s' state (%v). sent with err (%v)",
+			currentState,
+			stateErr,
+			sendErr,
+		)
+	}
+
+	msg := "error happened: all data erased"
+	if sendErr := c.Send(msg); sendErr != nil {
+		return fmt.Errorf(
+			"error in storageHelpers.FinishState(): failed to to send a message '%s' (%v).",
+			msg,
+			sendErr,
+		)
+	}
+
+	return nil
+}

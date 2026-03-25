@@ -86,7 +86,7 @@ func HandleAnyCallback(dbs *db.DBService, c tele.Context, state fsm.Context) err
 	default:
 		// if callback query is old, remove inline buttons from that message
 		c.Bot().EditReplyMarkup(c.Callback().Message, &tele.ReplyMarkup{})
-		return c.Respond(&tele.CallbackResponse{Text: "error todo", ShowAlert: true})
+		return c.Respond(&tele.CallbackResponse{Text: "error: unsupported action", ShowAlert: true})
 	}
 
 	return nil
@@ -451,12 +451,10 @@ func handleFinalVerificationStage(dbs *db.DBService, c tele.Context, state fsm.C
 			)
 		}
 
-		if err := state.Finish(context.Background(), static.DELETE_DATA); err != nil {
-			sendErr := c.Send("error: couldn't finish your state")
+		if err := storageHelpers.FinishState(static.DELETE_DATA, c, state); err != nil {
 			return fmt.Errorf(
-				"error in callbacks.handleFinalVerificationStage(): couldn't finish state (%v). sent with error (%v)",
+				"error in callbacks.handleFinalVerificationStage(): couldn't finish state (%v).",
 				err,
-				sendErr,
 			)
 		}
 		// send an ok msg
