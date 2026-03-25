@@ -15,6 +15,10 @@ var allCommandsAndActions []commandWithStates = []commandWithStates{
 		command: "/start",
 		states:  []fsm.State{fsm.AnyState},
 	},
+	{
+		command: "/cancel",
+		states:  []fsm.State{fsm.AnyState},
+	},
 }
 
 func (app *Application) HandleAnyCommand(c tele.Context, state fsm.Context) error {
