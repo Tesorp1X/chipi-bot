@@ -6,6 +6,7 @@ import (
 	"fmt"
 
 	storageHelpers "github.com/Tesorp1X/chipi-bot/application/StorageHelpers"
+	"github.com/Tesorp1X/chipi-bot/application/prompts"
 	"github.com/Tesorp1X/chipi-bot/db"
 	"github.com/Tesorp1X/chipi-bot/static"
 	"github.com/Tesorp1X/chipi-bot/utils"
@@ -364,16 +365,9 @@ func handleItemOwnerCallback(c tele.Context, state fsm.Context) error {
 				)
 			}
 
-			if err := c.Send(responses.GetVerificationFinalStepResponse(check, items)); err != nil {
+			if err := prompts.SendCheckVerificationMessage(check, items, c, state); err != nil {
 				return fmt.Errorf(
-					"error in callbacks.handleItemOwnerCallback(): couldn't send a message (%v)",
-					err,
-				)
-			}
-
-			if err := storageHelpers.SetState(static.StateWaitingForCheckConfirmation, c, state); err != nil {
-				return fmt.Errorf(
-					"error in callbacks.handleItemOwnerCallback(): couldn't change a state (%v)",
+					"error in callbacks.handleItemOwnerCallback(): failed to send a verification message (%v)",
 					err,
 				)
 			}
@@ -600,19 +594,15 @@ func handleGoBackButtonCallback(c tele.Context, state fsm.Context) error {
 			return errors.New(errMsg)
 		}
 
-		sendErr := c.Send(responses.GetVerificationFinalStepResponse(check, items))
-		if sendErr != nil {
+		if err := prompts.SendCheckVerificationMessage(check, items, c, state); err != nil {
 			errMsg += fmt.Sprintf(
-				"failed to send a message (%v)\n",
-				sendErr,
+				"failed to send  verification message (%v)\n",
+				err,
 			)
 		}
-		stateErr := state.SetState(context.Background(), static.StateWaitingForCheckConfirmation)
-		if stateErr != nil {
-			errMsg += fmt.Sprintf(
-				"failed to set state to 'StateWaitingForCheckConfirmation' (%v)\n",
-				stateErr,
-			)
+
+		if errMsg != "error in callbacks.handleGoBackButtonCallback():\n" {
+			return errors.New(errMsg)
 		}
 
 	case static.StateWaitForNewCheckName,
