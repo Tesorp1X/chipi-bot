@@ -1,6 +1,7 @@
 package prompts
 
 import (
+	"context"
 	"fmt"
 
 	storageHelpers "github.com/Tesorp1X/chipi-bot/application/StorageHelpers"
@@ -10,16 +11,26 @@ import (
 	tele "gopkg.in/telebot.v4"
 )
 
-// Prepares and sends message with check verification and sets state to a 'StateWaitingForCheckConfirmation'.
+// Prepares and sends message with check-verification text and buttons and sets state to a 'StateWaitingForCheckConfirmation'.
 func SendCheckVerificationMessage(check *static.Check, items []*static.Item, c tele.Context, state fsm.Context) error {
 	if err := c.Send(responses.GetVerificationFinalStepResponse(check, items)); err != nil {
 		return fmt.Errorf(
-			"error in prompts.SendCheckVerificationMessage(): couldn't send a message (%v)",
+			"error in prompts.SendCheckVerificationMessage(): failed to send a message (%v)",
 			err,
 		)
 	}
 
 	if err := storageHelpers.SetState(static.StateWaitingForCheckConfirmation, c, state); err != nil {
+		currentState, _ := state.State(context.Background())
+		return fmt.Errorf(
+			"error in prompts.SendCheckVerificationMessage(): failed to change a state to a '%s' (%v)",
+			currentState,
+			err,
+		)
+	}
+
+	return nil
+}
 		return fmt.Errorf(
 			"error in prompts.SendCheckVerificationMessage(): couldn't change a state (%v)",
 			err,
