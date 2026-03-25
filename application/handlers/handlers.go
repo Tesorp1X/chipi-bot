@@ -7,6 +7,7 @@ import (
 	"time"
 
 	storageHelpers "github.com/Tesorp1X/chipi-bot/application/StorageHelpers"
+	"github.com/Tesorp1X/chipi-bot/application/prompts"
 	"github.com/Tesorp1X/chipi-bot/config"
 	"github.com/Tesorp1X/chipi-bot/static"
 	"github.com/Tesorp1X/chipi-bot/utils/responses"
@@ -101,13 +102,6 @@ func handleEditCheckName(c tele.Context, state fsm.Context) error {
 		)
 	}
 
-	if err := storageHelpers.SetState(static.StateEditingCheck, c, state); err != nil {
-		return fmt.Errorf(
-			"error in handlers.handleEditCheckName(): couldn't change a state (%v)",
-			err,
-		)
-	}
-
 	items, err := storageHelpers.GetItemsList(c, state)
 	if err != nil {
 		return fmt.Errorf(
@@ -116,11 +110,9 @@ func handleEditCheckName(c tele.Context, state fsm.Context) error {
 		)
 	}
 
-	responseText, _ := responses.GetVerificationFinalStepResponse(check, items)
-
-	if err := c.Send(responses.GetEditCheckMessage(responseText)); err != nil {
+	if err := prompts.SendEditCheckMessage(check, items, c, state); err != nil {
 		return fmt.Errorf(
-			"error in handlers.handleEditCheckName(): couldn't send a message (%v)",
+			"error in handlers.handleEditCheckName(): failed to send a check-edit message (%v)",
 			err,
 		)
 	}
@@ -133,7 +125,7 @@ func handleEditCheckCreationDate(c tele.Context, state fsm.Context) error {
 	newDate, errTime := time.Parse(time.DateTime, gotDateStr)
 	if errTime != nil {
 		errMsg := fmt.Sprintf(
-			"error in handlers.handleEditCheckCreationDate(): \nfailed to parse a given date-time '%s' (%v)\n",
+			"error in handlers.handleEditCheckCreationDate():\nfailed to parse a given date-time '%s' (%v)\n",
 			gotDateStr,
 			errTime,
 		)
@@ -164,41 +156,18 @@ func handleEditCheckCreationDate(c tele.Context, state fsm.Context) error {
 	}
 
 	items, errItems := storageHelpers.GetItemsList(c, state)
-
-	var checkStr string
-
-	if errItems == nil {
-		checkStr, _ = responses.GetVerificationFinalStepResponse(check, items)
+	if errItems != nil {
+		return fmt.Errorf(
+			"error in handlers.handleEditCheckCreationDate(): failed to retrieve items (%v)",
+			errItems,
+		)
 	}
 
-	sendErr := c.Send(responses.GetEditCheckMessage(checkStr))
-	stateErr := state.SetState(context.Background(), static.StateEditingCheck)
-
-	if sendErr != nil || stateErr != nil {
-		errMsg := "error in chandlers.handleEditCheckCreationDate(): "
-
-		if sendErr != nil {
-			errMsg += fmt.Sprintf(
-				"\nfailed to send a message (%v)\n",
-				sendErr,
-			)
-		}
-
-		if stateErr != nil {
-			errMsg += fmt.Sprintf(
-				"\nfailed to set the state to 'StateEditingCheck' (%v)\n",
-				stateErr,
-			)
-		}
-
-		if err := c.Send("error: " + errMsg); err != nil {
-			errMsg += fmt.Sprintf(
-				"sent with error (%v)\n",
-				err,
-			)
-		}
-
-		return errors.New(errMsg)
+	if err := prompts.SendEditCheckMessage(check, items, c, state); err != nil {
+		return fmt.Errorf(
+			"error in handlers.handleEditCheckCreationDate(): failed to send a check-edit message (%v)",
+			err,
+		)
 	}
 
 	return nil
