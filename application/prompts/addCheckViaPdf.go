@@ -53,3 +53,45 @@ func SendEditCheckMessage(check *static.Check, items []*static.Item, c tele.Cont
 
 	return nil
 }
+
+// For use in SendCheckOwnerMessage.
+const (
+	// In case of calling SendCheckOwnerMessage from AddCheck sequence, before final stage.
+	OwnershipInAddCheck = iota
+	// In case of calling SendCheckOwnerMessage from EditCheck scenarios.
+	OwnershipInEditCheck
+)
+
+// Sends a check ownership message with or without go-back button, depending on a cameFrom argument.
+func SendCheckOwnershipMessage(cameFrom int, c tele.Context, state fsm.Context) error {
+	var withGoBackButton bool
+	switch cameFrom {
+	case OwnershipInAddCheck:
+		withGoBackButton = false
+	case OwnershipInEditCheck:
+		state.Update(context.Background(), static.IS_FROM_FINAL_STAGE, true)
+		withGoBackButton = true
+	default:
+		return fmt.Errorf(
+			"error in prompts.SendCheckOwnerMessage(): invalid cameFrom value (%d)",
+			cameFrom,
+		)
+	}
+
+	if err := storageHelpers.SetState(static.StateWaitForCheckOwner, c, state); err != nil {
+		return fmt.Errorf(
+			"error in prompts.SendCheckOwnerMessage(): failed change state to a '%s' (%v)",
+			static.StateWaitForCheckOwner,
+			err,
+		)
+	}
+
+	if err := c.Send(responses.GetAskForCheckOwnershipQuestion(withGoBackButton)); err != nil {
+		return fmt.Errorf(
+			"error in prompts.SendCheckOwnerMessage(): failed to send check ownership message (%v)",
+			err,
+		)
+	}
+
+	return nil
+}
