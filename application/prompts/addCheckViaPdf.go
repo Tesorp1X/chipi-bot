@@ -31,8 +31,22 @@ func SendCheckVerificationMessage(check *static.Check, items []*static.Item, c t
 
 	return nil
 }
+
+// Prepares and sends message with check edit text and buttons and sets state to a 'StateEditingCheck'.
+func SendEditCheckMessage(check *static.Check, items []*static.Item, c tele.Context, state fsm.Context) error {
+	verificationText, _ := responses.GetVerificationFinalStepResponse(check, items)
+	if err := c.Send(responses.GetEditCheckMessage(verificationText)); err != nil {
 		return fmt.Errorf(
-			"error in prompts.SendCheckVerificationMessage(): couldn't change a state (%v)",
+			"error in prompts.SendCheckVerificationMessage(): failed to send a message (%v)",
+			err,
+		)
+	}
+
+	if err := storageHelpers.SetState(static.StateEditingCheck, c, state); err != nil {
+		currentState, _ := state.State(context.Background())
+		return fmt.Errorf(
+			"error in prompts.SendCheckVerificationMessage(): failed to change a state to a '%s' (%v)",
+			currentState,
 			err,
 		)
 	}
