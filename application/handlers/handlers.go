@@ -19,6 +19,19 @@ func HandleStartCommand(c tele.Context, state fsm.Context) error {
 	return c.Send("hello")
 }
 
+func HandleCancelCommand(c tele.Context, state fsm.Context) error {
+	if err := storageHelpers.FinishState(static.DELETE_DATA, c, state); err != nil {
+		return fmt.Errorf(
+			"error in handlers.HandleCancelCommand(): failed to finish state (%v)",
+			err,
+		)
+	}
+
+	c.Send("Canceled! All data removed.")
+
+	return nil
+}
+
 func HandleAnyText(conf *config.Config, c tele.Context, state fsm.Context) error {
 	currentState, err := state.State(context.Background())
 	if err != nil {
@@ -42,6 +55,7 @@ func HandleAnyText(conf *config.Config, c tele.Context, state fsm.Context) error
 			return fmt.Errorf("error in handlers.HandleAnyText(), state 'StateWaitForNewCheckName': %v", err)
 		}
 	}
+
 	return nil
 }
 
