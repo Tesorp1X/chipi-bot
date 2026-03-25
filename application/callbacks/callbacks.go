@@ -96,24 +96,17 @@ func HandleAnyCallback(dbs *db.DBService, c tele.Context, state fsm.Context) err
 func handleKeepCheckNameCallback(c tele.Context, state fsm.Context) error {
 	c.Respond(&tele.CallbackResponse{})
 	// Replying ok!
-	if sendErr := c.EditOrSend("Хорошо. Название не меняем👌"); sendErr != nil {
+	if err := c.EditOrSend("Хорошо. Название не меняем👌"); err != nil {
 		return fmt.Errorf(
 			"error in callbacks.handleKeepCheckNameCallback(): couldn't send an 'ok'-message (%v)",
-			sendErr,
-		)
-	}
-
-	if err := storageHelpers.SetState(static.StateWaitForCheckOwner, c, state); err != nil {
-		return fmt.Errorf(
-			"error in callbacks.handleKeepCheckNameCallback(): couldn't change a state (%v)",
 			err,
 		)
 	}
-	// prompt check ownership
-	if sendErr := c.Send(responses.GetAskForCheckOwnershipQuestion(responses.NO_GO_BACK_BUTTON)); sendErr != nil {
+
+	if err := prompts.SendCheckOwnershipMessage(prompts.OwnershipInAddCheck, c, state); err != nil {
 		return fmt.Errorf(
-			"error in callbacks.handleKeepCheckNameCallback(): couldn't send a 'check-ownership'-message (%v)",
-			sendErr,
+			"error in callbacks.handleKeepCheckNameCallback(): failed to send a check ownership message (%v)",
+			err,
 		)
 	}
 
@@ -497,9 +490,8 @@ func handleEditFinalizedCheck(c tele.Context, state fsm.Context) error {
 		action = static.CallbackEditCheckName
 
 	case static.CallbackEditCheckOwner:
-		state.Update(context.Background(), static.IS_FROM_FINAL_STAGE, true)
-		sendErr = c.Send(responses.GetAskForCheckOwnershipQuestion(responses.WITH_GO_BACK_BUTTON))
-		stateErr = storageHelpers.SetState(static.StateWaitForCheckOwner, c, state)
+		// todo: change structure to prompt-error and action
+		sendErr = prompts.SendCheckOwnershipMessage(prompts.OwnershipInEditCheck, c, state)
 		action = static.CallbackEditCheckOwner
 
 	case static.CallbackEditCheckCreationDate:

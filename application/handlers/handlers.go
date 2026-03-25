@@ -69,17 +69,10 @@ func handleCheckName(c tele.Context, state fsm.Context) error {
 		)
 	}
 
-	if err := storageHelpers.SetState(static.StateWaitForCheckOwner, c, state); err != nil {
+	if err := prompts.SendCheckOwnershipMessage(prompts.OwnershipInAddCheck, c, state); err != nil {
 		return fmt.Errorf(
-			"error in handlers.handleCheckName(): couldn't change a state (%v)",
+			"error in handlers.handleCheckName(): failed to send a check ownership message (%v)",
 			err,
-		)
-	}
-	// prompt check ownership
-	if sendErr := c.Send(responses.GetAskForCheckOwnershipQuestion(responses.WITH_GO_BACK_BUTTON)); sendErr != nil {
-		return fmt.Errorf(
-			"error in handlers.handleCheckName(): couldn't send a 'check-ownership'-message (%v)",
-			sendErr,
 		)
 	}
 
