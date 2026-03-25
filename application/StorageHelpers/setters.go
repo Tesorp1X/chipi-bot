@@ -110,14 +110,5 @@ func FinishState(removeData bool, c tele.Context, state fsm.Context) error {
 		)
 	}
 
-	msg := "error happened: all data erased"
-	if sendErr := c.Send(msg); sendErr != nil {
-		return fmt.Errorf(
-			"error in storageHelpers.FinishState(): failed to to send a message '%s' (%v).",
-			msg,
-			sendErr,
-		)
-	}
-
 	return nil
 }
