@@ -37,7 +37,7 @@ func SendEditCheckMessage(check *static.Check, items []*static.Item, c tele.Cont
 	verificationText, _ := responses.GetVerificationFinalStepResponse(check, items)
 	if err := c.Send(responses.GetEditCheckMessage(verificationText)); err != nil {
 		return fmt.Errorf(
-			"error in prompts.SendCheckVerificationMessage(): failed to send a message (%v)",
+			"error in prompts.SendEditCheckMessage(): failed to send a message (%v)",
 			err,
 		)
 	}
@@ -45,7 +45,7 @@ func SendEditCheckMessage(check *static.Check, items []*static.Item, c tele.Cont
 	if err := storageHelpers.SetState(static.StateEditingCheck, c, state); err != nil {
 		currentState, _ := state.State(context.Background())
 		return fmt.Errorf(
-			"error in prompts.SendCheckVerificationMessage(): failed to change a state to a '%s' (%v)",
+			"error in prompts.SendEditCheckMessage(): failed to change a state to a '%s' (%v)",
 			currentState,
 			err,
 		)
