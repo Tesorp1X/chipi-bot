@@ -560,71 +560,56 @@ func handleGoBackButtonCallback(c tele.Context, state fsm.Context) error {
 
 	errMsg := "error in callbacks.handleGoBackButtonCallback():\n"
 	userErrMsg := "error: "
+	check, checkErr := storageHelpers.GetCheck(c, state)
+	if checkErr != nil {
+		errMsg += fmt.Sprintf(
+			"failed to retrieve check from context (%v)\n",
+			checkErr,
+		)
+		userErrMsg += "failed to retrieve check data; "
+	}
+	items, itemsErr := storageHelpers.GetItemsList(c, state)
+	if itemsErr != nil {
+		errMsg += fmt.Sprintf(
+			"failed to retrieve items from context (%v)\n",
+			itemsErr,
+		)
+		userErrMsg += "failed to retrieve items; "
+	}
+
+	if checkErr != nil || itemsErr != nil {
+		respErr := c.Respond(&tele.CallbackResponse{Text: userErrMsg})
+		if respErr != nil {
+			errMsg += fmt.Sprintf(
+				"failed respond with errMsg '%s' (%v)\n",
+				userErrMsg,
+				respErr,
+			)
+		}
+
+		return errors.New(errMsg)
+	}
+
 	switch currentState {
 	case static.StateEditingCheck:
 		// if from finalize go back to finalize else go to menu it came from (todo...)
 
-		check, checkErr := storageHelpers.GetCheck(c, state)
-		if checkErr != nil {
-			errMsg += fmt.Sprintf(
-				"failed to retrieve check from context (%v)\n",
-				checkErr,
-			)
-			userErrMsg += "failed to retrieve check data; "
-		}
-		items, itemsErr := storageHelpers.GetItemsList(c, state)
-		if itemsErr != nil {
-			errMsg += fmt.Sprintf(
-				"failed to retrieve items from context (%v)\n",
-				itemsErr,
-			)
-			userErrMsg += "failed to retrieve items; "
-		}
-
-		if checkErr != nil || itemsErr != nil {
-			respErr := c.Respond(&tele.CallbackResponse{Text: userErrMsg})
-			if respErr != nil {
-				errMsg += fmt.Sprintf(
-					"failed respond with errMsg '%s' (%v)\n",
-					userErrMsg,
-					respErr,
-				)
-			}
-
-			return errors.New(errMsg)
-		}
-
 		if err := prompts.SendCheckVerificationMessage(check, items, c, state); err != nil {
 			errMsg += fmt.Sprintf(
-				"failed to send  verification message (%v)\n",
+				"failed to send a check-verification message (%v)\n",
 				err,
 			)
-		}
-
-		if errMsg != "error in callbacks.handleGoBackButtonCallback():\n" {
-			return errors.New(errMsg)
 		}
 
 	case static.StateWaitForNewCheckName,
 		static.StateWaitForCheckOwner,
 		static.StateWaitForCheckCreationDate:
 		// go to edit check menu
-		check, checkErr := storageHelpers.GetCheck(c, state)
-		if checkErr != nil {
-
-		}
-		items, itemsErr := storageHelpers.GetItemsList(c, state)
-		if itemsErr != nil {
-
-		}
-		verificationText, _ := responses.GetVerificationFinalStepResponse(check, items)
-		sendErr := c.Send(responses.GetEditCheckMessage(verificationText))
-		if sendErr != nil {
-
-		}
-		stateErr := state.SetState(context.Background(), static.StateEditingCheck)
-		if stateErr != nil {
-
+		if err := prompts.SendEditCheckMessage(check, items, c, state); err != nil {
+			errMsg += fmt.Sprintf(
+				"failed to send a check-edit message (%v)\n",
+				err,
+			)
 		}
 
 	default:
@@ -636,6 +621,9 @@ func handleGoBackButtonCallback(c tele.Context, state fsm.Context) error {
 		)
 	}
 
+	if errMsg != "error in callbacks.handleGoBackButtonCallback():\n" {
+		return errors.New(errMsg)
+	}
 	//c.Respond(&tele.CallbackResponse{Text: userErrMsg})
 
 	return nil
