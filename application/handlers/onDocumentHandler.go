@@ -4,10 +4,10 @@ import (
 	"fmt"
 
 	storageHelpers "github.com/Tesorp1X/chipi-bot/application/StorageHelpers"
+	"github.com/Tesorp1X/chipi-bot/application/prompts"
 	"github.com/Tesorp1X/chipi-bot/config"
 	"github.com/Tesorp1X/chipi-bot/static"
 	"github.com/Tesorp1X/chipi-bot/utils/reader"
-	"github.com/Tesorp1X/chipi-bot/utils/responses"
 
 	"github.com/vitaliy-ukiru/fsm-telebot/v2"
 	tele "gopkg.in/telebot.v4"
@@ -18,6 +18,9 @@ func OnDocumentActionHandler(conf *config.Config, c tele.Context, state fsm.Cont
 	if d == nil {
 		return c.Send("error: no file")
 	}
+
+	// verify that filename doesn't exist already
+	// ask to
 
 	// todo: log an error, but don't interrupt
 	c.Send("Скачиваю...📡💾")
@@ -62,16 +65,14 @@ func OnDocumentActionHandler(conf *config.Config, c tele.Context, state fsm.Cont
 		)
 	}
 
-	// set state to StateWaitForCheckName
-	if err := storageHelpers.SetState(static.StateWaitForCheckName, c, state); err != nil {
+	if err := prompts.SendNewCheckNameQuestionMessage(prompts.FromAddCheck, c, state); err != nil {
 		return fmt.Errorf(
-			"error in handlers.OnDocumentActionHandler(): couldn't change a state to StateWaitForCheckName(%v)",
+			"error in handlers.OnDocumentActionHandler(): couldn't send a 'new check name' prompt (%v)",
 			err,
 		)
 	}
 
-	// ask about check name, assuming name based on orgName
-	return c.Send(responses.GenerateNameVerificationResponse(check.Name))
+	return nil
 }
 
 func downloadFile(c tele.Context, downloadDirPath string, fileId string, fileName string) (string, error) {
