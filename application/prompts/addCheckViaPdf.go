@@ -22,7 +22,7 @@ func SendCheckVerificationMessage(check *static.Check, items []*static.Item, c t
 		)
 	}
 
-	if err := c.Send(responses.GetVerificationFinalStepResponse(check, items)); err != nil {
+	if err := c.EditOrSend(responses.GetVerificationFinalStepResponse(check, items)); err != nil {
 		return fmt.Errorf(
 			"error in prompts.SendCheckVerificationMessage(): failed to send a message (%v)",
 			err,
@@ -44,7 +44,7 @@ func SendEditCheckMessage(check *static.Check, items []*static.Item, c tele.Cont
 	}
 
 	verificationText, _ := responses.GetVerificationFinalStepResponse(check, items)
-	if err := c.Send(responses.GetEditCheckMessage(verificationText)); err != nil {
+	if err := c.EditOrSend(responses.GetEditCheckMessage(verificationText)); err != nil {
 		return fmt.Errorf(
 			"error in prompts.SendEditCheckMessage(): failed to send a message (%v)",
 			err,
@@ -87,7 +87,7 @@ func SendCheckOwnershipMessage(cameFrom int, c tele.Context, state fsm.Context) 
 		)
 	}
 
-	if err := c.Send(responses.GetAskForCheckOwnershipQuestion(withGoBackButton)); err != nil {
+	if err := c.EditOrSend(responses.GetAskForCheckOwnershipQuestion(withGoBackButton)); err != nil {
 		return fmt.Errorf(
 			"error in prompts.SendCheckOwnerMessage(): failed to send check ownership message (%v)",
 			err,
