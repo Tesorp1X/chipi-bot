@@ -114,53 +114,35 @@ func handleKeepCheckNameCallback(c tele.Context, state fsm.Context) error {
 }
 
 func handleCheckOwnerFromEditCheckCallback(c tele.Context, state fsm.Context) error {
-	errStorage := state.Update(context.Background(), static.IS_FROM_FINAL_STAGE, nil)
+	errMsg := "error in callbacks.handleCheckOwnerFromEditCheckCallback():\n"
 
-	check, errCheck := storageHelpers.GetCheck(c, state)
-	items, errItems := storageHelpers.GetItemsList(c, state)
-
-	var checkStr string
-
-	if errCheck == nil && errItems == nil {
-		checkStr, _ = responses.GetVerificationFinalStepResponse(check, items)
+	if err := state.Update(context.Background(), static.IS_FROM_FINAL_STAGE, nil); err != nil {
+		errMsg += fmt.Sprintf(
+			"failed to delete value with key '%s' from the storage (%v)\n",
+			static.IS_FROM_FINAL_STAGE,
+			err,
+		)
 	}
 
-	sendErr := c.Send(responses.GetEditCheckMessage(checkStr))
-	stateErr := state.SetState(context.Background(), static.StateEditingCheck)
+	if err := prompts.SendEditCheckMessage(c, state); err != nil {
+		errMsg += fmt.Sprintf(
+			"prompt failed (%v)\n",
+			err,
+		)
+	}
 
-	if sendErr != nil || stateErr != nil || errStorage != nil {
-		errMsg := "error in callbacks.handleCheckOwnerFromEditCheckCallback(): "
-		if errStorage != nil {
+	if errMsg != "error in callbacks.handleCheckOwnerFromEditCheckCallback():\n" {
+		if err := c.Respond(&tele.CallbackResponse{}); err != nil {
 			errMsg += fmt.Sprintf(
-				"\ncouldn't delete value with key '%s' from the storage (%v)\n",
-				static.IS_FROM_FINAL_STAGE,
-				sendErr,
-			)
-		}
-
-		if sendErr != nil {
-			errMsg += fmt.Sprintf(
-				"\nfailed to send a message (%v)\n",
-				sendErr,
-			)
-		}
-
-		if stateErr != nil {
-			errMsg += fmt.Sprintf(
-				"\nfailed to set the state to 'StateEditingCheck' (%v)\n",
-				stateErr,
-			)
-		}
-
-		if err := c.Send("error: " + errMsg); err != nil {
-			errMsg += fmt.Sprintf(
-				"sent with error (%v)\n",
+				"failed to respond with errMsg to a user (%v)",
 				err,
 			)
 		}
 
 		return errors.New(errMsg)
 	}
+
+	c.Respond(&tele.CallbackResponse{})
 
 	return nil
 }
