@@ -486,7 +486,7 @@ func handleEditFinalizedCheck(c tele.Context, state fsm.Context) error {
 		action = static.CallbackEditCheckOwner
 
 	case static.CallbackEditCheckCreationDate:
-		promptErr = c.Send(responses.GetAskForNewCheckCreationDateQuestion())
+		promptErr = prompts.SendNewCreationDateQuestionMessage(c, state)
 		action = static.CallbackEditCheckCreationDate
 
 	case static.CallbackEditCheckItems:
