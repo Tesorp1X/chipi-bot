@@ -103,7 +103,7 @@ func handleKeepCheckNameCallback(c tele.Context, state fsm.Context) error {
 		)
 	}
 
-	if err := prompts.SendCheckOwnershipMessage(prompts.OwnershipInAddCheck, c, state); err != nil {
+	if err := prompts.SendCheckOwnershipMessage(prompts.FromAddCheck, c, state); err != nil {
 		return fmt.Errorf(
 			"error in callbacks.handleKeepCheckNameCallback(): failed to send a check ownership message (%v)",
 			err,
@@ -471,60 +471,41 @@ func handleFinalVerificationStage(dbs *db.DBService, c tele.Context, state fsm.C
 func handleEditFinalizedCheck(c tele.Context, state fsm.Context) error {
 	// figure out an action: what do we change
 	whatToChange := static.CallbackActionEditCheck.GetData(c.Callback().Data)
-	// retrieve check and items from context
-	check, err := storageHelpers.GetCheck(c, state)
-	if err != nil {
-		return fmt.Errorf(
-			"error in callbacks.handleEditFinalizedCheck(): couldn't retrieve a check (%v)",
-			err,
-		)
-	}
 
-	var sendErr, stateErr error
+	var promptErr error
 	var action string
 
 	switch whatToChange {
 	case static.CallbackEditCheckName:
-		sendErr = c.EditOrSend(responses.GetAskForNewCheckNameResponse(check.Name))
-		stateErr = storageHelpers.SetState(static.StateWaitForNewCheckName, c, state)
+		promptErr = prompts.SendNewCheckNameQuestionMessage(prompts.FromEditCheckFinal, c, state)
 		action = static.CallbackEditCheckName
 
 	case static.CallbackEditCheckOwner:
 		// todo: change structure to prompt-error and action
-		sendErr = prompts.SendCheckOwnershipMessage(prompts.OwnershipInEditCheck, c, state)
+		promptErr = prompts.SendCheckOwnershipMessage(prompts.FromEditCheckFinal, c, state)
 		action = static.CallbackEditCheckOwner
 
 	case static.CallbackEditCheckCreationDate:
-		sendErr = c.Send(responses.GetAskForNewCheckCreationDateQuestion())
-		stateErr = storageHelpers.SetState(static.StateWaitForCheckCreationDate, c, state)
+		promptErr = c.Send(responses.GetAskForNewCheckCreationDateQuestion())
 		action = static.CallbackEditCheckCreationDate
 
 	case static.CallbackEditCheckItems:
-		sendErr = nil
+		promptErr = nil
 		action = static.CallbackEditCheckName
 
 	case static.CallbackSelectorGoBack:
-		sendErr = nil
+		promptErr = nil
 		action = static.CallbackEditCheckName
 	}
 
-	if sendErr != nil || stateErr != nil {
+	if promptErr != nil {
 		errMsg := "error in callbacks.handleEditFinalizedCheck(): "
-		if sendErr != nil {
-			errMsg += fmt.Sprintf(
-				"\nin action '%s' couldn't send a message (%v)\n",
-				action,
-				sendErr,
-			)
-		}
 
-		if stateErr != nil {
-			errMsg += fmt.Sprintf(
-				"in action '%s' couldn't set a state (%v)\n",
-				action,
-				stateErr,
-			)
-		}
+		errMsg += fmt.Sprintf(
+			"\nin action '%s' couldn't send a message (%v)\n",
+			action,
+			promptErr,
+		)
 
 		if err := c.Send("error: " + errMsg); err != nil {
 			errMsg += fmt.Sprintf(

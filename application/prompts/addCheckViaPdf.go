@@ -13,13 +13,6 @@ import (
 
 // Prepares and sends message with check-verification text and buttons and sets state to a 'StateWaitingForCheckConfirmation'.
 func SendCheckVerificationMessage(check *static.Check, items []*static.Item, c tele.Context, state fsm.Context) error {
-	if err := c.Send(responses.GetVerificationFinalStepResponse(check, items)); err != nil {
-		return fmt.Errorf(
-			"error in prompts.SendCheckVerificationMessage(): failed to send a message (%v)",
-			err,
-		)
-	}
-
 	if err := storageHelpers.SetState(static.StateWaitingForCheckConfirmation, c, state); err != nil {
 		currentState, _ := state.State(context.Background())
 		return fmt.Errorf(
@@ -29,19 +22,18 @@ func SendCheckVerificationMessage(check *static.Check, items []*static.Item, c t
 		)
 	}
 
+	if err := c.Send(responses.GetVerificationFinalStepResponse(check, items)); err != nil {
+		return fmt.Errorf(
+			"error in prompts.SendCheckVerificationMessage(): failed to send a message (%v)",
+			err,
+		)
+	}
+
 	return nil
 }
 
 // Prepares and sends message with check edit text and buttons and sets state to a 'StateEditingCheck'.
 func SendEditCheckMessage(check *static.Check, items []*static.Item, c tele.Context, state fsm.Context) error {
-	verificationText, _ := responses.GetVerificationFinalStepResponse(check, items)
-	if err := c.Send(responses.GetEditCheckMessage(verificationText)); err != nil {
-		return fmt.Errorf(
-			"error in prompts.SendEditCheckMessage(): failed to send a message (%v)",
-			err,
-		)
-	}
-
 	if err := storageHelpers.SetState(static.StateEditingCheck, c, state); err != nil {
 		currentState, _ := state.State(context.Background())
 		return fmt.Errorf(
@@ -51,24 +43,33 @@ func SendEditCheckMessage(check *static.Check, items []*static.Item, c tele.Cont
 		)
 	}
 
+	verificationText, _ := responses.GetVerificationFinalStepResponse(check, items)
+	if err := c.Send(responses.GetEditCheckMessage(verificationText)); err != nil {
+		return fmt.Errorf(
+			"error in prompts.SendEditCheckMessage(): failed to send a message (%v)",
+			err,
+		)
+	}
+
 	return nil
 }
 
-// For use in SendCheckOwnerMessage.
 const (
-	// In case of calling SendCheckOwnerMessage from AddCheck sequence, before final stage.
-	OwnershipInAddCheck = iota
-	// In case of calling SendCheckOwnerMessage from EditCheck scenarios.
-	OwnershipInEditCheck
+	// In case of calling from AddCheck sequence, before final stage.
+	FromAddCheck = iota
+	// In case of calling from EditCheck in final stage of AddCheck scenarios.
+	FromEditCheckFinal
+	// In case of calling from EditCheck scenarios.
+	FromEditCheck
 )
 
 // Sends a check ownership message with or without go-back button, depending on a cameFrom argument.
 func SendCheckOwnershipMessage(cameFrom int, c tele.Context, state fsm.Context) error {
 	var withGoBackButton bool
 	switch cameFrom {
-	case OwnershipInAddCheck:
+	case FromAddCheck:
 		withGoBackButton = false
-	case OwnershipInEditCheck:
+	case FromEditCheckFinal:
 		state.Update(context.Background(), static.IS_FROM_FINAL_STAGE, true)
 		withGoBackButton = true
 	default:
@@ -89,6 +90,55 @@ func SendCheckOwnershipMessage(cameFrom int, c tele.Context, state fsm.Context) 
 	if err := c.Send(responses.GetAskForCheckOwnershipQuestion(withGoBackButton)); err != nil {
 		return fmt.Errorf(
 			"error in prompts.SendCheckOwnerMessage(): failed to send check ownership message (%v)",
+			err,
+		)
+	}
+
+	return nil
+}
+
+// Sends a 'new check-name question' message.
+// Depending on a cameFrom argument, a different behavior is going to be applied:
+// - if FromAddCheck, then state will be set to StateWaitForCheckName and response used from GenerateNameVerificationResponse;
+// - if FromEditCheckFinal, then state will be set to StateWaitForNewCheckName and response used from GetAskForNewCheckNameResponse.
+func SendNewCheckNameQuestionMessage(cameFrom int, c tele.Context, state fsm.Context) error {
+	check, err := storageHelpers.GetCheck(c, state)
+	if err != nil {
+		return fmt.Errorf(
+			"error in prompts.SendNewCheckNameQuestionMessage(): failed to retrieve a check (%v)",
+			err,
+		)
+	}
+
+	var newState fsm.State
+	var text string
+	var kb *tele.ReplyMarkup
+
+	switch cameFrom {
+	case FromAddCheck:
+		newState = static.StateWaitForCheckName
+		text, kb = responses.GenerateNameVerificationResponse(check.Name)
+	case FromEditCheckFinal:
+		newState = static.StateWaitForNewCheckName
+		text, kb = responses.GetAskForNewCheckNameResponse(check.Name)
+	default:
+		return fmt.Errorf(
+			"error in prompts.SendCheckOwnerMessage(): invalid cameFrom value (%d)",
+			cameFrom,
+		)
+	}
+
+	if err := storageHelpers.SetState(newState, c, state); err != nil {
+		return fmt.Errorf(
+			"error in prompts.SendNewCheckNameQuestionMessage(): failed change state to a '%s' (%v)",
+			newState,
+			err,
+		)
+	}
+
+	if err := c.EditOrSend(text, kb); err != nil {
+		return fmt.Errorf(
+			"error in prompts.SendNewCheckNameQuestionMessage(): failed to send an edit-check message (%v)",
 			err,
 		)
 	}
