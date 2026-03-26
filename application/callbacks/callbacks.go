@@ -469,7 +469,6 @@ func handleFinalVerificationStage(dbs *db.DBService, c tele.Context, state fsm.C
 }
 
 func handleEditFinalizedCheck(c tele.Context, state fsm.Context) error {
-	// figure out an action: what do we change
 	whatToChange := static.CallbackActionEditCheck.GetData(c.Callback().Data)
 
 	var promptErr error
@@ -481,7 +480,6 @@ func handleEditFinalizedCheck(c tele.Context, state fsm.Context) error {
 		action = static.CallbackEditCheckName
 
 	case static.CallbackEditCheckOwner:
-		// todo: change structure to prompt-error and action
 		promptErr = prompts.SendCheckOwnershipMessage(prompts.FromEditCheckFinal, c, state)
 		action = static.CallbackEditCheckOwner
 
@@ -499,10 +497,10 @@ func handleEditFinalizedCheck(c tele.Context, state fsm.Context) error {
 	}
 
 	if promptErr != nil {
-		errMsg := "error in callbacks.handleEditFinalizedCheck(): "
+		errMsg := "error in callbacks.handleEditFinalizedCheck():\n"
 
 		errMsg += fmt.Sprintf(
-			"\nin action '%s' couldn't send a message (%v)\n",
+			"in action '%s' prompt failed (%v)\n",
 			action,
 			promptErr,
 		)
