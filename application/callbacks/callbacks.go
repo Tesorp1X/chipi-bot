@@ -358,7 +358,7 @@ func handleItemOwnerCallback(c tele.Context, state fsm.Context) error {
 				)
 			}
 
-			if err := prompts.SendCheckVerificationMessage(check, items, c, state); err != nil {
+			if err := prompts.SendCheckVerificationMessage(c, state); err != nil {
 				return fmt.Errorf(
 					"error in callbacks.handleItemOwnerCallback(): failed to send a verification message (%v)",
 					err,
@@ -532,42 +532,13 @@ func handleGoBackButtonCallback(c tele.Context, state fsm.Context) error {
 	}
 
 	errMsg := "error in callbacks.handleGoBackButtonCallback():\n"
-	userErrMsg := "error: "
-	check, checkErr := storageHelpers.GetCheck(c, state)
-	if checkErr != nil {
-		errMsg += fmt.Sprintf(
-			"failed to retrieve check from context (%v)\n",
-			checkErr,
-		)
-		userErrMsg += "failed to retrieve check data; "
-	}
-	items, itemsErr := storageHelpers.GetItemsList(c, state)
-	if itemsErr != nil {
-		errMsg += fmt.Sprintf(
-			"failed to retrieve items from context (%v)\n",
-			itemsErr,
-		)
-		userErrMsg += "failed to retrieve items; "
-	}
-
-	if checkErr != nil || itemsErr != nil {
-		respErr := c.Respond(&tele.CallbackResponse{Text: userErrMsg})
-		if respErr != nil {
-			errMsg += fmt.Sprintf(
-				"failed respond with errMsg '%s' (%v)\n",
-				userErrMsg,
-				respErr,
-			)
-		}
-
-		return errors.New(errMsg)
-	}
+	//userErrMsg := "error: "
 
 	switch currentState {
 	case static.StateEditingCheck:
 		// if from finalize go back to finalize else go to menu it came from (todo...)
 
-		if err := prompts.SendCheckVerificationMessage(check, items, c, state); err != nil {
+		if err := prompts.SendCheckVerificationMessage(c, state); err != nil {
 			errMsg += fmt.Sprintf(
 				"failed to send a check-verification message (%v)\n",
 				err,
@@ -578,7 +549,7 @@ func handleGoBackButtonCallback(c tele.Context, state fsm.Context) error {
 		static.StateWaitForCheckOwner,
 		static.StateWaitForCheckCreationDate:
 		// go to edit check menu
-		if err := prompts.SendEditCheckMessage(check, items, c, state); err != nil {
+		if err := prompts.SendEditCheckMessage(c, state); err != nil {
 			errMsg += fmt.Sprintf(
 				"failed to send a check-edit message (%v)\n",
 				err,

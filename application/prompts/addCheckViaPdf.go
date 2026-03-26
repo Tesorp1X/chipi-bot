@@ -12,7 +12,23 @@ import (
 )
 
 // Prepares and sends message with check-verification text and buttons and sets state to a 'StateWaitingForCheckConfirmation'.
-func SendCheckVerificationMessage(check *static.Check, items []*static.Item, c tele.Context, state fsm.Context) error {
+func SendCheckVerificationMessage(c tele.Context, state fsm.Context) error {
+	check, err := storageHelpers.GetCheck(c, state)
+	if err != nil {
+		return fmt.Errorf(
+			"error in prompts.SendCheckVerificationMessage(): failed to retrieve a check (%v)",
+			err,
+		)
+	}
+
+	items, err := storageHelpers.GetItemsList(c, state)
+	if err != nil {
+		return fmt.Errorf(
+			"error in prompts.SendCheckVerificationMessage(): failed to retrieve an items-list (%v)",
+			err,
+		)
+	}
+
 	if err := storageHelpers.SetState(static.StateWaitingForCheckConfirmation, c, state); err != nil {
 		currentState, _ := state.State(context.Background())
 		return fmt.Errorf(
@@ -33,7 +49,23 @@ func SendCheckVerificationMessage(check *static.Check, items []*static.Item, c t
 }
 
 // Prepares and sends message with check edit text and buttons and sets state to a 'StateEditingCheck'.
-func SendEditCheckMessage(check *static.Check, items []*static.Item, c tele.Context, state fsm.Context) error {
+func SendEditCheckMessage(c tele.Context, state fsm.Context) error {
+	check, err := storageHelpers.GetCheck(c, state)
+	if err != nil {
+		return fmt.Errorf(
+			"error in prompts.SendEditCheckMessage(): failed to retrieve a check (%v)",
+			err,
+		)
+	}
+
+	items, err := storageHelpers.GetItemsList(c, state)
+	if err != nil {
+		return fmt.Errorf(
+			"error in prompts.SendEditCheckMessage(): failed to retrieve an items-list (%v)",
+			err,
+		)
+	}
+
 	if err := storageHelpers.SetState(static.StateEditingCheck, c, state); err != nil {
 		currentState, _ := state.State(context.Background())
 		return fmt.Errorf(
