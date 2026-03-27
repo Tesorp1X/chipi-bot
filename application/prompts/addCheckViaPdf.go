@@ -200,8 +200,8 @@ func SendNewCreationDateQuestionMessage(c tele.Context, state fsm.Context) error
 
 // Sends a message with an item. Depending on a cameFrom argument,
 // a different behavior is going to be applied:
-// - if FromAddCheck, then state is set ot StateShowingAnItem and response is from GetItemVerificationResponse;
-// - if
+// - if FromAddCheck, then state is set to StateShowingAnItem and response is from GetItemVerificationResponse;
+// - if FromEditCheckFinal, then state is set to StateShowingAnItem and response is from GetShowItemForEditResponse;
 func SendShowItemsMessage(cameFrom int, c tele.Context, state fsm.Context) error {
 	items, err := storageHelpers.GetItemsList(c, state)
 	if err != nil {
