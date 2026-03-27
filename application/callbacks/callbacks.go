@@ -148,13 +148,14 @@ func handleCheckOwnerFromEditCheckCallback(c tele.Context, state fsm.Context) er
 }
 
 func handleCheckOwnerCallback(c tele.Context, state fsm.Context) error {
-	c.Respond(&tele.CallbackResponse{})
 	// try to set a new owner
 	_, err := storageHelpers.SetNewCheckOwnerFromCallback(c, state)
 	if err != nil {
+		respErr := c.Respond(&tele.CallbackResponse{Text: "Error: failed to update check owner"})
 		return fmt.Errorf(
-			"error in callbacks.handleKeepCheckOwnerCallback(): couldn't set a check owner (%v)",
+			"error in callbacks.handleKeepCheckOwnerCallback(): couldn't set a check owner (%v), responded with error (%v)",
 			err,
+			respErr,
 		)
 	}
 
@@ -204,6 +205,8 @@ func handleCheckOwnerCallback(c tele.Context, state fsm.Context) error {
 			sendErr,
 		)
 	}
+
+	c.Respond(&tele.CallbackResponse{})
 
 	return nil
 }
