@@ -33,6 +33,9 @@ const (
 	CallbackEditCheckOwner        = "owner"
 	CallbackEditCheckItems        = "items"
 
+	CallbackMenuGoForward  = "go_forward"
+	CallbackMenuGoBackward = "go_backward"
+
 	CallbackOwnerPau  = "owner_pau"
 	CallbackOwnerLiz  = "owner_liz"
 	CallbackOwnerBoth = "owner_both"
