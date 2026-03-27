@@ -228,7 +228,8 @@ func SendShowItemsMessage(cameFrom int, c tele.Context, state fsm.Context) error
 		newState = static.StateShowingAnItem
 		text, kb = responses.GetItemVerificationResponse(items[currentIndex], currentIndex, len(items))
 	case FromEditCheckFinal:
-		// todo
+		newState = static.StateShowingAnItem
+		text, kb = responses.GetShowItemForEditResponse(items[currentIndex], currentIndex, len(items))
 	default:
 		return fmt.Errorf(
 			"error in prompts.SendShowItemsMessage(): invalid cameFrom value (%d)",
