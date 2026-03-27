@@ -343,7 +343,7 @@ func GetAskForCheckOwnershipQuestion(withBackButton bool) (string, *tele.ReplyMa
 					Data:   static.CallbackOwnerLiz,
 				},
 				{
-					BtnTxt: "Pau 💙",
+					BtnTxt: "Pau 🩵",
 					Unique: static.CallbackActionEditCheck.String(),
 					Data:   static.CallbackOwnerPau,
 				},
@@ -353,7 +353,7 @@ func GetAskForCheckOwnershipQuestion(withBackButton bool) (string, *tele.ReplyMa
 			BtnsPerRow: 1,
 			Btns: []Button{
 				{
-					BtnTxt: "С общей 💜💙",
+					BtnTxt: "С общей 💜🩵",
 					Unique: static.CallbackActionEditCheck.String(),
 					Data:   static.CallbackOwnerBoth,
 				},
@@ -393,4 +393,54 @@ func GetAskForNewCheckCreationDateQuestion() (string, *tele.ReplyMarkup) {
 	)
 
 	return text, kb
+}
+
+func GetShowItemForEditResponse(item *static.Item, currentIndex, outOf int) (string, *tele.ReplyMarkup) {
+	text := fmt.Sprintf(
+		"<b>Товар: %d из %d</b>\n\n",
+		currentIndex+1,
+		outOf,
+	)
+	text += fmt.Sprintf(
+		"<i>Название:</i> %s\n<i>Цена:</i> %.2f\n<i>Кол-во:</i> %.3f\n<i>Сумма:</i> %.2f\n",
+		item.Name,
+		item.Price,
+		item.Amount,
+		item.Subtotal,
+	)
+
+	rows := []RowOfButtons{
+		{ // First row
+			BtnsPerRow: 3,
+			Btns: []Button{
+				{
+					BtnTxt: "⬅️",
+					Unique: static.CallbackActionNavigation.String(),
+					Data:   static.CallbackMenuGoForward,
+				},
+				{
+					BtnTxt: "Изменить ✏️",
+					Unique: static.CallbackActionEditItem.String(),
+					Data:   static.CallbackOwnerPau,
+				},
+				{
+					BtnTxt: "➡️",
+					Unique: static.CallbackActionNavigation.String(),
+					Data:   static.CallbackMenuGoBackward,
+				},
+			},
+		},
+		{ // Second row
+			BtnsPerRow: 1,
+			Btns: []Button{
+				{
+					BtnTxt: "Назад к чеку ⬅️",
+					Unique: static.CallbackActionSelector.String(),
+					Data:   static.CallbackSelectorGoBack,
+				},
+			},
+		},
+	}
+
+	return text, createCustomRowsInlineKb(rows...)
 }
