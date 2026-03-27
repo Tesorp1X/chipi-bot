@@ -112,3 +112,16 @@ func FinishState(removeData bool, c tele.Context, state fsm.Context) error {
 
 	return nil
 }
+
+// Removes given key from context storage. Returns any error, that happened during work.
+func DeleteKeyFromStorage(key string, c tele.Context, state fsm.Context) error {
+	if err := state.Update(context.Background(), key, nil); err != nil {
+		return fmt.Errorf(
+			"error in storageHelpers.DeleteKeyFromStorage(): failed to remove key '%s' (%v)",
+			key,
+			err,
+		)
+	}
+
+	return nil
+}

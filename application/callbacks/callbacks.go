@@ -116,10 +116,9 @@ func handleKeepCheckNameCallback(c tele.Context, state fsm.Context) error {
 func handleCheckOwnerFromEditCheckCallback(c tele.Context, state fsm.Context) error {
 	errMsg := "error in callbacks.handleCheckOwnerFromEditCheckCallback():\n"
 
-	if err := state.Update(context.Background(), static.IS_FROM_FINAL_STAGE, nil); err != nil {
+	if err := storageHelpers.DeleteKeyFromStorage(static.IS_FROM_FINAL_STAGE, c, state); err != nil {
 		errMsg += fmt.Sprintf(
-			"failed to delete value with key '%s' from the storage (%v)\n",
-			static.IS_FROM_FINAL_STAGE,
+			"failed to delete a key from the storage (%v)\n",
 			err,
 		)
 	}
