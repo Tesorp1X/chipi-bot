@@ -293,16 +293,10 @@ func handleItemOwnerCallback(c tele.Context, state fsm.Context) error {
 				)
 			}
 
-			// setting up verification process from ground up
-			sendErrMsgErr := c.Send("error: items list index is out of bounds. let's start over")
-			sendMsgErr := c.Send(responses.GetItemVerificationResponse(items[currentIndex], currentIndex, len(items)))
-			stateTransitionErr := storageHelpers.SetState(static.StateShowingAnItem, c, state)
-			if sendErrMsgErr != nil || sendMsgErr != nil {
+			if err := prompts.SendShowItemsMessage(prompts.FromAddCheck, c, state); err != nil {
 				return fmt.Errorf(
-					"error in callbacks.handleItemOwnerCallback(): problem with currentIndex being out of bounds.\nerrorMsg sent with error (%v)\nnew verification message sent with error (%v)\nstate transitioned with an error (%v)",
-					sendErrMsgErr,
-					sendMsgErr,
-					stateTransitionErr,
+					"error in callbacks.handleItemOwnerCallback(): prompt failed (%v)",
+					err,
 				)
 			}
 
@@ -368,18 +362,9 @@ func handleItemOwnerCallback(c tele.Context, state fsm.Context) error {
 		}
 
 		// get to the next item -> display that
-		err = c.Send(responses.GetItemVerificationResponse(items[currentIndex], currentIndex, len(items)))
-		if err != nil {
+		if err := prompts.SendShowItemsMessage(prompts.FromAddCheck, c, state); err != nil {
 			return fmt.Errorf(
-				"error in callbacks.handleItemOwnerCallback(): couldn't send a message with a new item (%v).",
-				err,
-			)
-		}
-
-		// set state to StateShowingAnItem
-		if err := storageHelpers.SetState(static.StateShowingAnItem, c, state); err != nil {
-			return fmt.Errorf(
-				"error in callbacks.handleItemOwnerCallback(): couldn't change a state (%v)",
+				"error in callbacks.handleItemOwnerCallback(): prompt failed (%v)",
 				err,
 			)
 		}

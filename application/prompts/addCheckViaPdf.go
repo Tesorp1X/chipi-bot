@@ -155,7 +155,7 @@ func SendNewCheckNameQuestionMessage(cameFrom int, c tele.Context, state fsm.Con
 		text, kb = responses.GetAskForNewCheckNameResponse(check.Name)
 	default:
 		return fmt.Errorf(
-			"error in prompts.SendCheckOwnerMessage(): invalid cameFrom value (%d)",
+			"error in prompts.SendNewCheckNameQuestionMessage(): invalid cameFrom value (%d)",
 			cameFrom,
 		)
 	}
@@ -191,6 +191,62 @@ func SendNewCreationDateQuestionMessage(c tele.Context, state fsm.Context) error
 	if err := c.EditOrSend(responses.GetAskForNewCheckCreationDateQuestion()); err != nil {
 		return fmt.Errorf(
 			"error in prompts.SendNewCheckNameQuestionMessage(): failed to send an edit-check message (%v)",
+			err,
+		)
+	}
+
+	return nil
+}
+
+// Sends a message with an item. Depending on a cameFrom argument,
+// a different behavior is going to be applied:
+// - if FromAddCheck, then state is set ot StateShowingAnItem and response is from GetItemVerificationResponse;
+// - if
+func SendShowItemsMessage(cameFrom int, c tele.Context, state fsm.Context) error {
+	items, err := storageHelpers.GetItemsList(c, state)
+	if err != nil {
+		return fmt.Errorf(
+			"error in prompts.SendShowItemsMessage(): failed to retrieve an items-list (%v)",
+			err,
+		)
+	}
+
+	currentIndex, err := storageHelpers.GetCurrentIndex(c, state)
+	if err != nil {
+		return fmt.Errorf(
+			"error in prompts.SendShowItemsMessage(): failed to retrieve a current index (%v)",
+			err,
+		)
+	}
+
+	var newState fsm.State
+	var text string
+	var kb *tele.ReplyMarkup
+
+	switch cameFrom {
+	case FromAddCheck:
+		newState = static.StateShowingAnItem
+		text, kb = responses.GetItemVerificationResponse(items[currentIndex], currentIndex, len(items))
+	case FromEditCheckFinal:
+		// todo
+	default:
+		return fmt.Errorf(
+			"error in prompts.SendShowItemsMessage(): invalid cameFrom value (%d)",
+			cameFrom,
+		)
+	}
+
+	if err := storageHelpers.SetState(newState, c, state); err != nil {
+		return fmt.Errorf(
+			"error in prompts.SendShowItemsMessage(): failed change state to a '%s' (%v)",
+			newState,
+			err,
+		)
+	}
+
+	if err := c.EditOrSend(text, kb); err != nil {
+		return fmt.Errorf(
+			"error in prompts.SendShowItemsMessage(): failed to send a 'show item' message (%v)",
 			err,
 		)
 	}
