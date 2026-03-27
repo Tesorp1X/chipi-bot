@@ -85,6 +85,16 @@ func GenerateNameVerificationResponse(checkName string) (string, *tele.ReplyMark
 	return response, kb
 }
 
+func sPrintItemInfo(item *static.Item) string {
+	return fmt.Sprintf(
+		"<i>Название:</i> %s\n<i>Цена:</i> %.2f\n<i>Кол-во:</i> %.3f\n<i>Сумма:</i> %.2f\n",
+		item.Name,
+		item.Price,
+		item.Amount,
+		item.Subtotal,
+	)
+}
+
 func GetItemVerificationResponse(item *static.Item, currentIndex, outOf int) (string, *tele.ReplyMarkup) {
 	response := fmt.Sprintf(
 		"<b>Проверяем товары: %d из %d</b>\n\n",
@@ -92,13 +102,7 @@ func GetItemVerificationResponse(item *static.Item, currentIndex, outOf int) (st
 		outOf,
 	)
 
-	response += fmt.Sprintf(
-		"<i>Название:</i> %s\n<i>Цена:</i> %.2f\n<i>Кол-во:</i> %.3f\n<i>Сумма:</i> %.2f\n",
-		item.Name,
-		item.Price,
-		item.Amount,
-		item.Subtotal,
-	)
+	response += sPrintItemInfo(item)
 
 	kb := createSelectorInlineKb(
 		2,
@@ -401,13 +405,7 @@ func GetShowItemForEditResponse(item *static.Item, currentIndex, outOf int) (str
 		currentIndex+1,
 		outOf,
 	)
-	text += fmt.Sprintf(
-		"<i>Название:</i> %s\n<i>Цена:</i> %.2f\n<i>Кол-во:</i> %.3f\n<i>Сумма:</i> %.2f\n",
-		item.Name,
-		item.Price,
-		item.Amount,
-		item.Subtotal,
-	)
+	text += sPrintItemInfo(item)
 
 	rows := []RowOfButtons{
 		{ // First row
