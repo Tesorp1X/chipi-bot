@@ -30,10 +30,9 @@ func SendCheckVerificationMessage(c tele.Context, state fsm.Context) error {
 	}
 
 	if err := storageHelpers.SetState(static.StateWaitingForCheckConfirmation, c, state); err != nil {
-		currentState, _ := state.State(context.Background())
 		return fmt.Errorf(
 			"error in prompts.SendCheckVerificationMessage(): failed to change a state to a '%s' (%v)",
-			currentState,
+			static.StateWaitingForCheckConfirmation,
 			err,
 		)
 	}
@@ -67,10 +66,9 @@ func SendEditCheckMessage(c tele.Context, state fsm.Context) error {
 	}
 
 	if err := storageHelpers.SetState(static.StateEditingCheck, c, state); err != nil {
-		currentState, _ := state.State(context.Background())
 		return fmt.Errorf(
 			"error in prompts.SendEditCheckMessage(): failed to change a state to a '%s' (%v)",
-			currentState,
+			static.StateEditingCheck,
 			err,
 		)
 	}
