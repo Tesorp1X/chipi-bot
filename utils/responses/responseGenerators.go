@@ -316,7 +316,7 @@ func GetAskForNewCheckNameResponse(currentCheckName string) (string, *tele.Reply
 		1,
 		Button{
 			BtnTxt: "Назад ⬅️",
-			Unique: static.CallbackActionEditCheck.String(),
+			Unique: static.CallbackActionEditUnsavedCheck.String(),
 			Data:   static.CallbackMenuGoBack,
 		},
 	)
@@ -343,12 +343,12 @@ func GetAskForCheckOwnershipQuestion(withBackButton bool) (string, *tele.ReplyMa
 			Btns: []Button{
 				{
 					BtnTxt: "Liz 💜",
-					Unique: static.CallbackActionEditCheck.String(),
+					Unique: static.CallbackActionEditUnsavedCheck.String(),
 					Data:   static.CallbackOwnerLiz,
 				},
 				{
 					BtnTxt: "Pau 🩵",
-					Unique: static.CallbackActionEditCheck.String(),
+					Unique: static.CallbackActionEditUnsavedCheck.String(),
 					Data:   static.CallbackOwnerPau,
 				},
 			},
@@ -358,7 +358,7 @@ func GetAskForCheckOwnershipQuestion(withBackButton bool) (string, *tele.ReplyMa
 			Btns: []Button{
 				{
 					BtnTxt: "С общей 💜🩵",
-					Unique: static.CallbackActionEditCheck.String(),
+					Unique: static.CallbackActionEditUnsavedCheck.String(),
 					Data:   static.CallbackOwnerBoth,
 				},
 			},
@@ -372,7 +372,7 @@ func GetAskForCheckOwnershipQuestion(withBackButton bool) (string, *tele.ReplyMa
 				Btns: []Button{
 					{
 						BtnTxt: "Назад ⬅️",
-						Unique: static.CallbackActionEditCheck.String(),
+						Unique: static.CallbackActionEditUnsavedCheck.String(),
 						Data:   static.CallbackMenuGoBack,
 					},
 				},
@@ -391,7 +391,7 @@ func GetAskForNewCheckCreationDateQuestion() (string, *tele.ReplyMarkup) {
 		1,
 		Button{
 			BtnTxt: "Назад ⬅️",
-			Unique: static.CallbackActionSelector.String(),
+			Unique: static.CallbackActionEditUnsavedCheck.String(),
 			Data:   static.CallbackMenuGoBack,
 		},
 	)
