@@ -23,15 +23,15 @@ const (
 	CallbackSelectorChange = "change"
 	CallbackSelectorGoBack = "go_back"
 
-	CallbackEditItemName     = "name"
-	CallbackEditItemPrice    = "price"
-	CallbackEditItemAmount   = "amount"
-	CallbackEditItemSubtotal = "subtotal"
+	CallbackEditItemName     = "item_name"
+	CallbackEditItemPrice    = "item_price"
+	CallbackEditItemAmount   = "item_amount"
+	CallbackEditItemSubtotal = "item_subtotal"
 
-	CallbackEditCheckName         = "name"
-	CallbackEditCheckCreationDate = "date"
-	CallbackEditCheckOwner        = "owner"
-	CallbackEditCheckItems        = "items"
+	CallbackEditCheckName         = "check_name"
+	CallbackEditCheckCreationDate = "check_date"
+	CallbackEditCheckOwner        = "check_owner"
+	CallbackEditCheckItems        = "check_items"
 
 	CallbackMenuGoForward  = "go_forward"
 	CallbackMenuGoBackward = "go_backward"
