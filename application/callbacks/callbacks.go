@@ -28,7 +28,7 @@ func HandleAnyCallback(dbs *db.DBService, c tele.Context, state fsm.Context) err
 	callbackData := c.Callback().Data
 
 	switch {
-	case utils.ExtractCallbackData(callbackData) == static.CallbackSelectorGoBack:
+	case utils.ExtractCallbackData(callbackData) == static.CallbackMenuGoBack:
 		if err := handleGoBackButtonCallback(c, state); err != nil {
 			return fmt.Errorf(
 				"error in callbacks.HandleAnyCallback(), state '%s', action 'CallbackActionSelector', 'GoBack Button': %v",
@@ -460,7 +460,7 @@ func handleEditFinalizedCheck(c tele.Context, state fsm.Context) error {
 		promptErr = nil
 		action = static.CallbackEditCheckName
 
-	case static.CallbackSelectorGoBack:
+	case static.CallbackMenuGoBack:
 		promptErr = nil
 		action = static.CallbackEditCheckName
 	}

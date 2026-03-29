@@ -21,7 +21,6 @@ const (
 const (
 	CallbackSelectorKeep   = "keep"
 	CallbackSelectorChange = "change"
-	CallbackSelectorGoBack = "go_back"
 
 	CallbackEditItemName     = "item_name"
 	CallbackEditItemPrice    = "item_price"
@@ -35,6 +34,7 @@ const (
 
 	CallbackMenuGoForward  = "go_forward"
 	CallbackMenuGoBackward = "go_backward"
+	CallbackMenuGoBack     = "go_back"
 
 	CallbackOwnerPau  = "owner_pau"
 	CallbackOwnerLiz  = "owner_liz"

@@ -148,7 +148,7 @@ func GetEditItemInVerificationResponse(msgText string) (string, *tele.ReplyMarku
 		Button{
 			BtnTxt: "Вернуться ⬅️",
 			Unique: static.CallbackActionEditItem.String(),
-			Data:   static.CallbackSelectorGoBack,
+			Data:   static.CallbackMenuGoBack,
 		},
 	)
 
@@ -299,7 +299,7 @@ func GetEditCheckMessage(prevMsg string) (string, *tele.ReplyMarkup) {
 		Button{
 			BtnTxt: "Назад ⬅️",
 			Unique: static.CallbackActionEditCheck.String(),
-			Data:   static.CallbackSelectorGoBack,
+			Data:   static.CallbackMenuGoBack,
 		},
 	)
 
@@ -317,7 +317,7 @@ func GetAskForNewCheckNameResponse(currentCheckName string) (string, *tele.Reply
 		Button{
 			BtnTxt: "Назад ⬅️",
 			Unique: static.CallbackActionEditCheck.String(),
-			Data:   static.CallbackSelectorGoBack,
+			Data:   static.CallbackMenuGoBack,
 		},
 	)
 
@@ -373,7 +373,7 @@ func GetAskForCheckOwnershipQuestion(withBackButton bool) (string, *tele.ReplyMa
 					{
 						BtnTxt: "Назад ⬅️",
 						Unique: static.CallbackActionEditCheck.String(),
-						Data:   static.CallbackSelectorGoBack,
+						Data:   static.CallbackMenuGoBack,
 					},
 				},
 			},
@@ -392,7 +392,7 @@ func GetAskForNewCheckCreationDateQuestion() (string, *tele.ReplyMarkup) {
 		Button{
 			BtnTxt: "Назад ⬅️",
 			Unique: static.CallbackActionSelector.String(),
-			Data:   static.CallbackSelectorGoBack,
+			Data:   static.CallbackMenuGoBack,
 		},
 	)
 
@@ -434,7 +434,7 @@ func GetShowItemForEditResponse(item *static.Item, currentIndex, outOf int) (str
 				{
 					BtnTxt: "Назад к чеку ⬅️",
 					Unique: static.CallbackActionSelector.String(),
-					Data:   static.CallbackSelectorGoBack,
+					Data:   static.CallbackMenuGoBack,
 				},
 			},
 		},
