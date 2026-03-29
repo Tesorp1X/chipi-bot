@@ -99,7 +99,6 @@ func HandleAnyCallback(dbs *db.DBService, c tele.Context, state fsm.Context) err
 }
 
 func handleKeepCheckNameCallback(c tele.Context, state fsm.Context) error {
-	c.Respond(&tele.CallbackResponse{})
 	// Replying ok!
 	if err := c.EditOrSend("Хорошо. Название не меняем👌"); err != nil {
 		return fmt.Errorf(
@@ -111,6 +110,13 @@ func handleKeepCheckNameCallback(c tele.Context, state fsm.Context) error {
 	if err := prompts.SendCheckOwnershipMessage(prompts.FromAddCheck, c, state); err != nil {
 		return fmt.Errorf(
 			"error in callbacks.handleKeepCheckNameCallback(): failed to send a check ownership message (%v)",
+			err,
+		)
+	}
+
+	if err := c.Respond(&tele.CallbackResponse{}); err != nil {
+		return fmt.Errorf(
+			"error in callbacks.handleKeepCheckNameCallback(): failed to respond to a callback query (%v)",
 			err,
 		)
 	}
@@ -146,7 +152,12 @@ func handleCheckOwnerFromEditCheckCallback(c tele.Context, state fsm.Context) er
 		return errors.New(errMsg)
 	}
 
-	c.Respond(&tele.CallbackResponse{})
+	if err := c.Respond(&tele.CallbackResponse{}); err != nil {
+		return fmt.Errorf(
+			"error in callbacks.handleCheckOwnerFromEditCheckCallback(): failed to respond to a callback query (%v)",
+			err,
+		)
+	}
 
 	return nil
 }
@@ -200,7 +211,12 @@ func handleCheckOwnerCallback(c tele.Context, state fsm.Context) error {
 		)
 	}
 
-	c.Respond(&tele.CallbackResponse{})
+	if err := c.Respond(&tele.CallbackResponse{}); err != nil {
+		return fmt.Errorf(
+			"error in callbacks.handleKeepCheckOwnerCallback(): failed to respond to a callback query (%v)",
+			err,
+		)
+	}
 
 	return nil
 }
@@ -209,7 +225,6 @@ func handleShowingAnItemCallback(c tele.Context, state fsm.Context) error {
 	action := static.CallbackActionSelector.GetData(c.Callback().Data)
 	switch action {
 	case static.CallbackSelectorChange:
-		c.Respond(&tele.CallbackResponse{})
 		// add new line of text at the bottom of that msg "Что меняем?"
 		// change inline kb for that msg to a new one
 		// buttons (two in a row): название, цена, кол-во, сумма
@@ -228,7 +243,6 @@ func handleShowingAnItemCallback(c tele.Context, state fsm.Context) error {
 		}
 
 	case static.CallbackSelectorKeep:
-		c.Respond(&tele.CallbackResponse{})
 		// ask who's the owner of an item
 		// new message with a question and inline kb
 		// buttons: liz, both, pau
@@ -249,6 +263,13 @@ func handleShowingAnItemCallback(c tele.Context, state fsm.Context) error {
 		return c.Respond(&tele.CallbackResponse{Text: "error: unknown action"})
 	}
 
+	if err := c.Respond(&tele.CallbackResponse{}); err != nil {
+		return fmt.Errorf(
+			"error in callbacks.handleShowingAnItemCallback(): failed to respond to a callback query (%v)",
+			err,
+		)
+	}
+
 	return nil
 }
 
@@ -256,7 +277,6 @@ func handleItemOwnerCallback(c tele.Context, state fsm.Context) error {
 	itemOwner := static.CallbackActionEditItem.GetData(c.Callback().Data)
 	switch itemOwner {
 	case static.CallbackOwnerLiz, static.CallbackOwnerPau, static.CallbackOwnerBoth:
-		c.Respond(&tele.CallbackResponse{})
 		// get items and currentIndex
 
 		items, err := storageHelpers.GetItemsList(c, state)
@@ -291,6 +311,13 @@ func handleItemOwnerCallback(c tele.Context, state fsm.Context) error {
 			if err := prompts.SendShowItemsMessage(prompts.FromAddCheck, c, state); err != nil {
 				return fmt.Errorf(
 					"error in callbacks.handleItemOwnerCallback(): prompt failed (%v)",
+					err,
+				)
+			}
+
+			if err := c.Respond(&tele.CallbackResponse{}); err != nil {
+				return fmt.Errorf(
+					"error in callbacks.handleItemOwnerCallback(): failed to respond to a callback query (%v)",
 					err,
 				)
 			}
@@ -338,6 +365,13 @@ func handleItemOwnerCallback(c tele.Context, state fsm.Context) error {
 				)
 			}
 
+			if err := c.Respond(&tele.CallbackResponse{}); err != nil {
+				return fmt.Errorf(
+					"error in callbacks.handleItemOwnerCallback(): failed to respond to a callback query (%v)",
+					err,
+				)
+			}
+
 			return nil
 		}
 
@@ -366,6 +400,13 @@ func handleItemOwnerCallback(c tele.Context, state fsm.Context) error {
 
 	default:
 		return c.Respond(&tele.CallbackResponse{Text: "error: invalid response: " + itemOwner})
+	}
+
+	if err := c.Respond(&tele.CallbackResponse{}); err != nil {
+		return fmt.Errorf(
+			"error in callbacks.handleItemOwnerCallback(): failed to respond to a callback query (%v)",
+			err,
+		)
 	}
 
 	return nil
@@ -424,6 +465,13 @@ func handleFinalVerificationStage(dbs *db.DBService, c tele.Context, state fsm.C
 		}
 	}
 
+	if err := c.Respond(&tele.CallbackResponse{}); err != nil {
+		return fmt.Errorf(
+			"error in callbacks.handleFinalVerificationStage(): failed to respond to a callback query (%v)",
+			err,
+		)
+	}
+
 	return nil
 }
 
@@ -468,6 +516,13 @@ func handleEditFinalizedCheck(c tele.Context, state fsm.Context) error {
 		}
 
 		return errors.New(errMsg)
+	}
+
+	if err := c.Respond(&tele.CallbackResponse{}); err != nil {
+		return fmt.Errorf(
+			"error in callbacks.handleEditFinalizedCheck(): failed to respond to a callback query (%v)",
+			err,
+		)
 	}
 
 	return nil
