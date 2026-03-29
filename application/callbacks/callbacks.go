@@ -421,17 +421,12 @@ func handleFinalVerificationStage(dbs *db.DBService, c tele.Context, state fsm.C
 			)
 		}
 	case static.CallbackSelectorChange:
-		if err := storageHelpers.SetState(static.StateEditingCheck, c, state); err != nil {
+		if err := prompts.SendEditCheckMessage(c, state); err != nil {
 			return fmt.Errorf(
-				"error in callbacks.handleFinalVerificationStage(): couldn't change a state (%v)",
+				"error in callbacks.handleFinalVerificationStage(): prompt failed (%v)",
 				err,
 			)
 		}
-
-		// add text "Что меняем?"
-		// change kb
-		// buttons: check name, check owner, items
-		return c.EditOrReply(responses.GetEditCheckMessage(c.Message().Text))
 	}
 
 	return nil
