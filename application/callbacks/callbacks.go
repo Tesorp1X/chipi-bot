@@ -75,11 +75,17 @@ func HandleAnyCallback(dbs *db.DBService, c tele.Context, state fsm.Context) err
 				err,
 			)
 		}
-	case currentState == static.StateWaitForCheckOwnerUnsaved &&
-		static.CallbackActionEditUnsavedCheck.DataMatches(callbackData):
+	case currentState == static.StateWaitForCheckOwnerUnsaved:
+		if err := handleCheckOwnerFromEditCheckCallback(c, state); err != nil {
+			return fmt.Errorf(
+				"error in callbacks.HandleAnyCallback(), state 'StateWaitForCheckOwnerUnsaved': %v",
+				err,
+			)
+		}
+	case currentState == static.StateWaitForCheckOwner:
 		if err := handleCheckOwnerCallback(c, state); err != nil {
 			return fmt.Errorf(
-				"error in callbacks.HandleAnyCallback(), state 'StateWaitForCheckOwner', action 'CallbackActionEditUnsavedCheck': %v",
+				"error in callbacks.HandleAnyCallback(), state 'StateWaitForCheckOwner': %v",
 				err,
 			)
 		}
@@ -155,16 +161,6 @@ func handleCheckOwnerCallback(c tele.Context, state fsm.Context) error {
 			err,
 			respErr,
 		)
-	}
-
-	// check if it's from EditCheck
-	var isFromFinalStage bool
-	if err := state.Data(
-		context.Background(),
-		static.IS_FROM_FINAL_STAGE,
-		&isFromFinalStage,
-	); err == nil && isFromFinalStage {
-		return handleCheckOwnerFromEditCheckCallback(c, state)
 	}
 
 	// prompt item-verification process

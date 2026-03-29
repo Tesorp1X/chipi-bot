@@ -1,7 +1,6 @@
 package prompts
 
 import (
-	"context"
 	"fmt"
 
 	storageHelpers "github.com/Tesorp1X/chipi-bot/application/StorageHelpers"
@@ -102,7 +101,6 @@ func SendCheckOwnershipMessage(cameFrom int, c tele.Context, state fsm.Context) 
 		action = static.CallbackActionEditCheck
 		newState = static.StateWaitForCheckOwner
 	case FromEditCheckFinal:
-		state.Update(context.Background(), static.IS_FROM_FINAL_STAGE, true)
 		action = static.CallbackActionEditUnsavedCheck
 		newState = static.StateWaitForCheckOwnerUnsaved
 	default:
