@@ -96,12 +96,15 @@ const (
 // Sends a check ownership message with or without go-back button, depending on a cameFrom argument.
 func SendCheckOwnershipMessage(cameFrom int, c tele.Context, state fsm.Context) error {
 	var withGoBackButton bool
+	var newState fsm.State
 	switch cameFrom {
 	case FromAddCheck:
 		withGoBackButton = false
+		newState = static.StateWaitForCheckOwner
 	case FromEditCheckFinal:
 		state.Update(context.Background(), static.IS_FROM_FINAL_STAGE, true)
 		withGoBackButton = true
+		newState = static.StateWaitForCheckOwnerUnsaved
 	default:
 		return fmt.Errorf(
 			"error in prompts.SendCheckOwnerMessage(): invalid cameFrom value (%d)",
@@ -109,10 +112,10 @@ func SendCheckOwnershipMessage(cameFrom int, c tele.Context, state fsm.Context) 
 		)
 	}
 
-	if err := storageHelpers.SetState(static.StateWaitForCheckOwnerUnsaved, c, state); err != nil {
+	if err := storageHelpers.SetState(newState, c, state); err != nil {
 		return fmt.Errorf(
 			"error in prompts.SendCheckOwnerMessage(): failed change state to a '%s' (%v)",
-			static.StateWaitForCheckOwnerUnsaved,
+			newState,
 			err,
 		)
 	}
