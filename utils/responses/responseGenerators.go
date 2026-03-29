@@ -68,7 +68,7 @@ func createCustomRowsInlineKb(rows ...RowOfButtons) *tele.ReplyMarkup {
 	return kb
 }
 
-func GenerateNameVerificationResponse(checkName string) (string, *tele.ReplyMarkup) {
+func GetVerificationFirstMessage(checkName string) (string, *tele.ReplyMarkup) {
 	response := `<b>Сканирование завершено! Уточним данные.</b>` + "\n\n"
 	response += `Начнем с названия. Я предлагаю назвать <b>` + checkName + "</b>." + "\n\n"
 	response += `Оставляем? Если хочешь поменять, то отправь новое название.`
@@ -76,7 +76,7 @@ func GenerateNameVerificationResponse(checkName string) (string, *tele.ReplyMark
 	kb := createSelectorInlineKb(
 		1,
 		Button{
-			BtnTxt: "Оставляем",
+			BtnTxt: "Оставляем ✅",
 			Unique: static.CallbackActionSelector.String(),
 			Data:   static.CallbackSelectorKeep,
 		},
