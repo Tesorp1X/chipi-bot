@@ -82,11 +82,14 @@ func SetNewCheckOwnerFromCallback(c tele.Context, state fsm.Context) (*static.Ch
 	}
 }
 
+// Sets state to a newState. Returns any error, that happened during work.
 func SetState(newState fsm.State, c tele.Context, state fsm.Context) error {
 	if err := state.SetState(context.Background(), newState); err != nil {
 		sendErr := c.Send("error: couldn't change a state")
+		currentState, _ := state.State(context.Background())
 		return fmt.Errorf(
-			"error in storageHelpers.SetState(): couldn't change a state to %s (%v). sent with error: %v",
+			"error in storageHelpers.SetState(): couldn't change state '%s' to '%s' (%v). sent with error: %v",
+			currentState,
 			newState,
 			err,
 			sendErr,
@@ -99,9 +102,9 @@ func SetState(newState fsm.State, c tele.Context, state fsm.Context) error {
 // Sets a state of fsm.Context to default and removes data, if removeData is true.
 // Returns any error, that happened during work.
 func FinishState(removeData bool, c tele.Context, state fsm.Context) error {
-	currentState, _ := state.State(context.Background())
 	if stateErr := state.Finish(context.Background(), removeData); stateErr != nil {
 		sendErr := c.Send("error: failed to finish your state and delete all context data")
+		currentState, _ := state.State(context.Background())
 		return fmt.Errorf(
 			"error in storageHelpers.FinishState(): failed to finish '%s' state (%v). sent with err (%v)",
 			currentState,
