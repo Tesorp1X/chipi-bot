@@ -412,17 +412,17 @@ func GetShowItemForEditResponse(item *static.Item, currentIndex, outOf int) (str
 			Btns: []Button{
 				{
 					BtnTxt: "⬅️",
-					Unique: static.CallbackActionNavigation.String(),
+					Unique: static.CallbackActionEditUnsavedItem.String(),
 					Data:   static.CallbackMenuGoForward,
 				},
 				{
 					BtnTxt: "Изменить ✏️",
-					Unique: static.CallbackActionEditItem.String(),
+					Unique: static.CallbackActionEditUnsavedItem.String(),
 					Data:   static.CallbackOwnerPau,
 				},
 				{
 					BtnTxt: "➡️",
-					Unique: static.CallbackActionNavigation.String(),
+					Unique: static.CallbackActionEditUnsavedItem.String(),
 					Data:   static.CallbackMenuGoBackward,
 				},
 			},
@@ -432,7 +432,7 @@ func GetShowItemForEditResponse(item *static.Item, currentIndex, outOf int) (str
 			Btns: []Button{
 				{
 					BtnTxt: "Назад к чеку ⬅️",
-					Unique: static.CallbackActionSelector.String(),
+					Unique: static.CallbackActionEditUnsavedItem.String(),
 					Data:   static.CallbackMenuGoBack,
 				},
 			},

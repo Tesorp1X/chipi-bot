@@ -30,7 +30,8 @@ const (
 	CallbackActionSelector   CallbackAction = "Selector"
 	CallbackActionNavigation CallbackAction = "Navigation"
 
-	CallbackActionEditItem CallbackAction = "EditItem"
+	CallbackActionEditItem        CallbackAction = "EditItem"
+	CallbackActionEditUnsavedItem CallbackAction = "EditUnsavedItem"
 
 	CallbackActionEditCheck        CallbackAction = "EditCheck"
 	CallbackActionEditUnsavedCheck CallbackAction = "EditUnsavedCheck"
