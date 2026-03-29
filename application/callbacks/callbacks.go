@@ -60,11 +60,11 @@ func HandleAnyCallback(dbs *db.DBService, c tele.Context, state fsm.Context) err
 				err,
 			)
 		}
-	case currentState == static.StateWaitingForCheckConfirmation &&
+	case currentState == static.StateWaitingForCheckConfirmationUnsaved &&
 		static.CallbackActionSelector.DataMatches(callbackData):
 		if err := handleFinalVerificationStage(dbs, c, state); err != nil {
 			return fmt.Errorf(
-				"error in callbacks.HandleAnyCallback(), state 'StateWaitingForCheckConfirmation', action 'CallbackActionSelector': %v",
+				"error in callbacks.HandleAnyCallback(), state 'StateWaitingForCheckConfirmationUnsaved', action 'CallbackActionSelector': %v",
 				err,
 			)
 		}
