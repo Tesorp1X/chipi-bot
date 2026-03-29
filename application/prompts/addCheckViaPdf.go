@@ -175,7 +175,7 @@ func SendChangeCheckNameMessage(cameFrom int, c tele.Context, state fsm.Context)
 }
 
 // Sends a 'check creation date question' message.
-func SendNewCreationDateQuestionMessage(c tele.Context, state fsm.Context) error {
+func SendChangeCreationDateMessage(c tele.Context, state fsm.Context) error {
 	if err := storageHelpers.SetState(static.StateWaitForCheckCreationDate, c, state); err != nil {
 		return fmt.Errorf(
 			"error in prompts.SendNewCheckNameQuestionMessage(): failed change state to a '%s' (%v)",
