@@ -131,7 +131,7 @@ func SendCheckOwnershipMessage(cameFrom int, c tele.Context, state fsm.Context) 
 // Depending on a cameFrom argument, a different behavior is going to be applied:
 // - if FromAddCheck, then state will be set to StateWaitForCheckName and response used from GenerateNameVerificationResponse;
 // - if FromEditCheckFinal, then state will be set to StateWaitForNewCheckName and response used from GetAskForNewCheckNameResponse.
-func SendNewCheckNameQuestionMessage(cameFrom int, c tele.Context, state fsm.Context) error {
+func SendChangeCheckNameMessage(cameFrom int, c tele.Context, state fsm.Context) error {
 	check, err := storageHelpers.GetCheck(c, state)
 	if err != nil {
 		return fmt.Errorf(

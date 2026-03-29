@@ -65,7 +65,7 @@ func OnDocumentActionHandler(conf *config.Config, c tele.Context, state fsm.Cont
 		)
 	}
 
-	if err := prompts.SendNewCheckNameQuestionMessage(prompts.FromAddCheck, c, state); err != nil {
+	if err := prompts.SendChangeCheckNameMessage(prompts.FromAddCheck, c, state); err != nil {
 		return fmt.Errorf(
 			"error in handlers.OnDocumentActionHandler(): couldn't send a 'new check name' prompt (%v)",
 			err,

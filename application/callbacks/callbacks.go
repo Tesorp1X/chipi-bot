@@ -440,7 +440,7 @@ func handleEditFinalizedCheck(c tele.Context, state fsm.Context) error {
 
 	switch whatToChange {
 	case static.CallbackEditCheckName:
-		promptErr = prompts.SendNewCheckNameQuestionMessage(prompts.FromEditCheckFinal, c, state)
+		promptErr = prompts.SendChangeCheckNameMessage(prompts.FromEditCheckFinal, c, state)
 		action = static.CallbackEditCheckName
 
 	case static.CallbackEditCheckOwner:
