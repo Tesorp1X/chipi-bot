@@ -65,10 +65,10 @@ func SendEditCheckMessage(c tele.Context, state fsm.Context) error {
 		)
 	}
 
-	if err := storageHelpers.SetState(static.StateEditingCheck, c, state); err != nil {
+	if err := storageHelpers.SetState(static.StateEditingCheckUnsaved, c, state); err != nil {
 		return fmt.Errorf(
 			"error in prompts.SendEditCheckMessage(): failed to change a state to a '%s' (%v)",
-			static.StateEditingCheck,
+			static.StateEditingCheckUnsaved,
 			err,
 		)
 	}

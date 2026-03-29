@@ -68,7 +68,7 @@ func HandleAnyCallback(dbs *db.DBService, c tele.Context, state fsm.Context) err
 				err,
 			)
 		}
-	case currentState == static.StateEditingCheck &&
+	case currentState == static.StateEditingCheckUnsaved &&
 		static.CallbackActionEditCheck.DataMatches(callbackData):
 		if err := handleEditFinalizedCheck(c, state); err != nil {
 			return fmt.Errorf(
