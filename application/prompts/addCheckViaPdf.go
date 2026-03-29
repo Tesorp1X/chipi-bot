@@ -109,10 +109,10 @@ func SendCheckOwnershipMessage(cameFrom int, c tele.Context, state fsm.Context) 
 		)
 	}
 
-	if err := storageHelpers.SetState(static.StateWaitForCheckOwner, c, state); err != nil {
+	if err := storageHelpers.SetState(static.StateWaitForCheckOwnerUnsaved, c, state); err != nil {
 		return fmt.Errorf(
 			"error in prompts.SendCheckOwnerMessage(): failed change state to a '%s' (%v)",
-			static.StateWaitForCheckOwner,
+			static.StateWaitForCheckOwnerUnsaved,
 			err,
 		)
 	}

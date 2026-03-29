@@ -76,7 +76,7 @@ func HandleAnyCallback(dbs *db.DBService, c tele.Context, state fsm.Context) err
 				err,
 			)
 		}
-	case currentState == static.StateWaitForCheckOwner &&
+	case currentState == static.StateWaitForCheckOwnerUnsaved &&
 		static.CallbackActionEditUnsavedCheck.DataMatches(callbackData):
 		if err := handleCheckOwnerCallback(c, state); err != nil {
 			return fmt.Errorf(
@@ -508,7 +508,7 @@ func handleGoBackButtonCallback(c tele.Context, state fsm.Context) error {
 		}
 
 	case static.StateWaitForNewCheckNameUnsaved,
-		static.StateWaitForCheckOwner,
+		static.StateWaitForCheckOwnerUnsaved,
 		static.StateWaitForCheckCreationDateUnsaved:
 		// go to edit check menu
 		if err := prompts.SendEditCheckMessage(c, state); err != nil {

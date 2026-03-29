@@ -15,12 +15,14 @@ const (
 	StateWaitForNewCheckNameUnsaved fsm.State = "wait_for_new_check_name_unsaved"
 	StateWaitForNewCheckName        fsm.State = "wait_for_new_check_name"
 
-	StateWaitForCheckOwner               fsm.State = "wait_for_check_owner"
-	StateWaitForCheckCreationDateUnsaved fsm.State = "wait_for_creation_date"
+	StateWaitForCheckOwnerUnsaved fsm.State = "wait_for_check_owner_unsaved"
+	StateWaitForCheckOwner        fsm.State = "wait_for_check_owner"
+
+	StateWaitForCheckCreationDateUnsaved fsm.State = "wait_for_creation_date_unsaved"
 	StateWaitForCheckCreationDate        fsm.State = "wait_for_creation_date"
 
+	StateWaitingForCheckConfirmationUnsaved fsm.State = "waiting_for_check_confirmation_unsaved"
 	StateWaitingForCheckConfirmation        fsm.State = "waiting_for_check_confirmation"
-	StateWaitingForCheckConfirmationUnsaved fsm.State = "waiting_for_check_confirmation"
 
 	StateWaitForItemName  fsm.State = "wait_for_item_name"
 	StateWaitForItemPrice fsm.State = "wait_for_item_price"
