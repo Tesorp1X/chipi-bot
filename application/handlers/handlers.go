@@ -47,13 +47,13 @@ func HandleAnyText(conf *config.Config, c tele.Context, state fsm.Context) error
 		if err := handleCheckName(c, state); err != nil {
 			return fmt.Errorf("error in handlers.HandleAnyText(), state 'StateWaitForCheckName': %v", err)
 		}
-	case static.StateWaitForNewCheckName:
+	case static.StateWaitForNewCheckNameUnsaved:
 		if err := handleEditCheckName(c, state); err != nil {
-			return fmt.Errorf("error in handlers.HandleAnyText(), state 'StateWaitForNewCheckName': %v", err)
+			return fmt.Errorf("error in handlers.HandleAnyText(), state 'StateWaitForNewCheckNameUnsaved': %v", err)
 		}
 	case static.StateWaitForCheckCreationDate:
 		if err := handleEditCheckCreationDate(c, state); err != nil {
-			return fmt.Errorf("error in handlers.HandleAnyText(), state 'StateWaitForNewCheckName': %v", err)
+			return fmt.Errorf("error in handlers.HandleAnyText(), state 'StateWaitForCheckCreationDate': %v", err)
 		}
 	}
 

@@ -141,22 +141,20 @@ func SendNewCheckNameQuestionMessage(cameFrom int, c tele.Context, state fsm.Con
 	}
 
 	var newState fsm.State
-	var text string
-	var kb *tele.ReplyMarkup
 
 	switch cameFrom {
 	case FromAddCheck:
 		newState = static.StateWaitForCheckName
-		text, kb = responses.GenerateNameVerificationResponse(check.Name)
 	case FromEditCheckFinal:
-		newState = static.StateWaitForNewCheckName
-		text, kb = responses.GetAskForNewCheckNameResponse(check.Name)
+		newState = static.StateWaitForNewCheckNameUnsaved
 	default:
 		return fmt.Errorf(
 			"error in prompts.SendNewCheckNameQuestionMessage(): invalid cameFrom value (%d)",
 			cameFrom,
 		)
 	}
+
+	text, kb := responses.GetAskForNewCheckNameResponse(check.Name)
 
 	if err := storageHelpers.SetState(newState, c, state); err != nil {
 		return fmt.Errorf(

@@ -507,7 +507,7 @@ func handleGoBackButtonCallback(c tele.Context, state fsm.Context) error {
 			)
 		}
 
-	case static.StateWaitForNewCheckName,
+	case static.StateWaitForNewCheckNameUnsaved,
 		static.StateWaitForCheckOwner,
 		static.StateWaitForCheckCreationDate:
 		// go to edit check menu
