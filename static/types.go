@@ -35,7 +35,27 @@ const (
 
 	CallbackActionEditCheck        CallbackAction = "EditCheck"
 	CallbackActionEditUnsavedCheck CallbackAction = "EditUnsavedCheck"
+
+	CallbackActionUnknown CallbackAction = "Unknown"
 )
+
+// Returns valid CallbackAction based on raw callback data.
+// If unable to match with existing actions, then CallbackActionUnknown will be returned.
+func GetCallbackActionFromRawData(rawData string) CallbackAction {
+	actions := []CallbackAction{
+		CallbackActionSelector, CallbackActionNavigation,
+		CallbackActionEditItem, CallbackActionEditUnsavedItem,
+		CallbackActionEditCheck, CallbackActionEditUnsavedCheck,
+	}
+
+	for _, a := range actions {
+		if a.DataMatches(rawData) {
+			return a
+		}
+	}
+
+	return CallbackActionUnknown
+}
 
 // Represents a record in checks table
 type Check struct {
