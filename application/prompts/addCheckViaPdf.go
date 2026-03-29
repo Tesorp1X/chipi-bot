@@ -95,15 +95,15 @@ const (
 
 // Sends a check ownership message with or without go-back button, depending on a cameFrom argument.
 func SendCheckOwnershipMessage(cameFrom int, c tele.Context, state fsm.Context) error {
-	var withGoBackButton bool
+	var action static.CallbackAction
 	var newState fsm.State
 	switch cameFrom {
 	case FromAddCheck:
-		withGoBackButton = false
+		action = static.CallbackActionEditCheck
 		newState = static.StateWaitForCheckOwner
 	case FromEditCheckFinal:
 		state.Update(context.Background(), static.IS_FROM_FINAL_STAGE, true)
-		withGoBackButton = true
+		action = static.CallbackActionEditUnsavedCheck
 		newState = static.StateWaitForCheckOwnerUnsaved
 	default:
 		return fmt.Errorf(
@@ -120,7 +120,7 @@ func SendCheckOwnershipMessage(cameFrom int, c tele.Context, state fsm.Context) 
 		)
 	}
 
-	if err := c.EditOrSend(responses.GetAskForCheckOwnershipQuestion(withGoBackButton)); err != nil {
+	if err := c.EditOrSend(responses.GetAskForCheckOwnershipQuestion(action)); err != nil {
 		return fmt.Errorf(
 			"error in prompts.SendCheckOwnerMessage(): failed to send check ownership message (%v)",
 			err,

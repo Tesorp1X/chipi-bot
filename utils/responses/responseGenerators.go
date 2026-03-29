@@ -333,22 +333,21 @@ func GetNewCheckNameIsSavedResponse(checkName string) (string, *tele.ReplyMarkup
 	return text, nil
 }
 
-func GetAskForCheckOwnershipQuestion(withBackButton bool) (string, *tele.ReplyMarkup) {
+func GetAskForCheckOwnershipQuestion(action static.CallbackAction) (string, *tele.ReplyMarkup) {
 	text := "<b>С чьей карты был оплачен чек?💳💵</b>"
 
-	// todo: add go back button, i guess...
 	rows := []RowOfButtons{
 		{ // First row
 			BtnsPerRow: 2,
 			Btns: []Button{
 				{
 					BtnTxt: "Liz 💜",
-					Unique: static.CallbackActionEditUnsavedCheck.String(),
+					Unique: action.String(),
 					Data:   static.CallbackOwnerLiz,
 				},
 				{
 					BtnTxt: "Pau 🩵",
-					Unique: static.CallbackActionEditUnsavedCheck.String(),
+					Unique: action.String(),
 					Data:   static.CallbackOwnerPau,
 				},
 			},
@@ -358,14 +357,14 @@ func GetAskForCheckOwnershipQuestion(withBackButton bool) (string, *tele.ReplyMa
 			Btns: []Button{
 				{
 					BtnTxt: "С общей 💜🩵",
-					Unique: static.CallbackActionEditUnsavedCheck.String(),
+					Unique: action.String(),
 					Data:   static.CallbackOwnerBoth,
 				},
 			},
 		},
 	}
 
-	if withBackButton {
+	if action == static.CallbackActionEditUnsavedCheck {
 		rows = append(rows,
 			RowOfButtons{
 				BtnsPerRow: 1,
