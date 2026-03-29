@@ -31,7 +31,7 @@ func HandleAnyCallback(dbs *db.DBService, c tele.Context, state fsm.Context) err
 	case utils.ExtractCallbackData(callbackData) == static.CallbackMenuGoBack:
 		if err := handleGoBackButtonCallback(c, state); err != nil {
 			return fmt.Errorf(
-				"error in callbacks.HandleAnyCallback(), state '%s', action 'CallbackActionSelector', 'GoBack Button': %v",
+				"error in callbacks.HandleAnyCallback(), state '%s', 'CallbackMenuGoBack': %v",
 				currentState.GoString(),
 				err,
 			)
@@ -60,11 +60,10 @@ func HandleAnyCallback(dbs *db.DBService, c tele.Context, state fsm.Context) err
 				err,
 			)
 		}
-	case currentState == static.StateWaitingForCheckConfirmationUnsaved &&
-		static.CallbackActionSelector.DataMatches(callbackData):
+	case currentState == static.StateWaitingForCheckConfirmationUnsaved:
 		if err := handleFinalVerificationStage(dbs, c, state); err != nil {
 			return fmt.Errorf(
-				"error in callbacks.HandleAnyCallback(), state 'StateWaitingForCheckConfirmationUnsaved', action 'CallbackActionSelector': %v",
+				"error in callbacks.HandleAnyCallback(), state 'StateWaitingForCheckConfirmationUnsaved': %v",
 				err,
 			)
 		}
@@ -452,11 +451,7 @@ func handleEditFinalizedCheck(c tele.Context, state fsm.Context) error {
 		action = static.CallbackEditCheckCreationDate
 
 	case static.CallbackEditCheckItems:
-		promptErr = nil
-		action = static.CallbackEditCheckName
-
-	case static.CallbackMenuGoBack:
-		promptErr = nil
+		promptErr = prompts.SendNotImplementedMessage(c, state)
 		action = static.CallbackEditCheckName
 	}
 
@@ -497,12 +492,11 @@ func handleGoBackButtonCallback(c tele.Context, state fsm.Context) error {
 	//userErrMsg := "error: "
 
 	switch currentState {
-	case static.StateEditingCheck:
-		// if from finalize go back to finalize else go to menu it came from (todo...)
-
+	case static.StateEditingCheckUnsaved:
+		// go to verification stage
 		if err := prompts.SendCheckVerificationMessage(c, state); err != nil {
 			errMsg += fmt.Sprintf(
-				"failed to send a check-verification message (%v)\n",
+				"failed to send a 'check-verification' message (%v)\n",
 				err,
 			)
 		}
@@ -510,10 +504,10 @@ func handleGoBackButtonCallback(c tele.Context, state fsm.Context) error {
 	case static.StateWaitForNewCheckNameUnsaved,
 		static.StateWaitForCheckOwnerUnsaved,
 		static.StateWaitForCheckCreationDateUnsaved:
-		// go to edit check menu
+		// go to edit unsaved check menu
 		if err := prompts.SendEditUnsavedCheckMessage(c, state); err != nil {
 			errMsg += fmt.Sprintf(
-				"failed to send a check-edit message (%v)\n",
+				"failed to send a 'edit unsaved check' message (%v)\n",
 				err,
 			)
 		}
@@ -530,7 +524,13 @@ func handleGoBackButtonCallback(c tele.Context, state fsm.Context) error {
 	if errMsg != "error in callbacks.handleGoBackButtonCallback():\n" {
 		return errors.New(errMsg)
 	}
-	//c.Respond(&tele.CallbackResponse{Text: userErrMsg})
+
+	if err := c.Respond(&tele.CallbackResponse{}); err != nil {
+		return fmt.Errorf(
+			"error in callbacks.handleGoBackButtonCallback(): failed to respond to a callback query (%v)",
+			err,
+		)
+	}
 
 	return nil
 }
