@@ -28,9 +28,11 @@ func (a CallbackAction) GetData(data string) string {
 const (
 	//CallbackAction<name> CallbackAction = "name"
 	CallbackActionSelector   CallbackAction = "Selector"
-	CallbackActionEditItem   CallbackAction = "EditItem"
-	CallbackActionEditCheck  CallbackAction = "EditCheck"
 	CallbackActionNavigation CallbackAction = "Navigation"
+
+	CallbackActionEditItem CallbackAction = "EditItem"
+
+	CallbackActionEditCheck        CallbackAction = "EditCheck"
 	CallbackActionEditUnsavedCheck CallbackAction = "EditUnsavedCheck"
 )
 
