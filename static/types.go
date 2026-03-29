@@ -31,6 +31,7 @@ const (
 	CallbackActionEditItem   CallbackAction = "EditItem"
 	CallbackActionEditCheck  CallbackAction = "EditCheck"
 	CallbackActionNavigation CallbackAction = "Navigation"
+	CallbackActionEditUnsavedCheck CallbackAction = "EditUnsavedCheck"
 )
 
 // Represents a record in checks table

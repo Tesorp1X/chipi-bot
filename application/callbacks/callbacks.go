@@ -69,18 +69,18 @@ func HandleAnyCallback(dbs *db.DBService, c tele.Context, state fsm.Context) err
 			)
 		}
 	case currentState == static.StateEditingCheckUnsaved &&
-		static.CallbackActionEditCheck.DataMatches(callbackData):
+		static.CallbackActionEditUnsavedCheck.DataMatches(callbackData):
 		if err := handleEditFinalizedCheck(c, state); err != nil {
 			return fmt.Errorf(
-				"error in callbacks.HandleAnyCallback(), state 'StateEditingCheck', action 'CallbackActionEditCheck': %v",
+				"error in callbacks.HandleAnyCallback(), state 'StateEditingCheck', action 'CallbackActionEditUnsavedCheck': %v",
 				err,
 			)
 		}
 	case currentState == static.StateWaitForCheckOwner &&
-		static.CallbackActionEditCheck.DataMatches(callbackData):
+		static.CallbackActionEditUnsavedCheck.DataMatches(callbackData):
 		if err := handleCheckOwnerCallback(c, state); err != nil {
 			return fmt.Errorf(
-				"error in callbacks.HandleAnyCallback(), state 'StateWaitForCheckOwner', action 'CallbackActionEditCheck': %v",
+				"error in callbacks.HandleAnyCallback(), state 'StateWaitForCheckOwner', action 'CallbackActionEditUnsavedCheck': %v",
 				err,
 			)
 		}
@@ -438,7 +438,7 @@ func handleFinalVerificationStage(dbs *db.DBService, c tele.Context, state fsm.C
 }
 
 func handleEditFinalizedCheck(c tele.Context, state fsm.Context) error {
-	whatToChange := static.CallbackActionEditCheck.GetData(c.Callback().Data)
+	whatToChange := static.CallbackActionEditUnsavedCheck.GetData(c.Callback().Data)
 
 	var promptErr error
 	var action string

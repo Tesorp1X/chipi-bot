@@ -278,27 +278,27 @@ func GetEditCheckMessage(prevMsg string) (string, *tele.ReplyMarkup) {
 		1,
 		Button{
 			BtnTxt: "Название ✏️",
-			Unique: static.CallbackActionEditCheck.String(),
+			Unique: static.CallbackActionEditUnsavedCheck.String(),
 			Data:   static.CallbackEditCheckName,
 		},
 		Button{
 			BtnTxt: "Дату 📆",
-			Unique: static.CallbackActionEditCheck.String(),
+			Unique: static.CallbackActionEditUnsavedCheck.String(),
 			Data:   static.CallbackEditCheckCreationDate,
 		},
 		Button{
 			BtnTxt: "Кто заплатил 🧑‍🤝‍🧑",
-			Unique: static.CallbackActionEditCheck.String(),
+			Unique: static.CallbackActionEditUnsavedCheck.String(),
 			Data:   static.CallbackEditCheckOwner,
 		},
 		Button{
 			BtnTxt: "Изменить товары 📝",
-			Unique: static.CallbackActionEditCheck.String(),
+			Unique: static.CallbackActionEditUnsavedCheck.String(),
 			Data:   static.CallbackEditCheckItems,
 		},
 		Button{
 			BtnTxt: "Назад ⬅️",
-			Unique: static.CallbackActionEditCheck.String(),
+			Unique: static.CallbackActionEditUnsavedCheck.String(),
 			Data:   static.CallbackMenuGoBack,
 		},
 	)
