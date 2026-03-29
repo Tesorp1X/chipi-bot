@@ -48,7 +48,7 @@ func SendCheckVerificationMessage(c tele.Context, state fsm.Context) error {
 }
 
 // Prepares and sends message with check edit text and buttons and sets state to a 'StateEditingCheck'.
-func SendEditCheckMessage(c tele.Context, state fsm.Context) error {
+func SendEditUnsavedCheckMessage(c tele.Context, state fsm.Context) error {
 	check, err := storageHelpers.GetCheck(c, state)
 	if err != nil {
 		return fmt.Errorf(

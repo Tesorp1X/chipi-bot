@@ -95,7 +95,7 @@ func handleEditCheckName(c tele.Context, state fsm.Context) error {
 		)
 	}
 
-	if err := prompts.SendEditCheckMessage(c, state); err != nil {
+	if err := prompts.SendEditUnsavedCheckMessage(c, state); err != nil {
 		return fmt.Errorf(
 			"error in handlers.handleEditCheckName(): failed to send a check-edit message (%v)",
 			err,
@@ -140,7 +140,7 @@ func handleEditCheckCreationDate(c tele.Context, state fsm.Context) error {
 		)
 	}
 
-	if err := prompts.SendEditCheckMessage(c, state); err != nil {
+	if err := prompts.SendEditUnsavedCheckMessage(c, state); err != nil {
 		return fmt.Errorf(
 			"error in handlers.handleEditCheckCreationDate(): failed to send a check-edit message (%v)",
 			err,

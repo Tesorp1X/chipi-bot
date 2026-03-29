@@ -123,7 +123,7 @@ func handleCheckOwnerFromEditCheckCallback(c tele.Context, state fsm.Context) er
 		)
 	}
 
-	if err := prompts.SendEditCheckMessage(c, state); err != nil {
+	if err := prompts.SendEditUnsavedCheckMessage(c, state); err != nil {
 		errMsg += fmt.Sprintf(
 			"prompt failed (%v)\n",
 			err,
@@ -421,7 +421,7 @@ func handleFinalVerificationStage(dbs *db.DBService, c tele.Context, state fsm.C
 			)
 		}
 	case static.CallbackSelectorChange:
-		if err := prompts.SendEditCheckMessage(c, state); err != nil {
+		if err := prompts.SendEditUnsavedCheckMessage(c, state); err != nil {
 			return fmt.Errorf(
 				"error in callbacks.handleFinalVerificationStage(): prompt failed (%v)",
 				err,
@@ -511,7 +511,7 @@ func handleGoBackButtonCallback(c tele.Context, state fsm.Context) error {
 		static.StateWaitForCheckOwnerUnsaved,
 		static.StateWaitForCheckCreationDateUnsaved:
 		// go to edit check menu
-		if err := prompts.SendEditCheckMessage(c, state); err != nil {
+		if err := prompts.SendEditUnsavedCheckMessage(c, state); err != nil {
 			errMsg += fmt.Sprintf(
 				"failed to send a check-edit message (%v)\n",
 				err,
