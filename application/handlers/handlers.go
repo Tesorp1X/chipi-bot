@@ -51,7 +51,7 @@ func HandleAnyText(conf *config.Config, c tele.Context, state fsm.Context) error
 		if err := handleEditCheckName(c, state); err != nil {
 			return fmt.Errorf("error in handlers.HandleAnyText(), state 'StateWaitForNewCheckNameUnsaved': %v", err)
 		}
-	case static.StateWaitForCheckCreationDate:
+	case static.StateWaitForCheckCreationDateUnsaved:
 		if err := handleEditCheckCreationDate(c, state); err != nil {
 			return fmt.Errorf("error in handlers.HandleAnyText(), state 'StateWaitForCheckCreationDate': %v", err)
 		}

@@ -509,7 +509,7 @@ func handleGoBackButtonCallback(c tele.Context, state fsm.Context) error {
 
 	case static.StateWaitForNewCheckNameUnsaved,
 		static.StateWaitForCheckOwner,
-		static.StateWaitForCheckCreationDate:
+		static.StateWaitForCheckCreationDateUnsaved:
 		// go to edit check menu
 		if err := prompts.SendEditCheckMessage(c, state); err != nil {
 			errMsg += fmt.Sprintf(
