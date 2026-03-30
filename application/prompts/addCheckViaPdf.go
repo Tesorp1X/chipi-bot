@@ -260,3 +260,53 @@ func SendShowItemsMessage(cameFrom int, c tele.Context, state fsm.Context) error
 
 	return nil
 }
+
+func SendShowEditItemOptions(cameFrom int, c tele.Context, state fsm.Context) error {
+	items, err := storageHelpers.GetItemsList(c, state)
+	if err != nil {
+		return fmt.Errorf(
+			"error in prompts.SendShowEditItemOptions(): failed to retrieve an items-list (%v)",
+			err,
+		)
+	}
+
+	currentIndex, err := storageHelpers.GetCurrentIndex(c, state)
+	if err != nil {
+		return fmt.Errorf(
+			"error in prompts.SendShowEditItemOptions(): failed to retrieve a current index (%v)",
+			err,
+		)
+	}
+
+	itemToChange := items[currentIndex]
+	var action static.CallbackAction
+	var newState fsm.State
+
+	switch cameFrom {
+	case FromEditCheckFinal:
+		action = static.CallbackActionEditUnsavedItem
+		newState = static.StateEditingAnItemUnsaved
+	default:
+		return fmt.Errorf(
+			"error in prompts.SendShowEditItemOptions(): invalid cameFrom value (%d)",
+			cameFrom,
+		)
+	}
+
+	if err := storageHelpers.SetState(newState, c, state); err != nil {
+		return fmt.Errorf(
+			"error in prompts.SendShowEditItemOptions(): failed change state to a '%s' (%v)",
+			newState,
+			err,
+		)
+	}
+
+	if err := c.EditOrSend(responses.GetShowItemEditOptions(itemToChange, action)); err != nil {
+		return fmt.Errorf(
+			"error in prompts.SendShowEditItemOptions(): failed to send a 'show item edit options' message (%v)",
+			err,
+		)
+	}
+
+	return nil
+}
