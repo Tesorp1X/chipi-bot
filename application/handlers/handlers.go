@@ -10,7 +10,7 @@ import (
 	"github.com/Tesorp1X/chipi-bot/application/prompts"
 	"github.com/Tesorp1X/chipi-bot/config"
 	"github.com/Tesorp1X/chipi-bot/static"
-	"github.com/Tesorp1X/chipi-bot/utils/responses"
+	"github.com/Tesorp1X/chipi-bot/utils"
 
 	"github.com/vitaliy-ukiru/fsm-telebot/v2"
 	tele "gopkg.in/telebot.v4"
@@ -43,13 +43,13 @@ func HandleAnyText(conf *config.Config, c tele.Context, state fsm.Context) error
 	}
 
 	switch currentState {
-	case static.StateWaitForCheckName:
+	case static.StateWaitForCheckName, static.StateWaitForNewCheckNameUnsaved:
 		if err := handleCheckName(c, state); err != nil {
-			return fmt.Errorf("error in handlers.HandleAnyText(), state 'StateWaitForCheckName': %v", err)
-		}
-	case static.StateWaitForNewCheckNameUnsaved:
-		if err := handleEditCheckName(c, state); err != nil {
-			return fmt.Errorf("error in handlers.HandleAnyText(), state 'StateWaitForNewCheckNameUnsaved': %v", err)
+			return fmt.Errorf(
+				"error in handlers.HandleAnyText(), state '%s': %v",
+				currentState,
+				err,
+			)
 		}
 	case static.StateWaitForCheckCreationDateUnsaved:
 		if err := handleEditCheckCreationDate(c, state); err != nil {
@@ -61,6 +61,19 @@ func HandleAnyText(conf *config.Config, c tele.Context, state fsm.Context) error
 }
 
 func handleCheckName(c tele.Context, state fsm.Context) error {
+	if !utils.VerifyName(c.Message().Text) {
+		// retry prompt
+		if err := prompts.SendRetryCheckNameMessage(c, state); err != nil {
+			return fmt.Errorf(
+				"error in handlers.handleCheckName(): prompt failed (%v)",
+				err,
+			)
+		}
+
+		return nil
+	}
+
+	// name is okay
 	_, err := storageHelpers.SetNewCheckNameFromMessage(c, state)
 	if err != nil {
 		return fmt.Errorf(
@@ -69,35 +82,32 @@ func handleCheckName(c tele.Context, state fsm.Context) error {
 		)
 	}
 
-	if err := prompts.SendCheckOwnershipMessage(prompts.FromAddCheck, c, state); err != nil {
-		return fmt.Errorf(
-			"error in handlers.handleCheckName(): failed to send a check ownership message (%v)",
-			err,
-		)
-	}
-
-	return nil
-}
-
-func handleEditCheckName(c tele.Context, state fsm.Context) error {
-	check, err := storageHelpers.SetNewCheckNameFromMessage(c, state)
+	currentState, err := state.State(context.Background())
 	if err != nil {
 		return fmt.Errorf(
-			"error in handlers.handleEditCheckName(): couldn't set new check name (%v)",
+			"error in handlers.handleCheckName(): failed to retrieve state (%v)",
 			err,
 		)
 	}
 
-	if err := c.Send(responses.GetNewCheckNameIsSavedResponse(check.Name)); err != nil {
+	var promptErr error
+	switch currentState {
+	case static.StateWaitForCheckName:
+		// move on with the verification process: ask for owner
+		promptErr = prompts.SendCheckOwnershipMessage(prompts.FromAddCheck, c, state)
+	case static.StateWaitForNewCheckNameUnsaved:
+		// come back to check edit menu
+		promptErr = prompts.SendEditUnsavedCheckMessage(c, state)
+	default:
 		return fmt.Errorf(
-			"error in handlers.handleEditCheckName(): couldn't send a message (%v)",
-			err,
+			"error in handlers.handleCheckName(): invalid state for check name change (%s)",
+			currentState,
 		)
 	}
 
-	if err := prompts.SendEditUnsavedCheckMessage(c, state); err != nil {
+	if promptErr != nil {
 		return fmt.Errorf(
-			"error in handlers.handleEditCheckName(): failed to send a check-edit message (%v)",
+			"error in handlers.handleCheckName(): prompt failed (%v)",
 			err,
 		)
 	}
