@@ -151,7 +151,8 @@ func SendChangeCheckNameMessage(cameFrom int, c tele.Context, state fsm.Context)
 		text, kb = responses.GetVerificationFirstMessage(check.Name)
 	case FromEditCheckFinal:
 		newState = static.StateWaitForNewCheckNameUnsaved
-		text, kb = responses.GetAskForNewCheckNameResponse(check.Name)
+		cbAction := static.GetCallbackActionFromRawData(c.Callback().Data)
+		text, kb = responses.GetAskForNewCheckNameResponse(check.Name, cbAction, responses.NOT_A_RETRY)
 	default:
 		return fmt.Errorf(
 			"error in prompts.SendNewCheckNameQuestionMessage(): invalid cameFrom value (%d)",

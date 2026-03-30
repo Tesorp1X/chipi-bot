@@ -306,9 +306,22 @@ func GetShowCheckEditOptionsMessage(prevMsg string) (string, *tele.ReplyMarkup) 
 	return text, kb
 }
 
-func GetAskForNewCheckNameResponse(currentCheckName string) (string, *tele.ReplyMarkup) {
-	text := fmt.Sprintf(
-		"Текущее название этого чека: %s\n\nНапиши новое название. Если передумал менять название, просто нажми на кнопку \"Назад ⬅️\"",
+const (
+	RETRY       = true
+	NOT_A_RETRY = false
+)
+
+func GetAskForNewCheckNameResponse(currentCheckName string, action static.CallbackAction, isRetry bool) (string, *tele.ReplyMarkup) {
+	var text string
+
+	if isRetry {
+		text += "<b><u>Ошибка</u></b>\n" +
+			"<i>Название не может быть пустым, должно содержать буквы и не превышать 1000 символов.</i>\n" +
+			"Попробуй еще раз.\n\n"
+	}
+
+	text += fmt.Sprintf(
+		"<b><u>Текущее название этого чека:</u> %s</b>\n\nНапиши новое название. Если передумал менять название, просто нажми на кнопку <u>\"Назад ⬅️\"</u>",
 		currentCheckName,
 	)
 
@@ -316,7 +329,7 @@ func GetAskForNewCheckNameResponse(currentCheckName string) (string, *tele.Reply
 		1,
 		Button{
 			BtnTxt: "Назад ⬅️",
-			Unique: static.CallbackActionEditUnsavedCheck.String(),
+			Unique: action.String(),
 			Data:   static.CallbackMenuGoBack,
 		},
 	)
