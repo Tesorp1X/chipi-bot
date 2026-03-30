@@ -487,6 +487,7 @@ func handleEditFinalizedCheck(c tele.Context, state fsm.Context) error {
 
 	var promptErr error
 	var action string
+	var storageError error
 
 	switch whatToChange {
 	case static.CallbackEditCheckName:
@@ -502,22 +503,45 @@ func handleEditFinalizedCheck(c tele.Context, state fsm.Context) error {
 		action = static.CallbackEditCheckCreationDate
 
 	case static.CallbackEditCheckItems:
-		promptErr = prompts.SendNotImplementedMessage(c, state)
 		action = static.CallbackEditCheckName
+		currentIndex := 0
+		storageError = storageHelpers.UpdateCurrentItemsIndex(currentIndex, c, state)
+		if storageError != nil {
+			break
+		}
+
+		promptErr = prompts.SendShowItemsMessage(prompts.FromEditCheckFinal, c, state)
 	}
 
-	if promptErr != nil {
+	if promptErr != nil || storageError != nil {
 		errMsg := "error in callbacks.handleEditFinalizedCheck():\n"
+		if promptErr != nil {
+			errMsg += fmt.Sprintf(
+				"in action '%s' prompt failed (%v)\n",
+				action,
+				promptErr,
+			)
+		}
 
-		errMsg += fmt.Sprintf(
-			"in action '%s' prompt failed (%v)\n",
-			action,
-			promptErr,
-		)
+		if storageError != nil {
+			errMsg += fmt.Sprintf(
+				"in action '%s' storageHelper error (%v)\n",
+				action,
+				storageError,
+			)
+		}
 
 		if err := c.Send("error: " + errMsg); err != nil {
 			errMsg += fmt.Sprintf(
 				"sent with error (%v)\n",
+				err,
+			)
+		}
+
+		// todo: better error message
+		if err := c.Respond(&tele.CallbackResponse{Text: "error!"}); err != nil {
+			errMsg += fmt.Sprintf(
+				"failed to respond to a callback query (%v)",
 				err,
 			)
 		}
@@ -561,7 +585,8 @@ func handleGoBackButtonCallback(c tele.Context, state fsm.Context) error {
 
 	case static.StateWaitForNewCheckNameUnsaved,
 		static.StateWaitForCheckOwnerUnsaved,
-		static.StateWaitForCheckCreationDateUnsaved:
+		static.StateWaitForCheckCreationDateUnsaved,
+		static.StateShowingAnItemUnsaved:
 		// go to edit unsaved check menu
 		if err := prompts.SendEditUnsavedCheckMessage(c, state); err != nil {
 			errMsg += fmt.Sprintf(
