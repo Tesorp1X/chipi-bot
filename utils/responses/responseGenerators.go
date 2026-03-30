@@ -413,7 +413,7 @@ func GetShowItemForEditResponse(item *static.Item, currentIndex, outOf int) (str
 				{
 					BtnTxt: "⬅️",
 					Unique: static.CallbackActionEditUnsavedItem.String(),
-					Data:   static.CallbackMenuGoForward,
+					Data:   static.CallbackMenuGoBackward,
 				},
 				{
 					BtnTxt: "Изменить ✏️",
@@ -423,7 +423,7 @@ func GetShowItemForEditResponse(item *static.Item, currentIndex, outOf int) (str
 				{
 					BtnTxt: "➡️",
 					Unique: static.CallbackActionEditUnsavedItem.String(),
-					Data:   static.CallbackMenuGoBackward,
+					Data:   static.CallbackMenuGoForward,
 				},
 			},
 		},
