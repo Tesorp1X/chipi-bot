@@ -441,3 +441,38 @@ func GetShowItemForEditResponse(item *static.Item, currentIndex, outOf int) (str
 
 	return text, createCustomRowsInlineKb(rows...)
 }
+
+func GetShowItemEditOptions(item *static.Item, action static.CallbackAction) (string, *tele.ReplyMarkup) {
+	text := "<b>Изменение товара</b>\n\n"
+	text += sPrintItemInfo(item) + "\n\n<b>Что меняем?</b>👀"
+	kb := createSelectorInlineKb(
+		1,
+		Button{
+			BtnTxt: "Название",
+			Unique: action.String(),
+			Data:   static.CallbackEditItemName,
+		},
+		Button{
+			BtnTxt: "Цена",
+			Unique: action.String(),
+			Data:   static.CallbackEditItemPrice,
+		},
+		Button{
+			BtnTxt: "Количество",
+			Unique: action.String(),
+			Data:   static.CallbackEditItemAmount,
+		},
+		Button{
+			BtnTxt: "Чей товар",
+			Unique: action.String(),
+			Data:   static.CallbackEditItemSubtotal,
+		},
+		Button{
+			BtnTxt: "Вернуться ⬅️",
+			Unique: action.String(),
+			Data:   static.CallbackMenuGoBack,
+		},
+	)
+
+	return text, kb
+}
