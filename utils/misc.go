@@ -38,3 +38,13 @@ func ExtractCallbackData(rawData string) string {
 	idx := strings.IndexRune(rawData, '|') + 1
 	return rawData[idx:]
 }
+
+func VerifyName(messageText string) bool {
+	// length
+	fact := len(messageText) > 0 && len(messageText) < 1000
+
+	// contains letters
+	fact = fact && strings.ContainsAny(messageText, "qwertyuiopasdfghjklzxcvbnm")
+
+	return fact
+}
