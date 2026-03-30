@@ -63,7 +63,7 @@ func HandleAnyCallback(dbs *db.DBService, c tele.Context, state fsm.Context) err
 		static.CallbackActionEditItem.DataMatches(callbackData):
 		if err := handleItemOwnerCallback(c, state); err != nil {
 			return fmt.Errorf(
-				"error in callbacks.HandleAnyCallback(), state 'StateShowingAnItem', action 'CallbackActionEditItem': %v",
+				"error in callbacks.HandleAnyCallback(), state 'StateWaitForItemOwner', action 'CallbackActionEditItem': %v",
 				err,
 			)
 		}
