@@ -96,6 +96,13 @@ func HandleAnyCallback(dbs *db.DBService, c tele.Context, state fsm.Context) err
 				err,
 			)
 		}
+	case currentState == static.StateEditingAnItemUnsaved:
+		if err := handleEditUnsavedItemCallback(c, state); err != nil {
+			return fmt.Errorf(
+				"error in callbacks.HandleAnyCallback(), state 'StateWaitForCheckOwner': %v",
+				err,
+			)
+		}
 	default:
 		// if callback query is old, remove inline buttons from that message
 		c.Bot().EditReplyMarkup(c.Callback().Message, &tele.ReplyMarkup{})
@@ -675,6 +682,65 @@ func handleItemsScrollCallback(c tele.Context, state fsm.Context) error {
 	if err := c.Respond(&tele.CallbackResponse{}); err != nil {
 		return fmt.Errorf(
 			"error in callbacks.handleItemsScrollCallback(): failed to respond to a callback query (%v)",
+			err,
+		)
+	}
+
+	return nil
+}
+
+func handleEditUnsavedItemCallback(c tele.Context, state fsm.Context) error {
+	whatToChange := utils.ExtractCallbackData(c.Callback().Data)
+
+	var promptErr error
+	var action string
+	// var storageError error
+
+	switch whatToChange {
+	case static.CallbackEditItemName:
+		promptErr = prompts.SendNotImplementedMessage(c, state)
+		action = static.CallbackEditItemName
+	case static.CallbackEditItemPrice:
+		promptErr = prompts.SendNotImplementedMessage(c, state)
+		action = static.CallbackEditItemPrice
+	case static.CallbackEditItemAmount:
+		promptErr = prompts.SendNotImplementedMessage(c, state)
+		action = static.CallbackEditItemAmount
+	case static.CallbackEditItemOwner:
+		promptErr = prompts.SendNotImplementedMessage(c, state)
+		action = static.CallbackEditItemOwner
+	}
+
+	if promptErr != nil {
+		errMsg := "error in callbacks.handleEditUnsavedItemCallback():\n"
+
+		errMsg += fmt.Sprintf(
+			"in action '%s' prompt failed (%v)\n",
+			action,
+			promptErr,
+		)
+
+		if err := c.Send("error: " + errMsg); err != nil {
+			errMsg += fmt.Sprintf(
+				"sent with error (%v)\n",
+				err,
+			)
+		}
+
+		// todo: better error message
+		if err := c.Respond(&tele.CallbackResponse{Text: "error!"}); err != nil {
+			errMsg += fmt.Sprintf(
+				"failed to respond to a callback query (%v)",
+				err,
+			)
+		}
+
+		return errors.New(errMsg)
+	}
+
+	if err := c.Respond(&tele.CallbackResponse{}); err != nil {
+		return fmt.Errorf(
+			"error in callbacks.handleEditUnsavedItemCallback(): failed to respond to a callback query (%v)",
 			err,
 		)
 	}
