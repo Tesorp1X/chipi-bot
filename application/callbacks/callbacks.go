@@ -594,6 +594,14 @@ func handleGoBackButtonCallback(c tele.Context, state fsm.Context) error {
 				err,
 			)
 		}
+	case static.StateEditingAnItemUnsaved:
+		// go back to items carousel
+		if err := prompts.SendShowItemsMessage(prompts.FromEditCheckFinal, c, state); err != nil {
+			errMsg += fmt.Sprintf(
+				"failed to send a 'show item edit options' message (%v)\n",
+				err,
+			)
+		}
 
 	default:
 		respErr := c.Respond(&tele.CallbackResponse{Text: "error: couldn't take you back"})
