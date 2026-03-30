@@ -73,7 +73,7 @@ func SendEditUnsavedCheckMessage(c tele.Context, state fsm.Context) error {
 	}
 
 	verificationText, _ := responses.GetVerificationFinalStepResponse(check, items)
-	if err := c.EditOrSend(responses.GetEditCheckMessage(verificationText)); err != nil {
+	if err := c.EditOrSend(responses.GetShowCheckEditOptionsMessage(verificationText)); err != nil {
 		return fmt.Errorf(
 			"error in prompts.SendEditCheckMessage(): failed to send a message (%v)",
 			err,

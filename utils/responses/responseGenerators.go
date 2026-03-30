@@ -272,7 +272,7 @@ func GetCheckSavedMessage(checkName string) (string, *tele.ReplyMarkup) {
 	return text, kb
 }
 
-func GetEditCheckMessage(prevMsg string) (string, *tele.ReplyMarkup) {
+func GetShowCheckEditOptionsMessage(prevMsg string) (string, *tele.ReplyMarkup) {
 	text := prevMsg + "\n\n" + "<b>Что меняем?👀</b>"
 	kb := createSelectorInlineKb(
 		1,
