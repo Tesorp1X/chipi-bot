@@ -39,12 +39,20 @@ func ExtractCallbackData(rawData string) string {
 	return rawData[idx:]
 }
 
+const (
+	EnglishAlphabet = "abcdefghijklmnopqrstuvwxyz"
+	RussianAlphabet = "абвгдеёжзийклмнопрстуфхцчшщъыьэюя"
+)
+
 func VerifyName(messageText string) bool {
 	// length
 	fact := len(messageText) > 0 && len(messageText) < 1000
 
 	// contains letters
-	fact = fact && strings.ContainsAny(messageText, "qwertyuiopasdfghjklzxcvbnm")
+	fact = fact && strings.ContainsAny(
+		strings.ToLower(messageText),
+		EnglishAlphabet+RussianAlphabet,
+	)
 
 	return fact
 }
