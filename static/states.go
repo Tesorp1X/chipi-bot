@@ -38,7 +38,8 @@ const (
 	StateEditingCheck        fsm.State = "editing_check"
 	StateEditingCheckUnsaved fsm.State = "editing_check_unsaved"
 
-	StateEditingAnItem fsm.State = "editing_item"
+	StateEditingAnItem        fsm.State = "editing_item"
+	StateEditingAnItemUnsaved fsm.State = "editing_item_unsaved"
 )
 
 const (
