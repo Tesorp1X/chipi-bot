@@ -465,7 +465,7 @@ func GetShowItemEditOptions(item *static.Item, action static.CallbackAction) (st
 		Button{
 			BtnTxt: "Чей товар",
 			Unique: action.String(),
-			Data:   static.CallbackEditItemSubtotal,
+			Data:   static.CallbackEditItemOwner,
 		},
 		Button{
 			BtnTxt: "Вернуться ⬅️",
