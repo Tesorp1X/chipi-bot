@@ -227,7 +227,14 @@ func SendShowItemsMessage(cameFrom int, c tele.Context, state fsm.Context) error
 		newState = static.StateShowingAnItem
 		text, kb = responses.GetItemVerificationResponse(items[currentIndex], currentIndex, len(items))
 	case FromEditCheckFinal:
-		newState = static.StateShowingAnItem
+		if currentIndex >= len(items) {
+			currentIndex = 0
+		}
+		if currentIndex < 0 {
+			currentIndex = len(items) - 1
+		}
+
+		newState = static.StateShowingAnItemUnsaved
 		text, kb = responses.GetShowItemForEditResponse(items[currentIndex], currentIndex, len(items))
 	default:
 		return fmt.Errorf(
