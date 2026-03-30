@@ -7,6 +7,7 @@ import (
 
 	"github.com/Tesorp1X/chipi-bot/utils"
 	"github.com/Tesorp1X/chipi-bot/utils/reader"
+	"github.com/vitaliy-ukiru/fsm-telebot/v2"
 )
 
 type CallbackAction string
@@ -52,6 +53,45 @@ func GetCallbackActionFromRawData(rawData string) CallbackAction {
 		if a.DataMatches(rawData) {
 			return a
 		}
+	}
+
+	return CallbackActionUnknown
+}
+
+type actionAndStates struct {
+	action CallbackAction
+	states []fsm.State
+}
+
+type actionsToStates []*actionAndStates
+
+func GetCallbackActionBasedOnState(userState fsm.State) CallbackAction {
+	ats := actionsToStates{
+		&actionAndStates{
+			action: CallbackActionEditUnsavedCheck,
+			states: []fsm.State{
+				StateWaitingForCheckConfirmationUnsaved, StateEditingCheckUnsaved,
+				StateWaitForNewCheckNameUnsaved, StateWaitForCheckCreationDateUnsaved,
+				StateWaitForCheckOwnerUnsaved, StateEditingCheckUnsaved,
+			},
+		},
+		&actionAndStates{
+			action: CallbackActionEditUnsavedItem,
+			states: []fsm.State{
+				StateShowingAnItemUnsaved, StateEditingAnItemUnsaved,
+			},
+		},
+	}
+
+	statesToCbActionsMap := make(map[fsm.State]CallbackAction)
+	for _, a := range ats {
+		for _, state := range a.states {
+			statesToCbActionsMap[state] = a.action
+		}
+	}
+
+	if cbAction, ok := statesToCbActionsMap[userState]; ok {
+		return cbAction
 	}
 
 	return CallbackActionUnknown
