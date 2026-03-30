@@ -1,6 +1,7 @@
 package prompts
 
 import (
+	"context"
 	"fmt"
 
 	storageHelpers "github.com/Tesorp1X/chipi-bot/application/StorageHelpers"
@@ -305,6 +306,42 @@ func SendShowEditItemOptions(cameFrom int, c tele.Context, state fsm.Context) er
 	if err := c.EditOrSend(responses.GetShowItemEditOptions(itemToChange, action)); err != nil {
 		return fmt.Errorf(
 			"error in prompts.SendShowEditItemOptions(): failed to send a 'show item edit options' message (%v)",
+			err,
+		)
+	}
+
+	return nil
+}
+
+func SendRetryCheckNameMessage(c tele.Context, state fsm.Context) error {
+	currentState, err := state.State(context.Background())
+	if err != nil {
+		return fmt.Errorf(
+			"error in prompts.SendRetryCheckNameMessage(): failed to retrieve state (%v)",
+			err,
+		)
+	}
+
+	check, err := storageHelpers.GetCheck(c, state)
+	if err != nil {
+		return fmt.Errorf(
+			"error in prompts.SendRetryCheckNameMessage(): failed to retrieve a check (%v)",
+			err,
+		)
+	}
+
+	cbAction := static.GetCallbackActionBasedOnState(currentState)
+	var text string
+	var kb *tele.ReplyMarkup
+	text, kb = responses.GetAskForNewCheckNameResponse(check.Name, cbAction, responses.RETRY)
+	// switch currentState {
+	// case static.StateWaitForCheckName:
+
+	// case static.StateWaitForNewCheckNameUnsaved:
+	// }
+	if err := c.Send(text, kb); err != nil {
+		return fmt.Errorf(
+			"error in prompts.SendRetryCheckNameMessage(): failed to send a 'retry check name' message (%v)",
 			err,
 		)
 	}
