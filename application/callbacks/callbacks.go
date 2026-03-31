@@ -195,28 +195,7 @@ func handleCheckOwnerCallback(c tele.Context, state fsm.Context) error {
 		)
 	}
 
-	// prompt item-verification process
-	items, err := storageHelpers.GetItemsList(c, state)
-	if err != nil {
-		return fmt.Errorf(
-			"error in callbacks.handleKeepCheckOwnerCallback(): couldn't retrieve items (%v)",
-			err,
-		)
-	}
-
 	var currentIndex int
-
-	if err := storageHelpers.SetState(static.StateShowingAnItem, c, state); err != nil {
-		return fmt.Errorf(
-			"error in callbacks.handleKeepCheckOwnerCallback(): couldn't change a state (%v)",
-			err,
-		)
-	}
-
-	responseTxt, kb := responses.GetItemVerificationResponse(
-		items[currentIndex],
-		currentIndex, len(items),
-	)
 
 	if err := storageHelpers.UpdateCurrentItemsIndex(currentIndex, c, state); err != nil {
 		return fmt.Errorf(
@@ -225,11 +204,21 @@ func handleCheckOwnerCallback(c tele.Context, state fsm.Context) error {
 		)
 	}
 
-	if sendErr := c.EditOrSend(responseTxt, kb); sendErr != nil {
-		return fmt.Errorf(
-			"error in callbacks.handleKeepCheckOwnerCallback(): couldn't send a 'item verification'-message (%v)",
-			sendErr,
+	if err := prompts.SendShowItemsMessage(prompts.FromAddCheck, c, state); err != nil {
+		errMsg := "error in callbacks.handleKeepCheckOwnerCallback():\n"
+		errMsg += fmt.Sprintf(
+			"prompt failed (%v)",
+			err,
 		)
+
+		if err := c.Respond(&tele.CallbackResponse{Text: "error!"}); err != nil {
+			errMsg += fmt.Sprintf(
+				"failed to respond to a callback query (%v)",
+				err,
+		)
+		}
+
+		return errors.New(errMsg)
 	}
 
 	if err := c.Respond(&tele.CallbackResponse{}); err != nil {
