@@ -431,7 +431,7 @@ func GetShowItemForEditResponse(item *static.Item, currentIndex, outOf int) (str
 				{
 					BtnTxt: "Изменить ✏️",
 					Unique: static.CallbackActionEditUnsavedItem.String(),
-					Data:   static.CallbackOwnerPau,
+					Data:   static.CallbackSelectorChange,
 				},
 				{
 					BtnTxt: "➡️",
