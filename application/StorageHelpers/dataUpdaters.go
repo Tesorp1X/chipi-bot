@@ -54,3 +54,60 @@ func UpdateItemsList(items []*static.Item, c tele.Context, state fsm.Context) er
 
 	return nil
 }
+
+const (
+	incrementIndex = 1
+	decrementIndex = -1
+)
+
+func changeCurrentItemsListIndex(diff int, c tele.Context, state fsm.Context) error {
+	if diff != incrementIndex && diff != decrementIndex {
+		return fmt.Errorf(
+			"error in storageHelpers.changeCurrentItemsListIndex(): invalid change value (%d)",
+			diff,
+		)
+	}
+
+	currentIndex, err := GetCurrentIndex(c, state)
+	if err != nil {
+		return fmt.Errorf(
+			"error in storageHelpers.changeCurrentItemsListIndex(): failed to retrieve a current items index (%v)",
+			err,
+		)
+	}
+
+	if err := UpdateCurrentItemsIndex(currentIndex+diff, c, state); err != nil {
+		return fmt.Errorf(
+			"error in storageHelpers.changeCurrentItemsListIndex(): failed to update a current items index (%v)",
+			err,
+		)
+	}
+
+	return nil
+}
+
+func IncrementCurrentItemsListIndex(c tele.Context, state fsm.Context) error {
+	if err := changeCurrentItemsListIndex(incrementIndex, c, state); err != nil {
+		sendErr := c.Send("error: couldn't update data in context")
+		return fmt.Errorf(
+			"error in storageHelpers.changeCurrentItemsListIndex(): failed to increment a current items index (%v), sent with an err (%v)",
+			err,
+			sendErr,
+		)
+	}
+
+	return nil
+}
+
+func DecrementCurrentItemsListIndex(c tele.Context, state fsm.Context) error {
+	if err := changeCurrentItemsListIndex(decrementIndex, c, state); err != nil {
+		sendErr := c.Send("error: couldn't update data in context")
+		return fmt.Errorf(
+			"error in storageHelpers.changeCurrentItemsListIndex(): failed to decrement a current items index (%v), sent with an err (%v)",
+			err,
+			sendErr,
+		)
+	}
+
+	return nil
+}
