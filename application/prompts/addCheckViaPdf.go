@@ -288,6 +288,9 @@ func SendShowEditItemOptions(cameFrom int, c tele.Context, state fsm.Context) er
 	case FromEditCheckFinal:
 		action = static.CallbackActionEditUnsavedItem
 		newState = static.StateEditingAnItemUnsaved
+	case FromAddCheck:
+		action = static.CallbackActionEditUnsavedItem
+		newState = static.StateEditingAnItem
 	default:
 		return fmt.Errorf(
 			"error in prompts.SendShowEditItemOptions(): invalid cameFrom value (%d)",
