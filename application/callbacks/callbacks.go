@@ -59,6 +59,13 @@ func HandleAnyCallback(dbs *db.DBService, c tele.Context, state fsm.Context) err
 				err,
 			)
 		}
+	case currentState == static.StateEditingAnItem:
+		if err := handleEditItemInVerificationCallback(c, state); err != nil {
+			return fmt.Errorf(
+				"error in callbacks.HandleAnyCallback(), state 'StateEditingAnItem', action 'CallbackActionEditItem': %v",
+				err,
+			)
+		}
 	case currentState == static.StateWaitForItemOwner &&
 		static.CallbackActionEditItem.DataMatches(callbackData):
 		if err := handleItemOwnerCallback(c, state); err != nil {
