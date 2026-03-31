@@ -46,7 +46,7 @@ func HandleAnyCallback(dbs *db.DBService, c tele.Context, state fsm.Context) err
 		}
 	case currentState == static.StateShowingAnItem &&
 		static.CallbackActionSelector.DataMatches(callbackData):
-		if err := handleShowingAnItemCallback(c, state); err != nil {
+		if err := handleShowingItemInVerificationCallback(c, state); err != nil {
 			return fmt.Errorf(
 				"error in callbacks.HandleAnyCallback(), state 'StateShowingAnItem', action 'CallbackActionSelector': %v",
 				err,
@@ -235,25 +235,26 @@ func handleCheckOwnerCallback(c tele.Context, state fsm.Context) error {
 	return nil
 }
 
-func handleShowingAnItemCallback(c tele.Context, state fsm.Context) error {
+// item in verification stage
+func handleShowingItemInVerificationCallback(c tele.Context, state fsm.Context) error {
 	action := static.CallbackActionSelector.GetData(c.Callback().Data)
 	switch action {
 	case static.CallbackSelectorChange:
-		// add new line of text at the bottom of that msg "Что меняем?"
-		// change inline kb for that msg to a new one
-		// buttons (two in a row): название, цена, кол-во, сумма
-		if sendErr := c.EditOrReply(responses.GetEditItemInVerificationResponse(c.Message().Text)); sendErr != nil {
-			return fmt.Errorf(
-				"error in callbacks.handleShowingAnItemCallback(): couldn't edit a message (%v)",
-				sendErr,
-			)
-		}
-
-		if err := storageHelpers.SetState(static.StateEditingAnItem, c, state); err != nil {
-			return fmt.Errorf(
-				"error in callbacks.handleShowingAnItemCallback(): couldn't change a state (%v).",
+		if err := prompts.SendShowEditItemOptions(prompts.FromAddCheck, c, state); err != nil {
+			errMsg := "error in callbacks.handleShowingAnItemCallback():\n"
+			errMsg += fmt.Sprintf(
+				"prompt failed (%v)",
 				err,
 			)
+
+			if err := c.Respond(&tele.CallbackResponse{Text: "error!"}); err != nil {
+				errMsg += fmt.Sprintf(
+					"failed to respond to a callback query (%v)",
+					err,
+				)
+			}
+
+			return errors.New(errMsg)
 		}
 
 	case static.CallbackSelectorKeep:
@@ -280,6 +281,47 @@ func handleShowingAnItemCallback(c tele.Context, state fsm.Context) error {
 	if err := c.Respond(&tele.CallbackResponse{}); err != nil {
 		return fmt.Errorf(
 			"error in callbacks.handleShowingAnItemCallback(): failed to respond to a callback query (%v)",
+			err,
+		)
+	}
+
+	return nil
+}
+
+func handleEditItemInVerificationCallback(c tele.Context, state fsm.Context) error {
+	whatToChange := utils.ExtractCallbackData(c.Callback().Data)
+	var promptErr error
+	switch whatToChange {
+	case static.CallbackEditItemName:
+		promptErr = prompts.SendNotImplementedMessage(c, state)
+	case static.CallbackEditItemPrice:
+		promptErr = prompts.SendNotImplementedMessage(c, state)
+	case static.CallbackEditItemAmount:
+		promptErr = prompts.SendNotImplementedMessage(c, state)
+	case static.CallbackEditItemOwner:
+		promptErr = prompts.SendNotImplementedMessage(c, state)
+	}
+
+	if promptErr != nil {
+		errMsg := "error in callbacks.handleEditItemInVerificationCallback():\n"
+		errMsg += fmt.Sprintf(
+			"prompt failed (%v)",
+			promptErr,
+		)
+
+		if err := c.Respond(&tele.CallbackResponse{Text: "error!"}); err != nil {
+			errMsg += fmt.Sprintf(
+				"failed to respond to a callback query (%v)",
+				err,
+			)
+		}
+
+		return errors.New(errMsg)
+	}
+
+	if err := c.Respond(&tele.CallbackResponse{}); err != nil {
+		return fmt.Errorf(
+			"error in callbacks.handleEditItemInVerificationCallback(): failed to respond to a callback query (%v)",
 			err,
 		)
 	}
