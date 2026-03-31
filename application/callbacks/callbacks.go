@@ -258,10 +258,7 @@ func handleShowingItemInVerificationCallback(c tele.Context, state fsm.Context) 
 		}
 
 	case static.CallbackSelectorKeep:
-		// ask who's the owner of an item
-		// new message with a question and inline kb
-		// buttons: liz, both, pau
-		if sendErr := c.Send(responses.GetItemOwnershipQuestion()); sendErr != nil {
+		if sendErr := c.EditOrSend(responses.GetItemOwnershipQuestion()); sendErr != nil {
 			return fmt.Errorf(
 				"error in callbacks.handleShowingAnItemCallback(): couldn't send a message (%v)",
 				sendErr,
@@ -274,8 +271,14 @@ func handleShowingItemInVerificationCallback(c tele.Context, state fsm.Context) 
 				err,
 			)
 		}
+
 	default:
-		return c.Respond(&tele.CallbackResponse{Text: "error: unknown action"})
+		if err := c.Respond(&tele.CallbackResponse{Text: "error: unknown action"}); err != nil {
+			return fmt.Errorf(
+				"failed to respond to a callback query (%v)",
+				err,
+			)
+		}
 	}
 
 	if err := c.Respond(&tele.CallbackResponse{}); err != nil {
