@@ -215,7 +215,7 @@ func handleCheckOwnerCallback(c tele.Context, state fsm.Context) error {
 			errMsg += fmt.Sprintf(
 				"failed to respond to a callback query (%v)",
 				err,
-		)
+			)
 		}
 
 		return errors.New(errMsg)
@@ -579,12 +579,12 @@ func handleEditFinalizedCheck(c tele.Context, state fsm.Context) error {
 			)
 		}
 
-		if err := c.Send("error: " + errMsg); err != nil {
-			errMsg += fmt.Sprintf(
-				"sent with error (%v)\n",
-				err,
-			)
-		}
+		// if err := c.Send("error: " + errMsg); err != nil {
+		// 	errMsg += fmt.Sprintf(
+		// 		"sent with error (%v)\n",
+		// 		err,
+		// 	)
+		// }
 
 		// todo: better error message
 		if err := c.Respond(&tele.CallbackResponse{Text: "error!"}); err != nil {
@@ -682,23 +682,41 @@ func handleGoBackButtonCallback(c tele.Context, state fsm.Context) error {
 }
 
 func handleItemsScrollCallback(c tele.Context, state fsm.Context) error {
-
-	promptError := "error in callbacks.handleItemsScrollCallback():\n"
-
-	currentIndex, err := storageHelpers.GetCurrentIndex(c, state)
+	currentState, err := state.State(context.Background())
 	if err != nil {
 		return fmt.Errorf(
-			"error in callbacks.handleItemsScrollCallback(): failed to retrieve currentIndex (%v)",
+			"error in callbacks.handleItemsScrollCallback(): failed to retrieve current state (%v)",
 			err,
 		)
 	}
 
+	var cameFrom int
+	switch currentState {
+	case static.StateShowingAnItemUnsaved:
+		cameFrom = prompts.FromEditCheckFinal
+	}
+
 	buttonPressed := utils.ExtractCallbackData(c.Callback().Data)
+	var promptErr error
 	switch buttonPressed {
-	case static.CallbackMenuGoBackward:
-		currentIndex--
-	case static.CallbackMenuGoForward:
-		currentIndex++
+	case static.CallbackMenuGoBackward, static.CallbackMenuGoForward:
+		storageFunc := storageHelpers.IncrementCurrentItemsListIndex
+		if buttonPressed == static.CallbackMenuGoBackward {
+			storageFunc = storageHelpers.DecrementCurrentItemsListIndex
+		}
+
+		if err := storageFunc(c, state); err != nil {
+			return fmt.Errorf(
+				"error in callbacks.handleItemsScrollCallback(): failed to change current items index (%v)",
+				err,
+			)
+		}
+
+		promptErr = prompts.SendShowItemsMessage(cameFrom, c, state)
+
+	case static.CallbackSelectorChange:
+		promptErr = prompts.SendShowEditItemOptions(cameFrom, c, state)
+
 	default:
 		respErr := c.Respond(&tele.CallbackResponse{Text: "error: unknown action"})
 		return fmt.Errorf(
@@ -708,30 +726,28 @@ func handleItemsScrollCallback(c tele.Context, state fsm.Context) error {
 		)
 	}
 
-	if err := storageHelpers.UpdateCurrentItemsIndex(currentIndex, c, state); err != nil {
-		return fmt.Errorf(
-			"error in callbacks.handleItemsScrollCallback(): failed to update current index (%v)",
-			err,
+	if promptErr != nil {
+		errMsg := fmt.Sprintf(
+			"error in callbacks.handleItemsScrollCallback(): prompt failed (%v)\n",
+			promptErr,
 		)
-	}
-
-	cbAction := static.GetCallbackActionFromRawData(c.Callback().Data)
-	switch cbAction {
-	case static.CallbackActionEditUnsavedItem:
-		if err := prompts.SendShowItemsMessage(prompts.FromEditCheck, c, state); err != nil {
-			promptError += fmt.Sprintf(
-				"prompt failed (%v)\n",
+		if err := c.Respond(&tele.CallbackResponse{Text: "error!"}); err != nil {
+			errMsg += fmt.Sprintf(
+				"failed to respond (%v)",
 				err,
 			)
 		}
 
+		return errors.New(errMsg)
 	}
 
-	if err := c.Respond(&tele.CallbackResponse{}); err != nil {
-		return fmt.Errorf(
-			"error in callbacks.handleItemsScrollCallback(): failed to respond to a callback query (%v)",
-			err,
-		)
+	if !utils.IsCbQueryResponded(c) {
+		if err := c.Respond(&tele.CallbackResponse{}); err != nil {
+			return fmt.Errorf(
+				"error in callbacks.handleItemsScrollCallback(): failed to respond to a callback query (%v)",
+				err,
+			)
+		}
 	}
 
 	return nil
@@ -742,7 +758,6 @@ func handleEditUnsavedItemCallback(c tele.Context, state fsm.Context) error {
 
 	var promptErr error
 	var action string
-	// var storageError error
 
 	switch whatToChange {
 	case static.CallbackEditItemName:

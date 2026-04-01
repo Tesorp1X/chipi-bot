@@ -6,6 +6,7 @@ import (
 
 	storageHelpers "github.com/Tesorp1X/chipi-bot/application/StorageHelpers"
 	"github.com/Tesorp1X/chipi-bot/static"
+	"github.com/Tesorp1X/chipi-bot/utils"
 	"github.com/Tesorp1X/chipi-bot/utils/responses"
 	"github.com/vitaliy-ukiru/fsm-telebot/v2"
 	tele "gopkg.in/telebot.v4"
@@ -229,11 +230,33 @@ func SendShowItemsMessage(cameFrom int, c tele.Context, state fsm.Context) error
 		newState = static.StateShowingAnItem
 		text, kb = responses.GetItemVerificationResponse(items[currentIndex], currentIndex, len(items))
 	case FromEditCheckFinal:
-		if currentIndex >= len(items) {
+		var respondMsg string
+		switch {
+		case currentIndex >= len(items):
 			currentIndex = 0
-		}
-		if currentIndex < 0 {
+			respondMsg = "Это был последний товар"
+		case currentIndex < 0:
 			currentIndex = len(items) - 1
+			respondMsg = "Это был первый товар"
+		case len(items) == 1:
+			respondMsg = "Это единственный товар!"
+		}
+
+		if err := storageHelpers.UpdateCurrentItemsIndex(currentIndex, c, state); err != nil {
+			respondMsg = "error: failed to update currentIndex"
+		}
+
+		if err := utils.MarkCbQueryAsResponded(c); err != nil {
+			return fmt.Errorf(
+				"error in in prompts.SendShowItemsMessage(): failed to respond to a callback query (%v)",
+				err,
+			)
+		}
+		if err := c.Respond(&tele.CallbackResponse{Text: respondMsg}); err != nil {
+			return fmt.Errorf(
+				"error in in prompts.SendShowItemsMessage(): failed to respond to a callback query (%v)",
+				err,
+			)
 		}
 
 		newState = static.StateShowingAnItemUnsaved
