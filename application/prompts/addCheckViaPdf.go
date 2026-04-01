@@ -362,17 +362,35 @@ func SendRetryCheckNameMessage(c tele.Context, state fsm.Context) error {
 	}
 
 	cbAction := static.GetCallbackActionBasedOnState(currentState)
-	var text string
-	var kb *tele.ReplyMarkup
-	text, kb = responses.GetAskForNewCheckNameResponse(check.Name, cbAction, responses.RETRY)
-	// switch currentState {
-	// case static.StateWaitForCheckName:
 
-	// case static.StateWaitForNewCheckNameUnsaved:
-	// }
-	if err := c.Send(text, kb); err != nil {
+	if err := c.Send(
+		responses.GetAskForNewCheckNameResponse(check.Name, cbAction, responses.RETRY),
+	); err != nil {
 		return fmt.Errorf(
 			"error in prompts.SendRetryCheckNameMessage(): failed to send a 'retry check name' message (%v)",
+			err,
+		)
+	}
+
+	return nil
+}
+
+func SendRetryCheckCreationDateMessage(c tele.Context, state fsm.Context) error {
+	currentState, err := state.State(context.Background())
+	if err != nil {
+		return fmt.Errorf(
+			"error in prompts.SendRetryCheckCreationDateMessage(): failed to retrieve state (%v)",
+			err,
+		)
+	}
+
+	cbAction := static.GetCallbackActionBasedOnState(currentState)
+
+	if err := c.Send(
+		responses.GetAskForNewCheckCreationDateQuestion(cbAction, responses.RETRY),
+	); err != nil {
+		return fmt.Errorf(
+			"error in prompts.SendRetryCheckCreationDateMessage(): failed to send a 'retry check creation date' message (%v)",
 			err,
 		)
 	}
