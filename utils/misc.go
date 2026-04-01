@@ -1,9 +1,12 @@
 package utils
 
 import (
+	"errors"
 	"fmt"
 	"strconv"
 	"strings"
+
+	tele "gopkg.in/telebot.v4"
 )
 
 func ExtractAdminsIDs(adminsStr string) ([]int64, error) {
@@ -53,6 +56,27 @@ func VerifyName(messageText string) bool {
 		strings.ToLower(messageText),
 		EnglishAlphabet+RussianAlphabet,
 	)
-
+	// todo: perhaps add return error to specify a problem with a string
 	return fact
+}
+
+const isResponded = "is_callback_query_responded"
+
+func IsCbQueryResponded(c tele.Context) bool {
+	// false or absence of value in ctx storage means not responded
+	if val := c.Get(isResponded); val != nil && val == true {
+		return true
+	}
+
+	return false
+}
+
+func MarkCbQueryAsResponded(c tele.Context) error {
+	if IsCbQueryResponded(c) {
+		return errors.New("error in utils.MarkCbQueryAsResponded(): a callback query is already responded")
+	}
+
+	c.Set(isResponded, true)
+
+	return nil
 }
