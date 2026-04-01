@@ -116,7 +116,7 @@ func handleCheckName(c tele.Context, state fsm.Context) error {
 }
 
 func handleEditCheckCreationDate(c tele.Context, state fsm.Context) error {
-	gotDateStr := c.Message().Text + ":00"
+	gotDateStr := c.Message().Text + ":00" // adding milliseconds
 	newDate, errTime := time.Parse(time.DateTime, gotDateStr)
 	if errTime != nil {
 		errMsg := fmt.Sprintf(
@@ -124,10 +124,12 @@ func handleEditCheckCreationDate(c tele.Context, state fsm.Context) error {
 			gotDateStr,
 			errTime,
 		)
-		// todo: specify error maybe
-		sendErr := c.Send("error: wrong date-time format: " + errTime.Error())
-		if sendErr != nil {
-			errMsg += fmt.Sprintf("couldn't send a message (%v)\n", sendErr)
+
+		if err := prompts.SendRetryCheckCreationDateMessage(c, state); err != nil {
+			errMsg += fmt.Sprintf(
+				"prompt failed (%v)\n",
+				err,
+			)
 		}
 
 		return errors.New(errMsg)
