@@ -395,15 +395,21 @@ func GetAskForCheckOwnershipQuestion(action static.CallbackAction) (string, *tel
 	return text, createCustomRowsInlineKb(rows...)
 }
 
-func GetAskForNewCheckCreationDateQuestion() (string, *tele.ReplyMarkup) {
-	text := "<b><u>Изменение даты и времени</u></b>\n\n"
+func GetAskForNewCheckCreationDateQuestion(action static.CallbackAction, isRetry bool) (string, *tele.ReplyMarkup) {
+	var text string
+	if isRetry {
+		text += "<b><u>Ошибка</u></b>\n" +
+			"<i>Неправильный формат даты!</i> Попробуй еще раз.\n\n"
+	}
+
+	text += "<b><u>Изменение даты и времени</u></b>\n\n"
 	text += "Укажите новую дату и время в формате: <i>ГГГГ-ММ-ДД ЧЧ:ММ</i>"
 
 	kb := createSelectorInlineKb(
 		1,
 		Button{
 			BtnTxt: "Назад ⬅️",
-			Unique: static.CallbackActionEditUnsavedCheck.String(),
+			Unique: action.String(),
 			Data:   static.CallbackMenuGoBack,
 		},
 	)

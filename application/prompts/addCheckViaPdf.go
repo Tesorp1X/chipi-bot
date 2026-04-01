@@ -182,7 +182,9 @@ func SendChangeCheckNameMessage(cameFrom int, c tele.Context, state fsm.Context)
 
 // Sends a 'check creation date question' message.
 func SendChangeCreationDateMessage(c tele.Context, state fsm.Context) error {
-	if err := storageHelpers.SetState(static.StateWaitForCheckCreationDateUnsaved, c, state); err != nil {
+	if err := storageHelpers.SetState(
+		static.StateWaitForCheckCreationDateUnsaved, c, state,
+	); err != nil {
 		return fmt.Errorf(
 			"error in prompts.SendNewCheckNameQuestionMessage(): failed change state to a '%s' (%v)",
 			static.StateWaitForCheckCreationDateUnsaved,
@@ -190,7 +192,10 @@ func SendChangeCreationDateMessage(c tele.Context, state fsm.Context) error {
 		)
 	}
 
-	if err := c.EditOrSend(responses.GetAskForNewCheckCreationDateQuestion()); err != nil {
+	if err := c.EditOrSend(
+		responses.GetAskForNewCheckCreationDateQuestion(
+			static.CallbackActionEditUnsavedCheck, responses.NOT_A_RETRY,
+		)); err != nil {
 		return fmt.Errorf(
 			"error in prompts.SendNewCheckNameQuestionMessage(): failed to send an edit-check message (%v)",
 			err,
