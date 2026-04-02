@@ -496,7 +496,7 @@ func GetShowItemEditOptions(item *static.Item, action static.CallbackAction) (st
 	return text, kb
 }
 
-func GetAskForNewItemNameQuestion(oldItemName string, action static.CallbackAction, isRetry bool) (string, *tele.ReplyMarkup) {
+func GetAskForNewItemNameResponse(oldItemName string, action static.CallbackAction, isRetry bool) (string, *tele.ReplyMarkup) {
 	var text string
 
 	if isRetry {
