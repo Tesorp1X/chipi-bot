@@ -38,7 +38,8 @@ func HandleAnyText(conf *config.Config, c tele.Context, state fsm.Context) error
 	if err != nil {
 		return fmt.Errorf(
 			"error in handlers.HandleAnyCallback(): couldn't receive users(%d) current state: %v",
-			c.Sender().ID, err,
+			c.Sender().ID,
+			err,
 		)
 	}
 
@@ -53,7 +54,19 @@ func HandleAnyText(conf *config.Config, c tele.Context, state fsm.Context) error
 		}
 	case static.StateWaitForCheckCreationDateUnsaved:
 		if err := handleEditCheckCreationDate(c, state); err != nil {
-			return fmt.Errorf("error in handlers.HandleAnyText(), state 'StateWaitForCheckCreationDate': %v", err)
+			return fmt.Errorf(
+				"error in handlers.HandleAnyText(), state '%s': %v",
+				currentState,
+				err,
+			)
+		}
+	case static.StateWaitForNewItemNameUnsaved, static.StateWaitForItemName:
+		if err := handleItemName(c, state); err != nil {
+			return fmt.Errorf(
+				"error in handlers.HandleAnyText(), state '%s': %v",
+				currentState,
+				err,
+			)
 		}
 	}
 
@@ -155,6 +168,61 @@ func handleEditCheckCreationDate(c tele.Context, state fsm.Context) error {
 	if err := prompts.SendEditUnsavedCheckMessage(c, state); err != nil {
 		return fmt.Errorf(
 			"error in handlers.handleEditCheckCreationDate(): failed to send a check-edit message (%v)",
+			err,
+		)
+	}
+
+	return nil
+}
+
+func handleItemName(c tele.Context, state fsm.Context) error {
+	if !utils.VerifyName(c.Message().Text) {
+		// retry prompt
+		if err := prompts.SendRetryChangeItemName(c, state); err != nil {
+			return fmt.Errorf(
+				"error in handlers.handleItemName(): prompt failed (%v)",
+				err,
+			)
+		}
+
+		return nil
+	}
+
+	// name is okay
+	err := storageHelpers.SetNewItemNameFromMessage(c, state)
+	if err != nil {
+		return fmt.Errorf(
+			"error in handlers.handleItemName(): couldn't set new item's name (%v)",
+			err,
+		)
+	}
+
+	currentState, err := state.State(context.Background())
+	if err != nil {
+		return fmt.Errorf(
+			"error in handlers.handleItemName(): failed to retrieve state (%v)",
+			err,
+		)
+	}
+	// send ok message
+	var promptErr error
+	switch currentState {
+	case static.StateWaitForItemName:
+		//come back to item edit menu
+		promptErr = prompts.SendShowEditItemOptions(prompts.FromAddCheck, c, state)
+	case static.StateWaitForNewItemNameUnsaved:
+		// come back to item edit menu
+		promptErr = prompts.SendShowEditItemOptions(prompts.FromEditCheckFinal, c, state)
+	default:
+		return fmt.Errorf(
+			"error in handlers.handleItemName(): invalid state for item name change (%s)",
+			currentState,
+		)
+	}
+
+	if promptErr != nil {
+		return fmt.Errorf(
+			"error in handlers.handleItemName(): prompt failed (%v)",
 			err,
 		)
 	}
