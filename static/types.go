@@ -70,7 +70,7 @@ func GetCallbackActionBasedOnState(userState fsm.State) CallbackAction {
 		&actionAndStates{
 			action: CallbackActionEditUnsavedCheck,
 			states: []fsm.State{
-				StateWaitingForCheckConfirmationUnsaved, StateEditingCheckUnsaved,
+				StateWaitForCheckConfirmationUnsaved, StateEditingCheckUnsaved,
 				StateWaitForNewCheckNameUnsaved, StateWaitForCheckCreationDateUnsaved,
 				StateWaitForCheckOwnerUnsaved, StateEditingCheckUnsaved,
 			},
@@ -79,6 +79,7 @@ func GetCallbackActionBasedOnState(userState fsm.State) CallbackAction {
 			action: CallbackActionEditUnsavedItem,
 			states: []fsm.State{
 				StateShowingAnItemUnsaved, StateEditingAnItemUnsaved,
+				StateWaitForNewItemNameUnsaved,
 			},
 		},
 	}
