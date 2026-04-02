@@ -21,8 +21,8 @@ const (
 	StateWaitForCheckCreationDateUnsaved fsm.State = "wait_for_creation_date_unsaved"
 	StateWaitForCheckCreationDate        fsm.State = "wait_for_creation_date"
 
-	StateWaitingForCheckConfirmationUnsaved fsm.State = "waiting_for_check_confirmation_unsaved"
-	StateWaitingForCheckConfirmation        fsm.State = "waiting_for_check_confirmation"
+	StateWaitForCheckConfirmationUnsaved fsm.State = "wait_for_check_confirmation_unsaved"
+	StateWaitForCheckConfirmation        fsm.State = "wait_for_check_confirmation"
 
 	StateWaitForItemName  fsm.State = "wait_for_item_name"
 	StateWaitForItemPrice fsm.State = "wait_for_item_price"
@@ -40,6 +40,8 @@ const (
 
 	StateEditingAnItem        fsm.State = "editing_item"
 	StateEditingAnItemUnsaved fsm.State = "editing_item_unsaved"
+
+	StateWaitForNewItemNameUnsaved fsm.State = "wait_for_new_item_name_unsaved"
 )
 
 const (

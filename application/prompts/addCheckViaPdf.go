@@ -30,10 +30,10 @@ func SendCheckVerificationMessage(c tele.Context, state fsm.Context) error {
 		)
 	}
 
-	if err := storageHelpers.SetState(static.StateWaitingForCheckConfirmationUnsaved, c, state); err != nil {
+	if err := storageHelpers.SetState(static.StateWaitForCheckConfirmationUnsaved, c, state); err != nil {
 		return fmt.Errorf(
 			"error in prompts.SendCheckVerificationMessage(): failed to change a state to a '%s' (%v)",
-			static.StateWaitingForCheckConfirmationUnsaved,
+			static.StateWaitForCheckConfirmationUnsaved,
 			err,
 		)
 	}
