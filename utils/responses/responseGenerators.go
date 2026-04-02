@@ -495,3 +495,32 @@ func GetShowItemEditOptions(item *static.Item, action static.CallbackAction) (st
 
 	return text, kb
 }
+
+func GetAskForNewItemNameQuestion(oldItemName string, action static.CallbackAction, isRetry bool) (string, *tele.ReplyMarkup) {
+	var text string
+
+	if isRetry {
+		text += "<b><u>Ошибка</u></b>\n" +
+			"<i>Название не может быть пустым, должно содержать буквы и не превышать 1000 символов.</i>\n" +
+			"Попробуй еще раз.\n\n"
+	}
+
+	text += "<b><u>Изменение названия товара</u></b>\n\n"
+	text += fmt.Sprintf(
+		"<b><u>Текущее название этого товара:</u> %s</b>\n\n",
+		oldItemName,
+	)
+
+	text += "Напиши новое название. Если передумал менять название, просто нажми на кнопку <u>\"Назад ⬅️\"</u>"
+
+	kb := createSelectorInlineKb(
+		1,
+		Button{
+			BtnTxt: "Вернуться ⬅️",
+			Unique: action.String(),
+			Data:   static.CallbackMenuGoBack,
+		},
+	)
+
+	return text, kb
+}
