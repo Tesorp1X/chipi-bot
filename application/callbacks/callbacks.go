@@ -658,6 +658,22 @@ func handleGoBackButtonCallback(c tele.Context, state fsm.Context) error {
 				err,
 			)
 		}
+	case static.StateWaitForItemName:
+		// go back to show item's edit options (unverified)
+		if err := prompts.SendShowEditItemOptions(prompts.FromAddCheck, c, state); err != nil {
+			errMsg += fmt.Sprintf(
+				"failed to send a 'show items edit options' message (%v)\n",
+				err,
+			)
+		}
+	case static.StateWaitForNewItemNameUnsaved:
+		// go back to show item's edit options (unsaved)
+		if err := prompts.SendShowEditItemOptions(prompts.FromAddCheck, c, state); err != nil {
+			errMsg += fmt.Sprintf(
+				"failed to send a 'show items edit options' message (%v)\n",
+				err,
+			)
+		}
 	default:
 		respErr := c.Respond(&tele.CallbackResponse{Text: "error: couldn't take you back"})
 		return fmt.Errorf(
