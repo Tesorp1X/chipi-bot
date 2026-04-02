@@ -128,3 +128,26 @@ func DeleteKeyFromStorage(key string, c tele.Context, state fsm.Context) error {
 
 	return nil
 }
+
+func SetNewItemNameFromMessage(c tele.Context, state fsm.Context) error {
+	items, err := GetItemsList(c, state)
+	if err != nil {
+		return fmt.Errorf(
+			"error in storageHelpers.SetNewItemNameFromMessage(): failed to retrieve an items list (%v)",
+			err,
+		)
+	}
+
+	currentIndex, err := GetCurrentIndex(c, state)
+	if err != nil {
+		return fmt.Errorf(
+			"error in storageHelpers.SetNewItemNameFromMessage(): failed to retrieve a current items list index (%v)",
+			err,
+		)
+	}
+
+	newName := c.Message().Text
+	items[currentIndex].Name = newName
+
+	return nil
+}
