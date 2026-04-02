@@ -397,3 +397,111 @@ func SendRetryCheckCreationDateMessage(c tele.Context, state fsm.Context) error 
 
 	return nil
 }
+
+func SendChangeItemNameMessage(cameFrom int, c tele.Context, state fsm.Context) error {
+	items, err := storageHelpers.GetItemsList(c, state)
+	if err != nil {
+		return fmt.Errorf(
+			"error in prompts.SendChangeItemNameMessage(): failed to retrieve an items list (%v)",
+			err,
+		)
+	}
+
+	currentIndex, err := storageHelpers.GetCurrentIndex(c, state)
+	if err != nil {
+		return fmt.Errorf(
+			"error in prompts.SendChangeItemNameMessage(): failed to retrieve a current items list index (%v)",
+			err,
+		)
+	}
+
+	var newState fsm.State
+	var text string
+	var kb *tele.ReplyMarkup
+
+	switch cameFrom {
+	case FromAddCheck:
+		newState = static.StateWaitForItemName
+		cbAction := static.GetCallbackActionFromRawData(c.Callback().Data)
+		text, kb = responses.GetAskForNewItemNameResponse(items[currentIndex].Name, cbAction, responses.NOT_A_RETRY)
+	case FromEditCheckFinal:
+		newState = static.StateWaitForNewItemNameUnsaved
+		cbAction := static.GetCallbackActionFromRawData(c.Callback().Data)
+		text, kb = responses.GetAskForNewItemNameResponse(items[currentIndex].Name, cbAction, responses.NOT_A_RETRY)
+	default:
+		return fmt.Errorf(
+			"error in prompts.SendChangeItemNameMessage(): invalid cameFrom value (%d)",
+			cameFrom,
+		)
+	}
+
+	if err := storageHelpers.SetState(newState, c, state); err != nil {
+		return fmt.Errorf(
+			"error in prompts.SendChangeItemNameMessage(): failed change state to a '%s' (%v)",
+			newState,
+			err,
+		)
+	}
+
+	if err := c.EditOrSend(text, kb); err != nil {
+		return fmt.Errorf(
+			"error in prompts.SendChangeItemNameMessage(): failed to send an 'change item's name' message (%v)",
+			err,
+		)
+	}
+
+	return nil
+}
+
+func SendRetryChangeItemName(c tele.Context, state fsm.Context) error {
+	currentState, err := state.State(context.Background())
+	if err != nil {
+		return fmt.Errorf(
+			"error in prompts.SendRetryChangeItemName(): failed to retrieve state (%v)",
+			err,
+		)
+	}
+
+	items, err := storageHelpers.GetItemsList(c, state)
+	if err != nil {
+		return fmt.Errorf(
+			"error in prompts.SendRetryChangeItemName(): failed to retrieve an items list (%v)",
+			err,
+		)
+	}
+
+	currentIndex, err := storageHelpers.GetCurrentIndex(c, state)
+	if err != nil {
+		return fmt.Errorf(
+			"error in prompts.SendRetryChangeItemName(): failed to retrieve a current items list index (%v)",
+			err,
+		)
+	}
+
+	cbAction := static.GetCallbackActionBasedOnState(currentState)
+
+	if err := c.Send(
+		responses.GetAskForNewItemNameResponse(
+			items[currentIndex].Name, cbAction, responses.RETRY,
+		),
+	); err != nil {
+		return fmt.Errorf(
+			"error in prompts.SendRetryChangeItemName(): failed to send a 'retry item name' message (%v)",
+			err,
+		)
+	}
+
+	return nil
+}
+
+// func SendSuccessfulNameChangeResponse(c tele.Context, state fsm.Context) error {
+// 	currentState, err := state.State(context.Background())
+// 	if err != nil {
+// 		return fmt.Errorf(
+// 			"error in prompts.SendRetryCheckCreationDateMessage(): failed to retrieve state (%v)",
+// 			err,
+// 		)
+// 	}
+
+// 	return nil
+// }
