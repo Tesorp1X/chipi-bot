@@ -292,7 +292,7 @@ func handleEditItemInVerificationCallback(c tele.Context, state fsm.Context) err
 	var promptErr error
 	switch whatToChange {
 	case static.CallbackEditItemName:
-		promptErr = prompts.SendNotImplementedMessage(c, state)
+		promptErr = prompts.SendChangeItemNameMessage(prompts.FromAddCheck, c, state)
 	case static.CallbackEditItemPrice:
 		promptErr = prompts.SendNotImplementedMessage(c, state)
 	case static.CallbackEditItemAmount:
@@ -761,7 +761,7 @@ func handleEditUnsavedItemCallback(c tele.Context, state fsm.Context) error {
 
 	switch whatToChange {
 	case static.CallbackEditItemName:
-		promptErr = prompts.SendNotImplementedMessage(c, state)
+		promptErr = prompts.SendChangeItemNameMessage(prompts.FromEditCheckFinal, c, state)
 		action = static.CallbackEditItemName
 	case static.CallbackEditItemPrice:
 		promptErr = prompts.SendNotImplementedMessage(c, state)
